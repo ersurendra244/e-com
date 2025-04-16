@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
-    // for test
+    // for test only dsdsdd
     public function index()
     {
         $data['title'] = 'Categories';
