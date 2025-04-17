@@ -5,7 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\MasterController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -89,4 +91,17 @@ Route::prefix('categories')->group(function () {
     Route::get('edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
     Route::post('update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::post('delete', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+});
+// settings
+Route::prefix('settings')->group(function () {
+    Route::get('site-settings', [SettingController::class, 'index'])->name('admin.settings');
+    Route::post('update/{id}', [SettingController::class, 'update'])->name('admin.settings.update');
+});
+
+// masters
+Route::prefix('masters')->group(function () {
+    Route::get('menu', [MasterController::class, 'menu'])->name('admin.masters.menu');
+    Route::post('menu-edit', [MasterController::class, 'menu_edit'])->name('admin.masters.menu_edit');
+    Route::post('menu-save', [MasterController::class, 'menu_save'])->name('admin.masters.menu_save');
+    Route::post('menu-delete', [MasterController::class, 'menu_delete'])->name('admin.masters.menu_delete');
 });
