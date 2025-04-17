@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Master;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
@@ -80,5 +81,13 @@ use Illuminate\Support\Facades\Auth;
         {
             $user = User::find($id);
             return $user->name;
+        }
+    }
+
+    if (!function_exists('getMasterName')) {
+        function getMasterName($id)
+        {
+            $value = Master::where('id', $id)->first();
+            return $value->name??'';
         }
     }

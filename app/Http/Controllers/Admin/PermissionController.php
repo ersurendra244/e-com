@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Master;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,12 +23,13 @@ class PermissionController extends Controller
     {
         $data['title'] = 'Add Permission';
         $data['subtitle'] = 'Permissions';
+        $data['menus'] = Master::where('type', 'menu')->get();
         return view('admin.permissions.create', $data);
     }
 
     public function list(Request $request)
     {
-        $columns = ['id', 'name', 'created_at', 'id'];
+        $columns = ['id', 'name', 'menu', 'created_at', 'id'];
 
         $totalData = Permission::count();
         $totalFiltered = $totalData;
@@ -50,6 +52,7 @@ class PermissionController extends Controller
         foreach ($model as $key => $value) {
             $nestedData['id'] = ++$key;
             $nestedData['name'] = $value->name;
+            $nestedData['menu'] = getMasterName($value->menu_id);
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
             $actions = "";
             if (Gate::allows('permission edit')) {
@@ -78,6 +81,7 @@ class PermissionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:permissions,name',
+            'menu' => 'required',
 
         ]);
         if ($validator->fails()) {
@@ -87,6 +91,7 @@ class PermissionController extends Controller
         $model = new Permission();
         $msg = 'Permission saved successfully';
         $model->name = $request->name;
+        $model->menu_id = $request->menu;
         $model->save();
         return redirect()->route('admin.permissions')->with('success', $msg);
     }
@@ -96,6 +101,7 @@ class PermissionController extends Controller
         $data['title'] = 'Edit Permission';
         $data['subtitle'] = 'Permissions';
         $data['permission'] = Permission::find($id);
+        $data['menus'] = Master::where('type', 'menu')->get();
         return view('admin.permissions.edit', $data);
     }
 
@@ -103,7 +109,7 @@ class PermissionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:permissions,name,' . $id,
-
+            'menu' => 'required',
         ]);
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
@@ -112,6 +118,7 @@ class PermissionController extends Controller
         $model = Permission::find($id);
         $msg = 'Permission updated successfully';
         $model->name = $request->name;
+        $model->menu_id = $request->menu;
         $model->save();
         return redirect()->route('admin.permissions')->with('success', $msg);
     }

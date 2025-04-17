@@ -16,6 +16,7 @@
                                 <tr>
                                     <th style="width: 10px">#</th>
                                     <th>Name</th>
+                                    <th>Menu</th>
                                     <th>Created At</th>
                                     <th>Action</th>
                                 </tr>
@@ -54,6 +55,7 @@
                 "columns": [
                     {"data": "id"},
                     {"data": "name"},
+                    {"data": "menu"},
                     {"data": "created_at"},
                     {"data": "action", "orderable": false, "searchable": false}
                 ]
