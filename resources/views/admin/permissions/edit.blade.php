@@ -27,6 +27,7 @@
                                     <label class="form-label" for="menu">Menu Name</label>
                                     <select name="menu" class="form-control" id="menu">
                                         <option value="">--select--</option>
+                                        <option value="0">None</option>
                                         @foreach ($menus as $key => $value)
                                             <option {{ $permission->menu_id == $value->id ? 'selected' : '' }} value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach

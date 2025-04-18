@@ -27,38 +27,86 @@
                                 </div>
                             </div>
                         </div>
+                        <h4 class="card-title">Permissions</h4>
 
                         <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <strong><label class="form-label mb-3" for="name">Permissions</label></strong>
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" name="all_permissions"
-                                                id="all_permissions" value="">
-                                            Check All<i class="input-helper"></i>
-                                        </label>
-                                    </div>
-                                </div>
-                                @foreach ($permissions as $group => $perms)
-                                    <div class="row">
-                                        @foreach ($perms as $permission)
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-                                                            <input type="checkbox"
-                                                                class="form-check-input permission-checkbox"
-                                                                name="permissions[]" value="{{ $permission->name }}"
-                                                                {{ isset($data->permissions) && $data->permissions->contains('name', $permission->name) ? 'checked' : '' }}>
-                                                            {{ $permission->name }}<i class="input-helper"></i>
-                                                        </label>
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table id="data_table" class="table table-bordered w-100">
+                                        <thead>
+                                            <tr>
+                                                <th> # </th>
+                                                <th style="width: 20%">
+                                                    <div class="form-group mb-0">
+                                                        <div class="form-check">
+                                                            <label class="form-check-label py-1 mb-0"
+                                                                style="line-height: 1;">
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    name="all_permissions" id="all_permissions"
+                                                                    value="">All Menu<i class="input-helper"></i>
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endforeach
+                                                </th>
+                                                <th>Permissions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $i = 1; @endphp
+                                            @foreach ($permissions as $key => $perms)
+                                                @if (count($perms) && ($perms[0]->menu->id ?? 0) == 0)
+                                                    @continue
+                                                @endif
+
+                                                <tr>
+                                                    <td>{{ $i++ }}</td>
+                                                    <td>
+                                                        @if (count($perms))
+                                                            <div class="form-group mb-0">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label py-1 mb-0" style="line-height: 1;">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            name="menu_permissions"
+                                                                            value="{{ $perms[0]->menu->id ?? '' }}">
+                                                                        {{ $perms[0]->menu->name ?? 'No Menu' }}
+                                                                        <i class="input-helper"></i>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="d-flex flex-wrap gap-2">
+                                                        @foreach ($perms as $permission)
+                                                            @php
+                                                                $checked = isset($data->permissions) &&
+                                                                    $data->permissions->contains('name', $permission->name) ? 'checked' : '';
+                                                                $color = isset($data->permissions) &&
+                                                                    $data->permissions->contains('name', $permission->name) ? 'info' : 'outline-dark';
+                                                            @endphp
+                                                            <div class="btn btn-sm btn-{{ $color }} mb-0 mr-2">
+                                                                <div class="form-group mb-0">
+                                                                    <div class="form-check">
+                                                                        <label class="form-check-label mb-0" style="line-height: 1;">
+                                                                            <input type="checkbox"
+                                                                                class="form-check-input permission-checkbox"
+                                                                                name="permissions[]"
+                                                                                data-menu-id="{{ $permission->menu_id }}"
+                                                                                value="{{ $permission->name }}"
+                                                                                {{ $checked }}>
+                                                                            {{ $permission->name }}
+                                                                            <i class="input-helper"></i>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -70,31 +118,84 @@
 
 @push('child_scripts')
     <script>
-        // Function to update the "Check All" checkbox based on individual checkbox states.
-        function updateCheckAll() {
-            var allChecked = true;
-            document.querySelectorAll('.permission-checkbox').forEach(function(chk) {
-                if (!chk.checked) {
-                    allChecked = false;
+        $(document).ready(function() {
+            $('#data_table').DataTable();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const allPermissionsCheckbox = document.getElementById('all_permissions');
+            const menuCheckboxes = document.querySelectorAll('input[name="menu_permissions"]');
+            const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+
+            // Handle global "Check All Menus" checkbox
+            allPermissionsCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                menuCheckboxes.forEach(menuCheckbox => {
+                    menuCheckbox.checked = isChecked;
+                    toggleMenuPermissions(menuCheckbox.value, isChecked);
+                });
+                updatePermissionStyles();
+            });
+
+            // Handle each menu-level checkbox
+            menuCheckboxes.forEach(menuCheckbox => {
+                menuCheckbox.addEventListener('change', function() {
+                    toggleMenuPermissions(this.value, this.checked);
+                    updateGlobalCheckbox();
+                    updatePermissionStyles();
+                });
+            });
+
+            // Handle individual permission checkboxes
+            permissionCheckboxes.forEach(permissionCheckbox => {
+                permissionCheckbox.addEventListener('change', function() {
+                    updateMenuCheckbox(this);
+                    updateGlobalCheckbox();
+                    updatePermissionStyles();
+                });
+            });
+
+            // Toggle all permissions under a menu
+            function toggleMenuPermissions(menuId, isChecked) {
+                document.querySelectorAll(`.permission-checkbox[data-menu-id="${menuId}"]`).forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+            }
+
+            // Update menu checkbox based on its permission checkboxes
+            function updateMenuCheckbox(changedPermission) {
+                const menuId = changedPermission.getAttribute('data-menu-id');
+                const relatedPermissions = document.querySelectorAll(
+                    `.permission-checkbox[data-menu-id="${menuId}"]`);
+                const allChecked = [...relatedPermissions].every(cb => cb.checked);
+                const menuCheckbox = document.querySelector(`input[name="menu_permissions"][value="${menuId}"]`);
+                if (menuCheckbox) {
+                    menuCheckbox.checked = allChecked;
                 }
-            });
-            document.getElementById('all_permissions').checked = allChecked;
-        }
+            }
 
-        // Toggle all individual checkboxes when "Check All" is clicked
-        document.getElementById('all_permissions').addEventListener('change', function() {
-            var isChecked = this.checked;
-            document.querySelectorAll('.permission-checkbox').forEach(function(checkbox) {
-                checkbox.checked = isChecked;
-            });
+            // Update global checkbox based on all menus
+            function updateGlobalCheckbox() {
+                const allMenusChecked = [...menuCheckboxes].every(cb => cb.checked);
+                allPermissionsCheckbox.checked = allMenusChecked;
+            }
+
+            // Update class styling (info/outline-dark) based on checked state
+            function updatePermissionStyles() {
+                permissionCheckboxes.forEach(cb => {
+                    const wrapper = cb.closest('.btn');
+                    if (wrapper) {
+                        wrapper.classList.toggle('btn-info', cb.checked);
+                        wrapper.classList.toggle('btn-outline-dark', !cb.checked);
+                    }
+                });
+            }
+
+            // Initial setup on page load
+            updatePermissionStyles();
+            permissionCheckboxes.forEach(updateMenuCheckbox);
+            updateGlobalCheckbox();
         });
-
-        // Update "Check All" checkbox whenever an individual checkbox is changed
-        document.querySelectorAll('.permission-checkbox').forEach(function(checkbox) {
-            checkbox.addEventListener('change', updateCheckAll);
-        });
-
-        // On page load, update the "Check All" checkbox based on current permissions state
-        document.addEventListener('DOMContentLoaded', updateCheckAll);
     </script>
 @endpush

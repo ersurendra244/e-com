@@ -100,8 +100,19 @@ Route::prefix('settings')->group(function () {
 
 // masters
 Route::prefix('masters')->group(function () {
-    Route::get('menu', [MasterController::class, 'menu'])->name('admin.masters.menu');
-    Route::post('menu-edit', [MasterController::class, 'menu_edit'])->name('admin.masters.menu_edit');
-    Route::post('menu-save', [MasterController::class, 'menu_save'])->name('admin.masters.menu_save');
-    Route::post('menu-delete', [MasterController::class, 'menu_delete'])->name('admin.masters.menu_delete');
+
+    Route::prefix('menus')->group(function () {
+        Route::get('/', [MasterController::class, 'menu'])->name('admin.masters.menu');
+        Route::post('edit', [MasterController::class, 'menu_edit'])->name('admin.masters.menu_edit');
+        Route::post('save', [MasterController::class, 'menu_save'])->name('admin.masters.menu_save');
+        Route::post('delete', [MasterController::class, 'menu_delete'])->name('admin.masters.menu_delete');
+    });
+
+    Route::prefix('brands')->group(function () {
+        Route::get('/', [MasterController::class, 'brand'])->name('admin.masters.brand');
+        Route::post('edit', [MasterController::class, 'brand_edit'])->name('admin.masters.brand_edit');
+        Route::post('save', [MasterController::class, 'brand_save'])->name('admin.masters.brand_save');
+        Route::post('delete', [MasterController::class, 'brand_delete'])->name('admin.masters.brand_delete');
+    });
 });
+

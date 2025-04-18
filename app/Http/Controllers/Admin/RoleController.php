@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Role;
+use App\Models\Master;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -97,6 +98,7 @@ class RoleController extends Controller
         $data['permissions'] = Permission::orderBy('name', 'asc')->get()->groupBy(function ($permission) {
             return explode(' ', $permission->name)[0];
         });
+        $data['menus'] = Master::where('type', 'menu')->get();
         return view('admin.roles.edit', $data);
     }
 
