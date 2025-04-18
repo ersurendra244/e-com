@@ -70,7 +70,7 @@
                 </a>
             </li>
         @endcan
-        @can('settings')
+        @canany(['site settings'])
             <li class="nav-item d-none d-lg-block">
                 <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false"
                     aria-controls="settings">
@@ -87,7 +87,7 @@
                 </div>
             </li>
         @endcan
-        @can('masters')
+        @canany(['menu list','menu create','menu edit','menu delete', 'brand list','brand create','brand edit','brand delete'])
             <li class="nav-item d-none d-lg-block">
                 <a class="nav-link" data-toggle="collapse" href="#masters" aria-expanded="false"
                     aria-controls="masters">
@@ -98,12 +98,17 @@
                 <div class="collapse" id="masters">
                     <ul class="nav flex-column sub-menu">
                         @can('menu list')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.menu') }}">Menu List</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.masters.menu') }}">Menus</a>
+                            </li>
+                        @endcan
+                        @can('brand list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
                         @endcan
                     </ul>
                 </div>
             </li>
-        @endcan
+        @endcanany
         @if (Auth::user()->hasRole('User'))
             <li class="nav-item {{ request()->routeIs('user.edit_profile') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('user.edit_profile') }}">
