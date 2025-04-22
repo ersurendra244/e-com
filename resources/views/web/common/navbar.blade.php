@@ -43,7 +43,13 @@
                     <div class="navbar-nav mr-auto py-0">
                         <a href="{{ route('web.home') }}" class="nav-item nav-link active">Home</a>
                         <a href="{{ route('web.products.shop') }}" class="nav-item nav-link">Shop</a>
-                        <a href="detail.html" class="nav-item nav-link">Shop Detail</a>
+                        @php
+                            $categories = \App\Models\Category::where('is_home', '1')->where('status', '1')->latest('order')->get();
+                        @endphp
+                        @foreach ($categories as $value)
+                        <a href="#" class="nav-item nav-link">{{ $value->name }}</a>
+                        @endforeach
+
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages <i
                                     class="fa fa-angle-down mt-1"></i></a>

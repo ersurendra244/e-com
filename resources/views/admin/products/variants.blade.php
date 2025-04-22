@@ -37,11 +37,17 @@
                                         <td>{{ $variant->size }}</td>
                                         <td>{{ $variant->price }}</td>
                                         <td>{{ $variant->stock }}</td>
-                                        <td>{{ $variant->status == 1 ? 'Active' : 'Inactive' }}</td>
+                                        @php
+                                            $status = $variant->status == 1
+                                                ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>'
+                                                : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+                                        @endphp
+
+                                        <td>{!! $status !!}</td>
                                         <td>
                                             <a href="{{ route('admin.products.variants_manage', ['product_id' => $productData->id, 'id' => $variant->id]) }}"
                                                class="btn btn-sm btn-info">Edit</a>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteData({{ $variant->id }})">Delete</button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteData('{{ route('admin.products.variants_delete', $variant->id) }}')">Delete</button>
                                         </td>
                                     </tr>
 
@@ -61,28 +67,6 @@
         $(document).ready(function() {
             $('#data_table').DataTable();
         })
-        function deleteData(id) {
-            if (confirm("Are you sure you want to delete this product?")) {
-                $.ajax({
-                    url: "{{ route('admin.products.delete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: id
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(response) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        }
+
     </script>
 @endpush

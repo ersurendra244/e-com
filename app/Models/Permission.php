@@ -16,7 +16,7 @@ class Permission extends Model
     }
 
     public function menu(){
-        return $this->belongsTo(Master::class, 'menu_id');
+        return $this->belongsTo(Menu::class, 'menu_id');
     }
 
 }

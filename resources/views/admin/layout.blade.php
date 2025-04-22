@@ -63,6 +63,7 @@
     <script src="{{ asset('admin/js/dashboard.js') }}"></script>
     <script src="{{ asset('admin/js/data-table.js') }}"></script>
     <script src="{{ asset('admin/vendors/summernote/dist/summernote-bs4.min.js') }}"></script>
+    <script src="{{ asset('sweetalert/sweetalert.min.js') }}"></script>
 
     @stack('child_scripts')
     @if (Session::has('success'))
@@ -97,15 +98,32 @@
                 }
             });
         }
-
-        /*Summernote editor*/
-        // if ($(".summernote").length) {
-        //     $('.summernote').summernote({
-        //         height: 300,
-        //         tabsize: 2
-        //     });
-        // }
     </script>
+    <script>
+        function deleteData(url) {
+            swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes, delete it!"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function() {
+                            swal("Error", "Something went wrong. Please try again.", "error");
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
 </body>
 
 
