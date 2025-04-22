@@ -119,7 +119,15 @@
 @push('child_scripts')
     <script>
         $(document).ready(function() {
-            $('#data_table').DataTable();
+            $('#data_table').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "pageLength": 10,
+                "lengthMenu": [
+                    [10, 25, 50],
+                    [10, 25, 50]
+                ],
+            });
         });
     </script>
     <script>
