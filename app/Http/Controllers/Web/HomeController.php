@@ -42,13 +42,13 @@ class HomeController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
 
-        $model = new Contact();
-        $model->name = $request->name;
-        $model->email = $request->email;
-        $model->subject = $request->subject;
-        $model->message = $request->message;
-        $model->status = 0;
-        $model->save();
+        $modal = new Contact();
+        $modal->name = $request->name;
+        $modal->email = $request->email;
+        $modal->subject = $request->subject;
+        $modal->message = $request->message;
+        $modal->status = 0;
+        $modal->save();
 
         return response()->json(['status' => 'success', 'message' => 'Message sent successfully']);
     }

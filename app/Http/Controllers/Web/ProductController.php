@@ -167,14 +167,14 @@ class ProductController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
 
-        $model = new Review();
-        $model->pid  = $request->product_id;
-        $model->user_id  = Auth::user()?Auth::user()->id:'';
-        $model->user_name = Auth::user()?Auth::user()->name:$request->user_name;
-        $model->email = Auth::user()?Auth::user()->email:$request->email;
-        $model->rating = $request->stars;
-        $model->reviews = $request->reviews;
-        $model->save();
+        $modal = new Review();
+        $modal->pid  = $request->product_id;
+        $modal->user_id  = Auth::user()?Auth::user()->id:'';
+        $modal->user_name = Auth::user()?Auth::user()->name:$request->user_name;
+        $modal->email = Auth::user()?Auth::user()->email:$request->email;
+        $modal->rating = $request->stars;
+        $modal->reviews = $request->reviews;
+        $modal->save();
         return response()->json(['status' => 'success', 'message' => 'Review saved successfully']);
     }
 

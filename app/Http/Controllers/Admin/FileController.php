@@ -41,21 +41,21 @@ class FileController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        $model = new File();
+        $modal = new File();
         if ($request->hasFile('uploadfile')) {
             $image = $request->file('uploadfile');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->move(public_path('uploads/files'), $imageName);
             $imagePath = $imageName;
-            $model->uploadfile = $imageName;
+            $modal->uploadfile = $imageName;
         }
-        $model->filename = $request->filename;
-        $model->remark = $request->remark;
-        $model->created_by = Auth::user()->id;
-        $model->save();
+        $modal->filename = $request->filename;
+        $modal->remark = $request->remark;
+        $modal->created_by = Auth::user()->id;
+        $modal->save();
         if ($request->has('role_id') && $request->has('user_id')) {
             FileShare::create([
-                'file_id' => $model->id,
+                'file_id' => $modal->id,
                 'role_id' => $request->role_id,
                 'user_id' => $request->user_id,
                 'action_type' => 'forwarded',
@@ -162,18 +162,18 @@ class FileController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        $model = File::find($id);
+        $modal = File::find($id);
         if ($request->hasFile('uploadfile')) {
             $image = $request->file('uploadfile');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->move(public_path('uploads/files'), $imageName);
             $imagePath = $imageName;
-            $model->uploadfile = $imageName;
+            $modal->uploadfile = $imageName;
         }
-        $model->filename = $request->filename;
-        $model->remark = $request->remark;
-        $model->created_by = Auth::user()->id;
-        $model->save();
+        $modal->filename = $request->filename;
+        $modal->remark = $request->remark;
+        $modal->created_by = Auth::user()->id;
+        $modal->save();
 
         return redirect()->route('admin.files')->with('success', 'File updated successfully');
     }
@@ -181,10 +181,10 @@ class FileController extends Controller
     public function delete(Request $request)
     {
         $id = $request->id;
-        $model = File::find($id);
-        if ($model) {
-            // $model->status = '0';
-            $model->delete();
+        $modal = File::find($id);
+        if ($modal) {
+            // $modal->status = '0';
+            $modal->delete();
             Session::flash('success', 'File deleted successfully');
             return response()->json(['success' => true, 'message' => 'File deleted successfully']);
         }

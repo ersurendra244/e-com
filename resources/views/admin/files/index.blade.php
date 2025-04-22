@@ -139,29 +139,6 @@
             });
         });
 
-        function deleteData(id) {
-            if (confirm("Are you sure you want to delete this file?")) {
-                $.ajax({
-                    url: "{{ route('admin.files.delete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: id
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(response) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        }
 
         function fileShare(id, action_type) {
             $("#file_id").val(id);

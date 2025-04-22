@@ -6,9 +6,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.categories') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ route('admin.subcategory') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.categories.update', $edit_data->id ) }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('admin.subcategory.update', $edit_data->id ) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -18,6 +18,21 @@
                                         placeholder="Enter name" value="{{ $edit_data->name ?? '' }}">
                                     @if ($errors->has('name'))
                                         <span class="text-danger">{{ $errors->first('name') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="parent_id">Category</label>
+                                    <select name="parent_id" class="form-control" id="parent_id">
+                                        <option value="">--select--</option>
+                                        <option value="0">None</option>
+                                        @foreach ($categories as $key => $value)
+                                            <option {{ isset($edit_data->parent_id) && $edit_data->parent_id == $value->id ? 'selected' : '' }} value="{{ $value->id }}">{{ $value->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('parent_id'))
+                                        <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                                     @endif
                                 </div>
                             </div>
