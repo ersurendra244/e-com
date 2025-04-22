@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Menu;
 use App\Models\Master;
 use App\Models\Permission;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class PermissionController extends Controller
     {
         $data['title'] = 'Add Permission';
         $data['subtitle'] = 'Permissions';
-        $data['menus'] = Master::where('type', 'menu')->get();
+        $data['menus'] = Menu::where('status', '1')->get();
         return view('admin.permissions.create', $data);
     }
 
@@ -47,12 +48,12 @@ class PermissionController extends Controller
             });
             $totalFiltered = $query->count();
         }
-        $model = $query->offset($start)->limit($limit)->get();
+        $modal = $query->offset($start)->limit($limit)->get();
         $data = [];
-        foreach ($model as $key => $value) {
+        foreach ($modal as $key => $value) {
             $nestedData['id'] = ++$key;
             $nestedData['name'] = $value->name;
-            $nestedData['menu'] = getMasterName($value->menu_id);
+            $nestedData['menu'] = $value->menu->name;
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
             $actions = "";
             if (Gate::allows('permission edit')) {
@@ -88,11 +89,11 @@ class PermissionController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $model = new Permission();
+        $modal = new Permission();
         $msg = 'Permission saved successfully';
-        $model->name = $request->name;
-        $model->menu_id = $request->menu;
-        $model->save();
+        $modal->name = $request->name;
+        $modal->menu_id = $request->menu;
+        $modal->save();
         return redirect()->route('admin.permissions')->with('success', $msg);
     }
 
@@ -101,7 +102,7 @@ class PermissionController extends Controller
         $data['title'] = 'Edit Permission';
         $data['subtitle'] = 'Permissions';
         $data['permission'] = Permission::find($id);
-        $data['menus'] = Master::where('type', 'menu')->get();
+        $data['menus'] = Menu::where('status', '1')->get();
         return view('admin.permissions.edit', $data);
     }
 
@@ -115,24 +116,26 @@ class PermissionController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $model = Permission::find($id);
+        $modal = Permission::find($id);
         $msg = 'Permission updated successfully';
-        $model->name = $request->name;
-        $model->menu_id = $request->menu;
-        $model->save();
+        $modal->name = $request->name;
+        $modal->menu_id = $request->menu;
+        $modal->save();
         return redirect()->route('admin.permissions')->with('success', $msg);
     }
 
     public function delete(Request $request)
     {
         $id = $request->id;
-        $model = Permission::find($id);
-        if ($model) {
-            $model->delete();
+        $modal = Permission::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->delete();
             Session::flash('success', 'Permission deleted successfully');
-            return response()->json(['success' => true, 'message' => 'Permission deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'Permission not found');
-        return response()->json(['success' => false, 'message' => 'Permission not found']);
+        return response()->json(['success' => false]);
     }
 }

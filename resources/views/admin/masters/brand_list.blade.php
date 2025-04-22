@@ -15,10 +15,9 @@
                                 <tr>
                                     <th style="width: 10px">#</th>
                                     <th style="width: 10%">Image</th>
-                                    {{-- <th>Name</th> --}}
-                                    <th>Brand Details</th>
+                                    <th>Name</th>
                                     <th>Status</th>
-                                    {{-- <th>Created At</th> --}}
+                                    <th>Created At</th>
                                     @canany(['brand edit','brand delete'])
                                         <th>Action</th>
                                     @endcan
@@ -31,14 +30,15 @@
                                         <td>
                                             <img class="img-sm rounded w-100 h-100" src="{{ asset('uploads/brands/' . $value->image) }}" alt=""/>
                                         </td>
-                                        <td>
-                                            <h5>{{ $value->name }}</h5>
-                                            <p>{{ $value->description }}</p>
-                                        </td>
-                                        {{-- <td>{{ $value->name }}</td>
-                                        <td>{{ $value->description }}</td> --}}
-                                        <td>{{ $value->status == 1 ? 'Active' : 'Inactive' }}</td>
-                                        {{-- <td>{{ date('d-m-Y', strtotime($value->created_at)) }}</td> --}}
+                                        <td>{{ $value->name }}</td>
+                                        @php
+                                            $status = $value->status == 1
+                                                ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>'
+                                                : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+                                        @endphp
+
+                                        <td>{!! $status !!}</td>
+                                        <td>{{ date('d-m-Y', strtotime($value->created_at)) }}</td>
                                         @canany(['brand edit','brand delete'])
                                             <td>
                                                 @can('brand edit')

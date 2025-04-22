@@ -17,10 +17,11 @@
                                     <th>Name</th>
                                     <th>Order</th>
                                     <th>Status</th>
+                                    <th>Is Home</th>
                                     <th>Created At</th>
                                     @canany(['menu edit','menu delete'])
                                         <th>Action</th>
-                                    @endcan
+                                    @endcanany
                                 </tr>
                             </thead>
                             <tbody>
@@ -29,7 +30,18 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $value->name }}</td>
                                         <td>{{ $value->order }}</td>
-                                        <td>{{ $value->status == 1 ? 'Active' : 'Inactive' }}</td>
+                                        @php
+                                            $is_home = $value->is_home == 1
+                                                ? '<label class="badge badge-outline-success badge-pill py-1">Publish</label>'
+                                                : '<label class="badge badge-outline-danger badge-pill py-1">Unpublish</label>';
+
+                                            $status = $value->status == 1
+                                                ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>'
+                                                : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+                                        @endphp
+
+                                        <td>{!! $status !!}</td>
+                                        <td>{!! $is_home !!}</td>
                                         <td>{{ date('d-m-Y', strtotime($value->created_at)) }}</td>
                                         @canany(['menu edit','menu delete'])
                                             <td>
@@ -42,7 +54,7 @@
                                                     onclick="deleteData({{ $value->id }})">Delete</button>
                                                 @endcan
                                             </td>
-                                        @endcan
+                                        @endcanany
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -79,10 +91,39 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label class="form-label" for="image">Image</label>
+                                            <div class="input-group">
+                                                <input type="file" class="form-control" id="image" name="image"
+                                                onchange="loadFile(event)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <img id="output" src="" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label" for="order">Short Order</label>
                                     <input type="text" class="form-control" id="order" name="order"
                                         placeholder="Enter order" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="is_home">Is Home</label>
+                                    <select name="is_home" class="form-control" id="is_home">
+                                        <option value="1">Publish</option>
+                                        <option value="0">Unpublish</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -155,7 +196,10 @@
                             $('#exampleModalLabel').text('Edit Menu');
                             $('#edit_id').val(response.data.id);
                             $('#name').val(response.data.name);
+                            $('#output').attr('src', '{{ asset('uploads/menus') }}/' + response.data.image);
                             $('#order').val(response.data.order);
+                            $('#description').val(response.data.description);
+                            $('#is_home').val(response.data.is_home);
                             $('#status').val(response.data.status);
                         }
                     }

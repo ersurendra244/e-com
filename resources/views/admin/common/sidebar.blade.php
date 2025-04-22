@@ -30,14 +30,6 @@
                 </a>
             </li>
         @endcan
-        @can('category list')
-            <li class="nav-item {{ request()->routeIs('admin.categories*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('admin.categories') }}">
-                    <i class="fa fa-window-restore menu-icon"></i>
-                    <span class="menu-title">Categories</span>
-                </a>
-            </li>
-        @endcan
         @can('product list')
             <li class="nav-item {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.products') }}">
@@ -87,7 +79,7 @@
                 </div>
             </li>
         @endcan
-        @canany(['menu list','menu create','menu edit','menu delete', 'brand list','brand create','brand edit','brand delete'])
+        @canany(['menu list','menu create','menu edit','menu delete', 'brand list','brand create','brand edit','brand delete', 'category list','category create','category edit','category delete'])
             <li class="nav-item d-none d-lg-block">
                 <a class="nav-link" data-toggle="collapse" href="#masters" aria-expanded="false"
                     aria-controls="masters">
@@ -104,6 +96,12 @@
                         @endcan
                         @can('brand list')
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
+                        @endcan
+                        @can('category list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a></li>
+                        @endcan
+                        @can('subcategory list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.subcategory') }}">Subcategories</a></li>
                         @endcan
                     </ul>
                 </div>

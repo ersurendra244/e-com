@@ -6,6 +6,7 @@ use App\Models\Master;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use App\Models\Menu;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,13 +16,13 @@ class MasterController extends Controller
     {
         $data['title'] = 'Menu List';
         $data['subtitle'] = 'Master';
-        $data['menus'] = Master::where('type', 'menu')->get();
+        $data['menus'] = Menu::all();
         return view('admin.masters.menu_list', $data);
     }
     public function menu_edit(Request $request)
     {
         $id = $request->id;
-        $data = Master::find($id);
+        $data = Menu::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
     public function menu_save(Request $request)
@@ -39,33 +40,44 @@ class MasterController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
         if($edit_id){
-            $modal = Master::find($edit_id);
+            $modal = Menu::find($edit_id);
             $msg = 'Menu updated successfully';
         } else {
-            $modal = new Master();
+            $modal = new Menu();
             $msg = 'Menu added successfully';
         }
+        if ($request->hasFile('image')) {
+            if ($modal->image && file_exists(public_path('uploads/menus/' . $modal->image))) {
+                unlink(public_path('uploads/menus/' . $modal->image));
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/menus'), $imageName);
+            $modal->image = $imageName;
+        }
         $modal->name = $request->name;
-        $modal->type = 'menu';
+        $modal->is_home = $request->is_home;
         $modal->order = $request->order;
+        $modal->description = $request->description;
         $modal->status = $request->status;
         $modal->save();
         Session::flash('success', $msg);
         return response()->json(['status' => 'success', 'message' => $msg]);
     }
 
-    public function menu_delete(Request $request)
+    public function menu_delete($id)
     {
-        $id = $request->id;
-        $modal = Master::find($id);
+        $modal = Menu::find($id);
         if ($modal) {
             $modal->status = '0';
+            $modal->is_delete = '1';
             $modal->save();
             Session::flash('success', 'Menu deleted successfully');
-            return response()->json(['success' => true, 'message' => 'Menu deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'Menu not found');
-        return response()->json(['success' => false, 'message' => 'Menu not found']);
+        return response()->json(['success' => false]);
     }
 
 
@@ -123,18 +135,18 @@ class MasterController extends Controller
         return response()->json(['status' => 'success', 'message' => $msg]);
     }
 
-    public function brand_delete(Request $request)
+    public function brand_delete($id)
     {
-        $id = $request->id;
         $modal = Master::find($id);
         if ($modal) {
             $modal->status = '0';
+            $modal->is_delete = '1';
             $modal->save();
             Session::flash('success', 'Brand deleted successfully');
-            return response()->json(['success' => true, 'message' => 'Brand deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'Brand not found');
-        return response()->json(['success' => false, 'message' => 'Brand not found']);
+        return response()->json(['success' => false]);
     }
 
 

@@ -4,8 +4,8 @@
     @include('admin.common.message')
     <div class="card">
         <div class="card-body">
-            @can('user create')
-                <a href="{{ route('admin.users.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+            @can('subcategory create')
+                <a href="{{ route('admin.subcategory.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -15,13 +15,16 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th>Profile</th>
+                                    <th>image</th>
                                     <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Order By</th>
+                                    <th>Is Home</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    @canany(['subcategory edit', 'subcategory delete'])
+                                        <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,7 +50,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.users.list') }}",
+                    "url": "{{ route('admin.subcategory.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {
@@ -64,26 +67,30 @@
                         "data": "name"
                     },
                     {
-                        "data": "email"
+                        "data": "parent_id"
                     },
                     {
-                        "data": "phone"
+                        "data": "description"
                     },
                     {
-                        "data": "address"
+                        "data": "order"
+                    },
+                    {
+                        "data": "is_home"
                     },
                     {
                         "data": "status"
                     },
-                    {
-                        "data": "action",
-                        "orderable": false,
-                        "searchable": false
-                    }
+                    @canany(['subcategory edit', 'subcategory delete'])
+                        {
+                            "data": "action",
+                            "orderable": false,
+                            "searchable": false
+                        },
+                    @endcanany
                 ]
 
             });
         });
-
     </script>
 @endpush
