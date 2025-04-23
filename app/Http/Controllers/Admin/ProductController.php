@@ -118,6 +118,7 @@ class ProductController extends Controller
         $data['title'] = 'Add Product';
         $data['subtitle'] = 'Products';
         $data['categories'] = Category::where('status', '1')->get();
+        // $data['form_fields'] = view('admin.products.form_fields', $data)->render();
         return view('admin.products.create', $data);
     }
 
@@ -420,5 +421,11 @@ class ProductController extends Controller
         ];
 
         return response()->json($json_data);
+    }
+
+    public function get_form_fields(Request $request){
+        $data['category'] = $request->category;
+        $html = view('admin.products.form_fields', $data)->render();
+        return response()->json(['success' => true, 'html' => $html]);
     }
 }

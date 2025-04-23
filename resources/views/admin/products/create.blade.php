@@ -115,7 +115,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="category">Category</label>
-                                    <select name="category" class="form-control" id="category">
+                                    <select onchange="getFormFields();" name="category" class="form-control" id="category">
                                         <option value="">Choose a category</option>
                                         @foreach ($categories as $key => $category)
                                             <option value="{{ $category->name }}">{{ $category->name }}</option>
@@ -126,46 +126,13 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="color">Color</label>
-                                    <select name="color" class="form-control" id="color">
-                                        <option value="">Choose a color</option>
-                                        @php $colors = colors(); @endphp
-                                        @foreach ($colors as $key => $color)
-                                            <option value="{{ $key }}">{{ $color }}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('color'))
-                                        <span class="text-danger">{{ $errors->first('color') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="size">Size</label>
-                                    <select name="size" class="form-control" id="size">
-                                        <option value="">Choose a size</option>
-                                        @php $sizes = sizes(); @endphp
-                                        @foreach ($sizes as $key => $size)
-                                            <option value="{{ $key }}">{{ $size }}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('size'))
-                                        <span class="text-danger">{{ $errors->first('size') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="price">Price</label>
-                                    <input type="text" class="form-control" id="price" name="price"
-                                        placeholder="Enter price" value="{{ old('price') }}">
-                                    @if ($errors->has('price'))
-                                        <span class="text-danger">{{ $errors->first('price') }}</span>
-                                    @endif
-                                </div>
-                            </div>
+                        </div>
+
+                        <div class="row" id="form-fields-container">
+
+                        </div>
+
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="stock">Stock</label>
@@ -364,5 +331,24 @@
             });
         }
         document.addEventListener("DOMContentLoaded", updateAddMoreButtons);
+    </script>
+    <script>
+        function getFormFields() {
+            var category = $('#category').val();
+            $.ajax({
+                url: "{{ route('admin.product.get_form_fields') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category: category
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log(response.html);
+                        $('#form-fields-container').html(response.html);
+                    }
+                }
+            });
+        }
     </script>
 @endpush
