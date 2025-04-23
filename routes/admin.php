@@ -61,11 +61,12 @@ Route::prefix('products')->group(function () {
     Route::post('update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::post('save', [ProductController::class, 'save'])->name('admin.products.save');
     Route::get('delete/{id?}', [ProductController::class, 'delete'])->name('admin.products.delete');
+    Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
 
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
-    Route::get('variants_manage/{product_id}/{id?}', [ProductController::class, 'variants_manage'])->name('admin.products.variants_manage');
-    Route::post('variants_save/{id?}', [ProductController::class, 'variants_save'])->name('admin.products.variants_save');
-    Route::get('variants_delete/{id?}', [ProductController::class, 'variants_delete'])->name('admin.products.variants_delete');
+    Route::get('variants-manage/{product_id}/{id?}', [ProductController::class, 'variants_manage'])->name('admin.products.variants_manage');
+    Route::post('variants-save/{id?}', [ProductController::class, 'variants_save'])->name('admin.products.variants_save');
+    Route::get('variants-delete/{id?}', [ProductController::class, 'variants_delete'])->name('admin.products.variants_delete');
     Route::get('reviews/{id}', [ProductController::class, 'reviews'])->name('admin.products.reviews');
     Route::post('reviews-list', [ProductController::class, 'reviews_list'])->name('admin.products.reviews_list');
 });
