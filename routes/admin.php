@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
 
+
 // Admin Routes (Only Accessible by Admins)
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -111,8 +112,8 @@ Route::prefix('masters')->group(function () {
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
         Route::post('store', [CategoryController::class, 'store'])->name('admin.categories.store');
         Route::get('create', [CategoryController::class, 'create'])->name('admin.categories.create');
-        Route::get('edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::post('update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
+        Route::get('edit/{slug}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+        Route::post('update/{slug}', [CategoryController::class, 'update'])->name('admin.categories.update');
         Route::get('delete/{id?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
     });
 

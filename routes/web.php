@@ -8,10 +8,6 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Web\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/clear-cache', function () {
     Artisan::call('route:clear');
     Artisan::call('cache:clear');

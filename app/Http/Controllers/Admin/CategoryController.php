@@ -62,10 +62,10 @@ class CategoryController extends Controller
             $nestedData['status'] = $status;
             $actions = "";
             if (Gate::allows('category edit')) {
-                $actions .= '<a href="' . route('admin.categories.edit', $value->id) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . route('admin.categories.edit', $value->slug) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
             if (Gate::allows('category delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData({$value->id})" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.categories.delete', $value->id) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
 
             $nestedData['action'] = $actions;
@@ -87,11 +87,11 @@ class CategoryController extends Controller
         $data['subtitle'] = 'Masters';
         return view('admin.categories.create', $data);
     }
-    public function edit(Request $request, $id)
+    public function edit(Request $request, $slug)
     {
         $data['title'] = 'Edit Category';
         $data['subtitle'] = 'Masters';
-        $data['edit_data'] = Category::find($id);
+        $data['edit_data'] = Category::where('slug', $slug)->first();
         return view('admin.categories.edit', $data);
     }
     public function store(Request $request)
@@ -106,12 +106,18 @@ class CategoryController extends Controller
 
         $modal = new Category();
         if ($request->hasFile('image')) {
+            removeImage($modal->image, 'uploads/categories');
+            removeImage($modal->thumbnail, 'uploads/categories/thumbnails');
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->move(public_path('uploads/categories'), $imageName);
-            $imagePath = $imageName;
-            $modal->image = $imagePath;
+            $image->move(public_path('uploads/categories'), $imageName);
+            $modal->image = $imageName;
+
+            $imageFullPath = public_path('uploads/categories/' . $imageName);
+            $thumbnailName = createThumbnail($imageName,$imageFullPath, 'uploads/categories/thumbnails', 100, 100);
+            $modal->thumbnail = $thumbnailName;
         }
+
         $modal->name = $request->name;
         $modal->description = $request->description;
         $modal->order = $request->order;
@@ -120,26 +126,31 @@ class CategoryController extends Controller
         $modal->save();
         return redirect()->route('admin.categories')->with('success', 'Category saved successfully');
     }
-    public function update(Request $request, $id)
+    public function update(Request $request, $slug)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories,name,' . $id,
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|unique:categories,name,' . $slug . ',slug',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $modal = Category::find($id);
+        $modal = Category::where('slug', $slug)->firstOrFail();
         if ($request->hasFile('image')) {
+            removeImage($modal->image, 'uploads/categories');
+            removeImage($modal->thumbnail, 'uploads/categories/thumbnails');
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->move(public_path('uploads/categories'), $imageName);
+            $image->move(public_path('uploads/categories'), $imageName);
+            $modal->image = $imageName;
 
-            $imagePath = $imageName;
-            $modal->image = $imagePath;
+            $imageFullPath = public_path('uploads/categories/' . $imageName);
+            $thumbnailName = createThumbnail($imageName,$imageFullPath, 'uploads/categories/thumbnails', 100, 100);
+            $modal->thumbnail = $thumbnailName;
         }
         $modal->name = $request->name;
+        $modal->slug = slug($request->name);
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -154,6 +165,8 @@ class CategoryController extends Controller
             $modal->status = '0';
             $modal->is_delete = '1';
             $modal->save();
+            removeImage($modal->image, 'uploads/categories');
+            removeImage($modal->thumbnail, 'uploads/categories/thumbnails');
             Session::flash('success', 'Category deleted successfully');
             return response()->json(['success' => true]);
         }
