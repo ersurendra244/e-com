@@ -32,6 +32,8 @@ Route::prefix('roles')->group(function () {
     Route::get('edit/{id}', [RoleController::class, 'edit'])->name('admin.roles.edit');
     Route::post('update/{id}', [RoleController::class, 'update'])->name('admin.roles.update');
     Route::get('delete/{id?}', [RoleController::class, 'delete'])->name('admin.roles.delete');
+    Route::post('permissions-update', [RoleController::class, 'permissions_update'])->name('admin.roles.permissions_update');
+    Route::post('permissions-bulk-update', [RoleController::class, 'permissions_bulk_update'])->name('admin.roles.permissions_bulk_update');
 });
 // Permissions
 Route::prefix('permissions')->group(function () {
@@ -42,6 +44,7 @@ Route::prefix('permissions')->group(function () {
     Route::get('edit/{id}', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
     Route::post('update/{id}', [PermissionController::class, 'update'])->name('admin.permissions.update');
     Route::get('delete/{id?}', [PermissionController::class, 'delete'])->name('admin.permissions.delete');
+
 });
 // Users
 Route::prefix('users')->group(function () {
