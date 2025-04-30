@@ -64,8 +64,7 @@
         @endcan
         @canany(['site settings'])
             <li class="nav-item d-none d-lg-block">
-                <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false"
-                    aria-controls="settings">
+                <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false" aria-controls="settings">
                     <i class="fas fa-cog menu-icon"></i>
                     <span class="menu-title">Settings</span>
                     <i class="menu-arrow"></i>
@@ -73,16 +72,17 @@
                 <div class="collapse" id="settings">
                     <ul class="nav flex-column sub-menu">
                         @can('site settings')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.settings') }}">Site Settings</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.settings') }}">Site Settings</a>
+                            </li>
                         @endcan
                     </ul>
                 </div>
             </li>
         @endcan
-        @canany(['menu list','menu create','menu edit','menu delete', 'brand list','brand create','brand edit','brand delete', 'category list','category create','category edit','category delete'])
+        @canany(['menu list', 'menu create', 'menu edit', 'menu delete', 'brand list', 'brand create', 'brand edit',
+            'brand delete', 'category list', 'category create', 'category edit', 'category delete'])
             <li class="nav-item d-none d-lg-block">
-                <a class="nav-link" data-toggle="collapse" href="#masters" aria-expanded="false"
-                    aria-controls="masters">
+                <a class="nav-link" data-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
                     <i class="fas fa-cog menu-icon"></i>
                     <span class="menu-title">Masters</span>
                     <i class="menu-arrow"></i>
@@ -98,10 +98,12 @@
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
                         @endcan
                         @can('category list')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a>
+                            </li>
                         @endcan
                         @can('subcategory list')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.subcategory') }}">Subcategories</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.subcategory') }}">Subcategories</a>
+                            </li>
                         @endcan
                     </ul>
                 </div>

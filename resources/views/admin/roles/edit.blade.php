@@ -64,7 +64,8 @@
                                                         @if (count($perms))
                                                             <div class="form-group mb-0">
                                                                 <div class="form-check">
-                                                                    <label class="form-check-label py-1 mb-0" style="line-height: 1;">
+                                                                    <label class="form-check-label py-1 mb-0"
+                                                                        style="line-height: 1;">
                                                                         <input type="checkbox" class="form-check-input"
                                                                             name="menu_permissions"
                                                                             value="{{ $perms[0]->menu->id ?? '' }}">
@@ -78,15 +79,28 @@
                                                     <td class="d-flex flex-wrap gap-2">
                                                         @foreach ($perms as $permission)
                                                             @php
-                                                                $checked = isset($data->permissions) &&
-                                                                    $data->permissions->contains('name', $permission->name) ? 'checked' : '';
-                                                                $color = isset($data->permissions) &&
-                                                                    $data->permissions->contains('name', $permission->name) ? 'info' : 'outline-dark';
+                                                                $checked =
+                                                                    isset($data->permissions) &&
+                                                                    $data->permissions->contains(
+                                                                        'name',
+                                                                        $permission->name,
+                                                                    )
+                                                                        ? 'checked'
+                                                                        : '';
+                                                                $color =
+                                                                    isset($data->permissions) &&
+                                                                    $data->permissions->contains(
+                                                                        'name',
+                                                                        $permission->name,
+                                                                    )
+                                                                        ? 'info'
+                                                                        : 'outline-dark';
                                                             @endphp
                                                             <div class="btn btn-sm btn-{{ $color }} mb-0 mr-2">
                                                                 <div class="form-group mb-0">
                                                                     <div class="form-check">
-                                                                        <label class="form-check-label mb-0" style="line-height: 1;">
+                                                                        <label class="form-check-label mb-0"
+                                                                            style="line-height: 1;">
                                                                             <input type="checkbox"
                                                                                 class="form-check-input permission-checkbox"
                                                                                 name="permissions[]"
@@ -144,6 +158,7 @@
                     toggleMenuPermissions(menuCheckbox.value, isChecked);
                 });
                 updatePermissionStyles();
+                triggerBulkPermissionUpdate();
             });
 
             // Handle each menu-level checkbox
@@ -152,6 +167,7 @@
                     toggleMenuPermissions(this.value, this.checked);
                     updateGlobalCheckbox();
                     updatePermissionStyles();
+                    triggerBulkPermissionUpdate();
                 });
             });
 
@@ -161,6 +177,7 @@
                     updateMenuCheckbox(this);
                     updateGlobalCheckbox();
                     updatePermissionStyles();
+                    triggerPermissionUpdate(this);
                 });
             });
 
@@ -189,7 +206,7 @@
                 allPermissionsCheckbox.checked = allMenusChecked;
             }
 
-            // Update class styling (info/outline-dark) based on checked state
+            // Update permission styling
             function updatePermissionStyles() {
                 permissionCheckboxes.forEach(cb => {
                     const wrapper = cb.closest('.btn');
@@ -200,7 +217,63 @@
                 });
             }
 
-            // Initial setup on page load
+            // 🔁 AJAX call for single permission
+            function triggerPermissionUpdate(checkbox) {
+                const permission = checkbox.value;
+                const checked = checkbox.checked ? 1 : 0;
+                const id = '{{ $data->id }}';
+
+                fetch("{{ route('admin.roles.permissions_update') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            permission: permission,
+                            checked: checked,
+                            id: id
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.success ? 'Updated ✅' : 'Failed ❌');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
+            // 🔁 AJAX call for all selected permissions
+            function triggerBulkPermissionUpdate() {
+                const permissions = [];
+                permissionCheckboxes.forEach(cb => {
+                    if (cb.checked) permissions.push(cb.value);
+                });
+
+                const id = '{{ $data->id }}';
+
+                fetch("{{ route('admin.roles.permissions_bulk_update') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            permissions: permissions,
+                            id: id
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.success ? 'Bulk updated ✅' : 'Bulk update failed ❌');
+                    })
+                    .catch(error => {
+                        console.error('Bulk update error:', error);
+                    });
+            }
+
+            // Initial setup
             updatePermissionStyles();
             permissionCheckboxes.forEach(updateMenuCheckbox);
             updateGlobalCheckbox();

@@ -15,7 +15,9 @@ Route::get('/clear-cache', function () {
 
     return "✅ Cache, Cache cleared successfully!";
 });
-
+Route::get('/weather', function () {
+    return view('admin/weather');
+});
 Route::get('/', [HomeController::class, 'index'])->name('web.home');
 
 Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('web.home.contact_us');

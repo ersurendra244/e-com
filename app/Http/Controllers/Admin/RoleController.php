@@ -157,4 +157,32 @@ class RoleController extends Controller
         Session::flash('error', 'Role not found');
         return response()->json(['success' => false]);
     }
+    public function permissions_update(Request $request)
+    {
+        $role = Role::findOrFail($request->id);
+        $permission = Permission::where('name', $request->permission)->first();
+
+        if (!$permission) {
+            return response()->json(['success' => false, 'message' => 'Permission not found']);
+        }
+
+        if ($request->checked) {
+            $role->permissions()->syncWithoutDetaching([$permission->id]);
+        } else {
+            $role->permissions()->detach($permission->id);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function permissions_bulk_update(Request $request)
+    {
+        $role = Role::findOrFail($request->id);
+        $permissionNames = $request->permissions ?? [];
+
+        $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('id')->toArray();
+        $role->permissions()->sync($permissionIds);
+
+        return response()->json(['success' => true]);
+    }
 }
