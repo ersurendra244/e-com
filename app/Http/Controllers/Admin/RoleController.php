@@ -172,7 +172,7 @@ class RoleController extends Controller
             $role->permissions()->detach($permission->id);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Permission updated successfully']);
     }
 
     public function permissions_bulk_update(Request $request)
@@ -183,6 +183,8 @@ class RoleController extends Controller
         $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('id')->toArray();
         $role->permissions()->sync($permissionIds);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Permissions updated successfully']);
     }
+
+
 }

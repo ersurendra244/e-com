@@ -64,8 +64,18 @@
     <script src="{{ asset('admin/js/data-table.js') }}"></script>
     <script src="{{ asset('admin/vendors/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('sweetalert/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('notify.js') }}"></script>
 
     @stack('child_scripts')
+    <script>
+        function notifyMessage(message, type) {
+            $.notify(message, {
+                className: type,
+                closeOnClick: true,
+                globalPosition: 'top right'
+            });
+        }
+    </script>
     @if (Session::has('success'))
         {{ Session::get('success') }}"
     @endif
