@@ -104,7 +104,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label" for="name">Name</label>
+                                    <label class="form-label" for="name">Title</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        placeholder="Enter name" value="{{ old('name') }}">
+                                    @if ($errors->has('name'))
+                                        <span class="text-danger">{{ $errors->first('name') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="name">Sub Title</label>
                                     <input type="text" class="form-control" id="name" name="name"
                                         placeholder="Enter name" value="{{ old('name') }}">
                                     @if ($errors->has('name'))
@@ -115,14 +125,27 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="category">Category</label>
-                                    <select onchange="getFormFields();" name="category" class="form-control" id="category">
+                                    <select onchange="getSubCategories(this);" name="category" class="form-control"
+                                        id="category">
                                         <option value="">Choose a category</option>
                                         @foreach ($categories as $key => $category)
-                                            <option value="{{ $category->name }}">{{ $category->name }}</option>
+                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
                                         @endforeach
                                     </select>
                                     @if ($errors->has('category'))
                                         <span class="text-danger">{{ $errors->first('category') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="subcategory">Sub Category</label>
+                                    <select onchange="getFormFields();" name="subcategory" class="form-control"
+                                        id="subcategory">
+                                        <option value="">Select Sub Category</option>
+                                    </select>
+                                    @if ($errors->has('subcategory'))
+                                        <span class="text-danger">{{ $errors->first('subcategory') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -333,18 +356,43 @@
         document.addEventListener("DOMContentLoaded", updateAddMoreButtons);
     </script>
     <script>
+        function getSubCategories(event) {
+            var category_id = $(event).val();
+
+            $('#subcategory').html('<option value="">Select Sub Category</option>');
+            $('#form-fields-container').html('');
+
+            $.ajax({
+                url: "{{ route('admin.product.get_sub_categories') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: category_id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#subcategory').html(response.html);
+                    }
+                }
+            });
+        }
+
         function getFormFields() {
-            var category = $('#category').val();
+            var subcategory_id = $("#subcategory").val();
+            if (!subcategory_id) {
+                $('#form-fields-container').html('');
+                return;
+            }
+
             $.ajax({
                 url: "{{ route('admin.product.get_form_fields') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    category: category
+                    subcategory_id: subcategory_id
                 },
                 success: function(response) {
                     if (response.success) {
-                        console.log(response.html);
                         $('#form-fields-container').html(response.html);
                     }
                 }

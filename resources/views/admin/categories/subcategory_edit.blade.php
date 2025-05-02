@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <a href="{{ route('admin.subcategory') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.subcategory.update', $edit_data->id ) }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('admin.subcategory.update', $edit_data->slug ) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">

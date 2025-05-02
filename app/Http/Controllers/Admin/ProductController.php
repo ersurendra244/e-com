@@ -424,8 +424,20 @@ class ProductController extends Controller
     }
 
     public function get_form_fields(Request $request){
-        $data['category'] = $request->category;
+        $data['subcategory_id'] = $request->subcategory_id;
         $html = view('admin.products.form_fields', $data)->render();
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    public function get_sub_categories(Request $request){
+        $categories = Category::where('parent_id',$request->category_id)->where('status', '1')->where('is_delete','0')->select('id','name')->get();
+        // return $categories;
+        if($categories){
+            $html = '<option value="">Select Sub Category</option>';
+            foreach ($categories as $category) {
+                $html .= '<option value="' . $category->id . '">' . $category->name . '</option>';
+            }
+        }
         return response()->json(['success' => true, 'html' => $html]);
     }
 }

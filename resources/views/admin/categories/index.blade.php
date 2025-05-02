@@ -17,7 +17,6 @@
                                     <th style="width: 10px">#</th>
                                     <th>image</th>
                                     <th>Name</th>
-                                    <th>Description</th>
                                     <th>Order By</th>
                                     <th>Is Home</th>
                                     <th>Status</th>
@@ -64,9 +63,6 @@
                     },
                     {
                         "data": "name"
-                    },
-                    {
-                        "data": "description"
                     },
                     {
                         "data": "order"
