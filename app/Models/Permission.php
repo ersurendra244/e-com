@@ -14,4 +14,9 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class, 'role_permissions');
     }
+
+    public function menu(){
+        return $this->belongsTo(Menu::class, 'menu_id');
+    }
+
 }

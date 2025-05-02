@@ -22,6 +22,21 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="menu">Menu Name</label>
+                                    <select name="menu" class="form-control" id="menu">
+                                        <option value="">--select--</option>
+                                        <option value="0">None</option>
+                                        @foreach ($menus as $key => $value)
+                                            <option {{ $permission->menu_id == $value->id ? 'selected' : '' }} value="{{ $value->id }}">{{ $value->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('menu'))
+                                        <span class="text-danger">{{ $errors->first('menu') }}</span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>

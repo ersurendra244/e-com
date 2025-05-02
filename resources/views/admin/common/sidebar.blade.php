@@ -7,10 +7,10 @@
                 </div>
                 <div class="profile-name">
                     <p class="name">
-                        {{ Auth::user()->name??'Guest' }}
+                        {{ Auth::user()->name ?? 'Guest' }}
                     </p>
                     <p class="designation">
-                        {{ ucfirst(Auth::user()->roles()->first()->name)??'Guest' }}
+                        {{ ucfirst(Auth::user()->roles()->first()->name) ?? 'Guest' }}
                     </p>
                 </div>
             </div>
@@ -27,14 +27,6 @@
                 <a class="nav-link" href="{{ route('admin.users') }}">
                     <i class="fa fa-user menu-icon"></i>
                     <span class="menu-title">Users</span>
-                </a>
-            </li>
-        @endcan
-        @can('category list')
-            <li class="nav-item {{ request()->routeIs('admin.categories*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('admin.categories') }}">
-                    <i class="fa fa-window-restore menu-icon"></i>
-                    <span class="menu-title">Categories</span>
                 </a>
             </li>
         @endcan
@@ -70,8 +62,54 @@
                 </a>
             </li>
         @endcan
-
-        @if(Auth::user()->hasRole('User'))
+        @canany(['site settings'])
+            <li class="nav-item d-none d-lg-block">
+                <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false" aria-controls="settings">
+                    <i class="fas fa-cog menu-icon"></i>
+                    <span class="menu-title">Settings</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="settings">
+                    <ul class="nav flex-column sub-menu">
+                        @can('site settings')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.settings') }}">Site Settings</a>
+                            </li>
+                        @endcan
+                    </ul>
+                </div>
+            </li>
+        @endcan
+        @canany(['menu list', 'menu create', 'menu edit', 'menu delete', 'brand list', 'brand create', 'brand edit',
+            'brand delete', 'category list', 'category create', 'category edit', 'category delete'])
+            <li class="nav-item d-none d-lg-block">
+                <a class="nav-link" data-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
+                    <i class="fas fa-cog menu-icon"></i>
+                    <span class="menu-title">Masters</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="masters">
+                    <ul class="nav flex-column sub-menu">
+                        @can('menu list')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.masters.menu') }}">Menus</a>
+                            </li>
+                        @endcan
+                        @can('brand list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
+                        @endcan
+                        @can('category list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a>
+                            </li>
+                        @endcan
+                        @can('subcategory list')
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.subcategory') }}">Subcategories</a>
+                            </li>
+                        @endcan
+                    </ul>
+                </div>
+            </li>
+        @endcanany
+        @if (Auth::user()->hasRole('User'))
             <li class="nav-item {{ request()->routeIs('user.edit_profile') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('user.edit_profile') }}">
                     <i class="fas fa-pen-square menu-icon"></i>

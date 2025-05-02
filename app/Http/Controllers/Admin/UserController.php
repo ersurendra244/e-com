@@ -26,48 +26,43 @@ class UserController extends Controller
     {
         $columns = ['id', 'image', 'name', 'email', 'phone', 'address'];
 
-        $totalData = User::count();
-        $totalFiltered = $totalData;
+        $query = User::where('is_delete', '0');
+
+        $totalData = $query->count();
+
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
         $orderIndex = $request->input('order.0.column', 0);
         $order = $columns[$orderIndex] ?? 'id';
         $dir = $request->input('order.0.dir', 'asc');
+        $search = $request->input('search.value');
 
-        if (empty($request->input('search.value'))) {
-            $users = User::offset($start)
-                ->limit($limit)
-                ->orderBy($order, $dir)
-                ->get();
-        } else {
-            $search = $request->input('search.value');
-
-            $users = User::where('id', 'LIKE', "%{$search}%")
-                ->orWhere('name', 'LIKE', "%{$search}%")
-                ->orWhere('email', 'LIKE', "%{$search}%")
-                ->orWhere('phone', 'LIKE', "%{$search}%")
-                ->orWhere('address', 'LIKE', "%{$search}%")
-                ->offset($start)
-                ->limit($limit)
-                ->orderBy($order, $dir)
-                ->get();
-
-            $totalFiltered = User::where('id', 'LIKE', "%{$search}%")
-                ->orWhere('name', 'LIKE', "%{$search}%")
-                ->orWhere('email', 'LIKE', "%{$search}%")
-                ->orWhere('phone', 'LIKE', "%{$search}%")
-                ->orWhere('address', 'LIKE', "%{$search}%")
-                ->count();
+        if (!empty($search)) {
+            $query = $query->where(function ($q) use ($search) {
+                $q->where('id', 'LIKE', "%{$search}%")
+                    ->orWhere('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%")
+                    ->orWhere('address', 'LIKE', "%{$search}%");
+            });
         }
+
+        $totalFiltered = $query->count();
+
+        $results = $query->offset($start)
+            ->limit($limit)
+            ->orderBy($order, $dir)
+            ->get();
         $data = [];
-        foreach ($users as $user) {
+        foreach ($results as $user) {
             $nestedData['id'] = $user->id;
             $nestedData['image'] = '<img class="img-sm rounded" src="' . asset('uploads/profile/' . $user->image) . '" alt=""/>';
             $nestedData['name'] = $user->name;
             $nestedData['email'] = $user->email;
             $nestedData['phone'] = $user->phone;
             $nestedData['address'] = $user->address;
-            $nestedData['status'] = 'Active';
+            $status = $user->status == 1 ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>' : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+            $nestedData['status'] = $status;
 
             // Initialize the action buttons
             $actions = "";
@@ -76,7 +71,7 @@ class UserController extends Controller
             }
 
             if (Gate::allows('user delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData({$user->id})" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.users.delete', $user->id) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
 
             $nestedData['action'] = $actions;
@@ -189,18 +184,18 @@ class UserController extends Controller
         return redirect()->route('admin.users')->with('success', 'User updated successfully');
     }
 
-    public function delete(Request $request)
+    public function delete($id)
     {
-        $id = $request->id;
-        $user = User::find($id);
-        if ($user) {
-            $user->status = '0';
-            $user->save();
+        $modal = User::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->save();
             Session::flash('success', 'User deleted successfully');
-            return response()->json(['success' => true, 'message' => 'User deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'User not found');
-        return response()->json(['success' => false, 'message' => 'User not found']);
+        return response()->json(['success' => false]);
     }
 
     public function edit_profile(Request $request)
@@ -246,7 +241,6 @@ class UserController extends Controller
         // $user->password = Hash::make('password');
         $user->save();
         return redirect()->back()->with('success', 'Profile updated successfully');
-
     }
 
     public function saved_address(Request $request)
@@ -272,7 +266,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
-        if($edit_id){
+        if ($edit_id) {
             $address = Address::find($edit_id);
             $msg = 'Address updated successfully';
         } else {
@@ -313,7 +307,6 @@ class UserController extends Controller
         $user->save();
         Session::flash('success', 'Password updated successfully');
         return response()->json(['status' => 'success', 'message' => 'Password updated successfully']);
-
     }
 
     public function reviews(Request $request)
@@ -325,7 +318,7 @@ class UserController extends Controller
 
     public function reviews_list(Request $request)
     {
-        $columns = ['id', 'pid', 'product:name', 'product:category', 'reviews', 'rating','created_at'];
+        $columns = ['id', 'pid', 'product:name', 'product:category', 'reviews', 'rating', 'created_at'];
         $user = User::find(Auth::user()->id);
         $query = $user->reviews()->with(['product:id,name,category']);
         $totalData = $query->count();
@@ -342,8 +335,8 @@ class UserController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'LIKE', "%{$search}%")
-                  ->orWhere('reviews', 'LIKE', "%{$search}%")
-                  ->orWhere('rating', 'LIKE', "%{$search}%");
+                    ->orWhere('reviews', 'LIKE', "%{$search}%")
+                    ->orWhere('rating', 'LIKE', "%{$search}%");
             });
 
             // Update filtered count (clone query again if needed)
@@ -357,7 +350,7 @@ class UserController extends Controller
             $nestedData['id'] = ++$key;
             $nestedData['product'] = $review->product->name ?? 'N/A';
             $nestedData['category'] = $review->product->category ?? 'N/A';
-            $nestedData['reviews'] = '<div>' . $review->reviews.'</div>';
+            $nestedData['reviews'] = '<div>' . $review->reviews . '</div>';
             $nestedData['reviews'] .= '<div class="ratings mt-2">';
             for ($i = 1; $i <= 5; $i++) {
                 $nestedData['reviews'] .= '<i class="fa fa-star ' . ($i <= $review->rating ? 'gold' : 'gray') . '"></i>';
@@ -376,5 +369,4 @@ class UserController extends Controller
 
         return response()->json($json_data);
     }
-
 }

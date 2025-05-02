@@ -8,10 +8,6 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Web\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/clear-cache', function () {
     Artisan::call('route:clear');
     Artisan::call('cache:clear');
@@ -19,7 +15,9 @@ Route::get('/clear-cache', function () {
 
     return "✅ Cache, Cache cleared successfully!";
 });
-
+Route::get('/weather', function () {
+    return view('admin/weather');
+});
 Route::get('/', [HomeController::class, 'index'])->name('web.home');
 
 Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('web.home.contact_us');

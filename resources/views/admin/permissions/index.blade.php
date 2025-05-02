@@ -16,6 +16,7 @@
                                 <tr>
                                     <th style="width: 10px">#</th>
                                     <th>Name</th>
+                                    <th>Menu</th>
                                     <th>Created At</th>
                                     <th>Action</th>
                                 </tr>
@@ -54,34 +55,12 @@
                 "columns": [
                     {"data": "id"},
                     {"data": "name"},
+                    {"data": "menu"},
                     {"data": "created_at"},
                     {"data": "action", "orderable": false, "searchable": false}
                 ]
             });
         });
 
-        function deleteData(id) {
-            if (confirm("Are you sure you want to delete this role?")) {
-                $.ajax({
-                    url: "{{ route('admin.permissions.delete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: id
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(response) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        }
     </script>
 @endpush

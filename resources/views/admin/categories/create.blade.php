@@ -50,6 +50,25 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="form-label" for="order">Order By</label>
+                                    <input type="number" class="form-control" id="order" name="order"
+                                        placeholder="Enter order" value="{{ old('order') }}" min="1">
+                                    @if ($errors->has('order'))
+                                        <span class="text-danger">{{ $errors->first('order') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="is_home">Is Home</label>
+                                    <select name="is_home" class="form-control" id="is_home">
+                                        <option value="1">Publish</option>
+                                        <option value="0">Unpublish</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label class="form-label" for="status">Status</label>
                                     <select name="status" class="form-control" id="status">
                                         <option value="1">Active

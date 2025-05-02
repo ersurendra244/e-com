@@ -93,28 +93,5 @@
             });
         });
 
-        function deleteData(id) {
-            if (confirm("Are you sure you want to delete this product?")) {
-                $.ajax({
-                    url: "{{ route('admin.products.delete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: id
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(response) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        }
     </script>
 @endpush

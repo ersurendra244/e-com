@@ -72,7 +72,8 @@ class ProductController extends Controller
 
             $nestedData['variants'] = $variants;
 
-            $nestedData['status'] = $value->status == 1 ? 'Active' : 'Inactive';
+            $status = $value->status == 1 ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>' : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+            $nestedData['status'] = $status;
             $collections = '<div class="form-group">';
             $collections .= '<div class="form-check">
                                 <label class="form-check-label">
@@ -95,7 +96,7 @@ class ProductController extends Controller
             }
 
             if (Gate::allows('product delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData({$value->id})" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.products.delete', $value->id) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
 
             $nestedData['action'] = $actions;
@@ -117,6 +118,7 @@ class ProductController extends Controller
         $data['title'] = 'Add Product';
         $data['subtitle'] = 'Products';
         $data['categories'] = Category::where('status', '1')->get();
+        // $data['form_fields'] = view('admin.products.form_fields', $data)->render();
         return view('admin.products.create', $data);
     }
 
@@ -143,7 +145,7 @@ class ProductController extends Controller
         }
 
 
-        $model = new Product();
+        $modal = new Product();
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -152,19 +154,19 @@ class ProductController extends Controller
                 $imagePaths[] = $imageName; // Store image name in array
             }
         }
-        $model->images = $imagePaths;
-        $model->name = $request->name;
-        $model->category = $request->category;
-        $model->pid = generatePID();
-        $model->status = $request->status;
-        $model->is_featured = $request->is_featured ?'1':'0';
-        $model->is_trending = $request->is_trending ?'1':'0';
-        $model->save();
+        $modal->images = $imagePaths;
+        $modal->name = $request->name;
+        $modal->category = $request->category;
+        $modal->pid = generatePID();
+        $modal->status = $request->status;
+        $modal->is_featured = $request->is_featured ? '1' : '0';
+        $modal->is_trending = $request->is_trending ? '1' : '0';
+        $modal->save();
 
         // Update variants
         $variant = new Variant();
         $variant->images = $imagePaths;
-        $variant->product_id = $model->id;
+        $variant->product_id = $modal->id;
         $variant->color = $request->color;
         $variant->size = $request->size;
         $variant->stock = $request->stock;
@@ -174,7 +176,7 @@ class ProductController extends Controller
 
         if (!empty($request->stars)) {
             $ratings = new Review();
-            $ratings->pid   = $model->id;
+            $ratings->pid   = $modal->id;
             $ratings->user_id   = Auth::user()->id;
             $ratings->user_name = Auth::user()->name;
             $ratings->email = Auth::user()->email;
@@ -197,8 +199,8 @@ class ProductController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $model = Product::find($id);
-        $imagePaths = $model->images ?? [];
+        $modal = Product::find($id);
+        $imagePaths = $modal->images ?? [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $key => $image) {
                 if (isset($imagePaths[$key])) {
@@ -217,20 +219,20 @@ class ProductController extends Controller
                 $imagePaths[$key] = $imageName;
             }
         }
-        $model->images = $imagePaths;
-        $model->name = $request->name;
-        $model->category = $request->category;
-        $model->status = $request->status;
-        $model->is_featured = $request->is_featured ?'1':'0';
-        $model->is_trending = $request->is_trending ?'1':'0';
-        $model->short_description = $request->short_description;
-        $model->full_description = $request->full_description;
-        $model->add_description = $request->add_description;
-        $model->save();
+        $modal->images = $imagePaths;
+        $modal->name = $request->name;
+        $modal->category = $request->category;
+        $modal->status = $request->status;
+        $modal->is_featured = $request->is_featured ? '1' : '0';
+        $modal->is_trending = $request->is_trending ? '1' : '0';
+        $modal->short_description = $request->short_description;
+        $modal->full_description = $request->full_description;
+        $modal->add_description = $request->add_description;
+        $modal->save();
 
         // Update variants
-        $variant = Variant::where('product_id', $model->id)->firstOrNew();
-        $variant->product_id = $model->id;
+        $variant = Variant::where('product_id', $modal->id)->firstOrNew();
+        $variant->product_id = $modal->id;
         $variant->images = $imagePaths;
         $variant->color = $request->color;
         $variant->size = $request->size;
@@ -242,7 +244,7 @@ class ProductController extends Controller
         // Ratings
         if (!empty($request->stars)) {
             $ratings = new Review();
-            $ratings->pid   = $model->id;
+            $ratings->pid   = $modal->id;
             $ratings->user_id   = Auth::user()->id;
             $ratings->user_name = Auth::user()->name;
             $ratings->email = Auth::user()->email;
@@ -253,18 +255,18 @@ class ProductController extends Controller
         }
         return redirect()->route('admin.products')->with('success', 'Product updated successfully');
     }
-    public function delete(Request $request)
+    public function delete($id)
     {
-        $id = $request->id;
-        $model = Product::find($id);
-        if ($model) {
-            $model->status = '0';
-            $model->save();
+        $modal = Product::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->save();
             Session::flash('success', 'Product deleted successfully');
-            return response()->json(['success' => true, 'message' => 'Book deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'Product not found');
-        return response()->json(['success' => false, 'message' => 'Book not found']);
+        return response()->json(['success' => false]);
     }
 
     public function variants($product_id)
@@ -280,7 +282,7 @@ class ProductController extends Controller
         if (!empty($id)) {
             $data['title']       = 'Edit Variant';
             $data['variantData'] = Variant::find($id);
-        }else {
+        } else {
             $data['title']       = 'Add Variant';
             $data['variantData'] = Variant::find($id);
         }
@@ -302,13 +304,13 @@ class ProductController extends Controller
         }
         $id = $request->edit_id;
         if (!empty($id)) {
-            $model = Variant::find($id);
+            $modal = Variant::find($id);
             $msg = 'Variant updated successfully';
         } else {
-            $model = new Variant();
+            $modal = new Variant();
             $msg = 'Variant saved successfully';
         }
-        $imagePaths = $model->images ?? [];
+        $imagePaths = $modal->images ?? [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $key => $image) {
                 if (isset($imagePaths[$key])) {
@@ -327,15 +329,29 @@ class ProductController extends Controller
                 $imagePaths[$key] = $imageName;
             }
         }
-        $model->images = $imagePaths;
-        $model->product_id = $request->product_id;
-        $model->color = $request->color;
-        $model->size = $request->size;
-        $model->stock = $request->stock;
-        $model->price = $request->price;
-        $model->status = $request->status;
-        $model->save();
+        $modal->images = $imagePaths;
+        $modal->product_id = $request->product_id;
+        $modal->color = $request->color;
+        $modal->size = $request->size;
+        $modal->stock = $request->stock;
+        $modal->price = $request->price;
+        $modal->status = $request->status;
+        $modal->save();
         return redirect()->route('admin.products.variants', ['product_id' => $request->product_id])->with('success', $msg);
+    }
+
+    public function variants_delete($id)
+    {
+        $modal = Variant::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->save();
+            Session::flash('success', 'Variant deleted successfully');
+            return response()->json(['success' => true]);
+        }
+        Session::flash('error', 'Variant not found');
+        return response()->json(['success' => false]);
     }
 
     public function reviews($id)
@@ -348,7 +364,7 @@ class ProductController extends Controller
 
     public function reviews_list(Request $request)
     {
-        $columns = ['id', 'pid', 'email', 'user_name', 'reviews', 'rating','created_at'];
+        $columns = ['id', 'pid', 'email', 'user_name', 'reviews', 'rating', 'created_at'];
         $pid = $request->pid;
         $query = Review::with('product')->where('pid', $pid);
         $totalData = $query->count();
@@ -387,7 +403,7 @@ class ProductController extends Controller
             $nestedData['id'] = $review->id;
             $nestedData['product'] = $review->product->name ?? 'N/A';
             $nestedData['user'] = '<div>Name: ' . $review->user_name . '<br>Email: ' . $review->email . '</div>';
-            $nestedData['reviews'] = '<div>' . $review->reviews.'</div>';
+            $nestedData['reviews'] = '<div>' . $review->reviews . '</div>';
             $nestedData['reviews'] .= '<div class="ratings mt-2">';
             for ($i = 1; $i <= 5; $i++) {
                 $nestedData['reviews'] .= '<i class="fa fa-star ' . ($i <= $review->rating ? 'gold' : 'gray') . '"></i>';
@@ -407,4 +423,9 @@ class ProductController extends Controller
         return response()->json($json_data);
     }
 
+    public function get_form_fields(Request $request){
+        $data['category'] = $request->category;
+        $html = view('admin.products.form_fields', $data)->render();
+        return response()->json(['success' => true, 'html' => $html]);
+    }
 }

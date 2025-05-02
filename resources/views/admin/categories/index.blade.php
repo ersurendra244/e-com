@@ -18,8 +18,12 @@
                                     <th>image</th>
                                     <th>Name</th>
                                     <th>Description</th>
+                                    <th>Order By</th>
+                                    <th>Is Home</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    @canany(['category edit', 'category delete'])
+                                        <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                             <tbody>
@@ -65,40 +69,25 @@
                         "data": "description"
                     },
                     {
-                        "data": "status"
+                        "data": "order"
                     },
                     {
-                        "data": "action",
-                        "orderable": false,
-                        "searchable": false
-                    }
+                        "data": "is_home"
+                    },
+                    {
+                        "data": "status"
+                    },
+                    @canany(['category edit', 'category delete'])
+                        {
+                            "data": "action",
+                            "orderable": false,
+                            "searchable": false
+                        },
+                    @endcanany
                 ]
 
             });
         });
 
-        function deleteData(id) {
-            if (confirm("Are you sure you want to delete this category?")) {
-                $.ajax({
-                    url: "{{ route('admin.categories.delete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id: id
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function(response) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        }
     </script>
 @endpush

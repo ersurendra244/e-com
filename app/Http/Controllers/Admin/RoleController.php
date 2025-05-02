@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Role;
+use App\Models\Master;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -41,14 +42,14 @@ class RoleController extends Controller
         $dir = $request->input('order.0.dir', 'asc');
 
         if (empty($request->input('search.value'))) {
-            $model = Role::offset($start)
+            $modal = Role::offset($start)
                 ->limit($limit)
                 ->orderBy($order, $dir)
                 ->get();
         } else {
             $search = $request->input('search.value');
 
-            $model = Role::where('id', 'LIKE', "%{$search}%")
+            $modal = Role::where('id', 'LIKE', "%{$search}%")
                 ->orWhere('name', 'LIKE', "%{$search}%")
                 ->offset($start)
                 ->limit($limit)
@@ -61,7 +62,7 @@ class RoleController extends Controller
         }
 
         $data = [];
-        foreach ($model as $value) {
+        foreach ($modal as $value) {
             $nestedData['id'] = $value->id;
             $nestedData['name'] = $value->name;
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
@@ -97,6 +98,7 @@ class RoleController extends Controller
         $data['permissions'] = Permission::orderBy('name', 'asc')->get()->groupBy(function ($permission) {
             return explode(' ', $permission->name)[0];
         });
+        $data['menus'] = Master::where('type', 'menu')->get();
         return view('admin.roles.edit', $data);
     }
 
@@ -142,16 +144,45 @@ class RoleController extends Controller
         return redirect()->route('admin.roles')->with('success', 'Role updated successfully.');
     }
 
-    public function delete(Request $request)
+    public function delete($id)
     {
-        $id = $request->id;
-        $model = Role::find($id);
-        if ($model) {
-            $model->delete();
+        $modal = Role::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->delete();
             Session::flash('success', 'Role deleted successfully');
-            return response()->json(['success' => true, 'message' => 'Role deleted successfully']);
+            return response()->json(['success' => true]);
         }
         Session::flash('error', 'Role not found');
-        return response()->json(['success' => false, 'message' => 'Role not found']);
+        return response()->json(['success' => false]);
+    }
+    public function permissions_update(Request $request)
+    {
+        $role = Role::findOrFail($request->id);
+        $permission = Permission::where('name', $request->permission)->first();
+
+        if (!$permission) {
+            return response()->json(['success' => false, 'message' => 'Permission not found']);
+        }
+
+        if ($request->checked) {
+            $role->permissions()->syncWithoutDetaching([$permission->id]);
+        } else {
+            $role->permissions()->detach($permission->id);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function permissions_bulk_update(Request $request)
+    {
+        $role = Role::findOrFail($request->id);
+        $permissionNames = $request->permissions ?? [];
+
+        $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('id')->toArray();
+        $role->permissions()->sync($permissionIds);
+
+        return response()->json(['success' => true]);
     }
 }
