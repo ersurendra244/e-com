@@ -28,7 +28,6 @@
                             </div>
                         </div>
                         <h4 class="card-title">Permissions</h4>
-
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
@@ -237,10 +236,11 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data.success ? 'Updated ✅' : 'Failed ❌');
+                        notifyMessage(data.message, 'success');
+
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        notifyMessage(error, 'error');
                     });
             }
 
@@ -266,10 +266,10 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data.success ? 'Bulk updated ✅' : 'Bulk update failed ❌');
+                        notifyMessage(data.message, 'success');
                     })
                     .catch(error => {
-                        console.error('Bulk update error:', error);
+                        notifyMessage(error, 'error');
                     });
             }
 
