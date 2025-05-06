@@ -149,5 +149,70 @@ class MasterController extends Controller
         return response()->json(['success' => false]);
     }
 
+    public function item_type()
+    {
+        $data['title'] = 'Item type List';
+        $data['subtitle'] = 'Master';
+        $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->get();
+        return view('admin.masters.item_type_list', $data);
+    }
+    public function item_type_edit(Request $request)
+    {
+        $id = $request->id;
+        $data = Master::find($id);
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
+    public function item_type_save(Request $request)
+    {
+        $edit_id = $request->edit_id;
+        $validator = Validator::make($request->all(), [
+            'name' => [
+                'required',
+                Rule::unique('masters')->where(function ($query) {
+                    return $query->where('type', 'item_type');
+                })->ignore($edit_id),
+            ],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
+        }
+        if($edit_id){
+            $modal = Master::find($edit_id);
+            $msg = 'Item type updated successfully';
+        } else {
+            $modal = new Master();
+            $msg = 'Item type added successfully';
+        }
+        if ($request->hasFile('image')) {
+            if ($modal->image && file_exists(public_path('uploads/item_type/' . $modal->image))) {
+                unlink(public_path('uploads/item_type/' . $modal->image));
+            }
 
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/item_type'), $imageName);
+            $modal->image = $imageName;
+        }
+        $modal->name = $request->name;
+        $modal->type = 'item_type';
+        $modal->description = $request->description;
+        $modal->status = $request->status;
+        $modal->save();
+        Session::flash('success', $msg);
+        return response()->json(['status' => 'success', 'message' => $msg]);
+    }
+
+    public function item_type_delete($id)
+    {
+        $modal = Master::find($id);
+        if ($modal) {
+            $modal->status = '0';
+            $modal->is_delete = '1';
+            $modal->save();
+            Session::flash('success', 'Item type deleted successfully');
+            return response()->json(['success' => true]);
+        }
+        Session::flash('error', 'Item type not found');
+        return response()->json(['success' => false]);
+    }
 }

@@ -1,6 +1,8 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     @include('admin.common.message')
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
@@ -23,22 +25,37 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label" for="parent_id">Category</label>
-                                    <select name="parent_id" class="form-control" id="parent_id">
+                                    <label class="form-label" for="cat_id">Category</label>
+                                    <select name="cat_id" class="form-control" id="cat_id">
                                         <option value="">--select--</option>
                                         <option value="0">None</option>
                                         @foreach ($categories as $key => $value)
                                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('parent_id'))
-                                        <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+                                    @if ($errors->has('cat_id'))
+                                        <span class="text-danger">{{ $errors->first('cat_id') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="item_type">Item Type</label>
+                                    <select name="item_type[]" class="form-control" id="item_type" multiple size="3">
+                                        <option value="">--select--</option>
+                                        @foreach ($item_types as $key => $value)
+                                            <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('item_type'))
+                                        <span class="text-danger">{{ $errors->first('item_type') }}</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex flex-row">
-                                    <img id="output" src="" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
+                                    <img id="output" src=""
+                                        style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
                                     <div class="col-md-10">
                                         <div class="form-group">
                                             <label class="form-label" for="image">Image</label>
@@ -56,8 +73,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label" for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description"
-                                        placeholder="Enter description">{{ old('description') }}</textarea>
+                                    <textarea class="form-control" id="description" name="description" placeholder="Enter description">{{ old('description') }}</textarea>
                                     @if ($errors->has('description'))
                                         <span class="text-danger">{{ $errors->first('description') }}</span>
                                     @endif
@@ -103,6 +119,16 @@
 @endsection
 
 @push('child_scripts')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#item_type').select2({
+                placeholder: "Select Item Types",
+                allowClear: true
+            });
+        });
+    </script>
     <script>
         const loadFile = function(event) {
             var output = document.getElementById('output');

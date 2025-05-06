@@ -269,6 +269,7 @@
 @push('child_scripts')
     <script>
         $(document).ready(function() {
+
             $("input[name='is_rateing']").change(function() {
                 if ($("input[name='is_rateing']:checked").val()) {
                     $("#reviews-container").removeClass("d-none").fadeIn();

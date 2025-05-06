@@ -18,6 +18,7 @@
                                     <th>image</th>
                                     <th>Name</th>
                                     <th>Category</th>
+                                    <th>Item Type</th>
                                     <th>Order By</th>
                                     <th>Is Home</th>
                                     <th>Status</th>
@@ -66,7 +67,10 @@
                         "data": "name"
                     },
                     {
-                        "data": "parent_id"
+                        "data": "cat_id"
+                    },
+                    {
+                        "data": "item_type"
                     },
                     {
                         "data": "order"

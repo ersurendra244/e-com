@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\SubCategoryController;
 
 
 // Admin Routes (Only Accessible by Admins)
@@ -111,6 +112,13 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{id?}', [MasterController::class, 'brand_delete'])->name('admin.masters.brand_delete');
     });
 
+    Route::prefix('item-types')->group(function () {
+        Route::get('/', [MasterController::class, 'item_type'])->name('admin.masters.item_type');
+        Route::post('edit', [MasterController::class, 'item_type_edit'])->name('admin.masters.item_type_edit');
+        Route::post('save', [MasterController::class, 'item_type_save'])->name('admin.masters.item_type_save');
+        Route::get('delete/{id?}', [MasterController::class, 'item_type_delete'])->name('admin.masters.item_type_delete');
+    });
+
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index'])->name('admin.categories');
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
@@ -122,13 +130,13 @@ Route::prefix('masters')->group(function () {
     });
 
     Route::prefix('subcategories')->group(function () {
-        Route::get('/', [CategoryController::class, 'subcategory'])->name('admin.subcategory');
-        Route::post('list', [CategoryController::class, 'subcategory_list'])->name('admin.subcategory.list');
-        Route::post('store', [CategoryController::class, 'subcategory_store'])->name('admin.subcategory.store');
-        Route::get('create', [CategoryController::class, 'subcategory_create'])->name('admin.subcategory.create');
-        Route::get('edit/{slug}', [CategoryController::class, 'subcategory_edit'])->name('admin.subcategory.edit');
-        Route::post('update/{slug}', [CategoryController::class, 'subcategory_update'])->name('admin.subcategory.update');
-        Route::get('delete/{slug?}', [CategoryController::class, 'subcategory_delete'])->name('admin.subcategory.delete');
+        Route::get('/', [SubCategoryController::class, 'index'])->name('admin.subcategory');
+        Route::post('list', [SubCategoryController::class, 'list'])->name('admin.subcategory.list');
+        Route::post('store', [SubCategoryController::class, 'store'])->name('admin.subcategory.store');
+        Route::get('create', [SubCategoryController::class, 'create'])->name('admin.subcategory.create');
+        Route::get('edit/{slug}', [SubCategoryController::class, 'edit'])->name('admin.subcategory.edit');
+        Route::post('update/{slug}', [SubCategoryController::class, 'update'])->name('admin.subcategory.update');
+        Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
     });
 });
 
