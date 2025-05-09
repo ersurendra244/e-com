@@ -54,8 +54,8 @@ class SubCategoryController extends Controller
             $nestedData['name'] = $value->name;
             $nestedData['cat_id'] = $value->category->name ?? '';
             $item_type = '';
-            foreach ($value->itemTypeNames() as $name) {
-                $item_type .= '<label class="badge badge-outline-dark badge-pill py-1 mr-1 mb-1">' . $name . '</label>';
+            foreach ($value->itemTypeList() as $type) {
+                $item_type .= '<label class="badge badge-outline-dark badge-pill py-1 mr-1 mb-1">' . $type->name . '</label>';
             }
             $nestedData['item_type'] = $item_type;
             $nestedData['order'] = $value->order;

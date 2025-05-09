@@ -67,6 +67,7 @@ Route::prefix('products')->group(function () {
     Route::post('save', [ProductController::class, 'save'])->name('admin.products.save');
     Route::get('delete/{id?}', [ProductController::class, 'delete'])->name('admin.products.delete');
     Route::post('get-sub-categories', [ProductController::class, 'get_sub_categories'])->name('admin.product.get_sub_categories');
+    Route::post('get-sub-categories-items', [ProductController::class, 'get_sub_categories_items'])->name('admin.product.get_sub_categories_items');
     Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
 
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');

@@ -18,13 +18,14 @@ class SubCategory extends Model
         return $this->belongsTo(Category::class, 'cat_id');
     }
 
-    public function itemTypeNames()
+    public function itemTypeList()
     {
         return Master::whereIn('id', $this->item_type ?? [])
-                 ->where('type', 'item_type')
-                 ->pluck('name')
-                 ->toArray();
+                    ->where('type', 'item_type')
+                    ->get();
     }
+
+
     protected $casts = [
         'item_type' => 'array',
     ];

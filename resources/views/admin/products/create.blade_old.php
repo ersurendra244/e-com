@@ -1,10 +1,8 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
     @include('admin.common.message')
-
-    {{-- <style>
+    <style>
         .rating {
             display: flex;
             flex-direction: row-reverse;
@@ -94,8 +92,7 @@
             font-size: 18px;
             z-index: 10;
         }
-    </style> --}}
-
+    </style>
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
@@ -218,9 +215,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div id="my-dropzone" class="dropzone"></div>
+                        <div class="row mb-3" id="image-container">
+                            <div class="col-md-3 image-box">
+                                <label class="form-label" for="">Image 1</label>
+                                <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
+                                    <span class="btn-remove d-none" onclick="removeImage(event)">&times;</span>
+                                    <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
+                                    <img class="preview-image d-none" />
+                                    <p class="upload-text">Click and upload an image</p>
+                                    <input type="file" class="image-input d-none" name="images[]" accept="image/*"
+                                        onchange="loadFile(event)" />
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -274,8 +279,6 @@
 @endsection
 
 @push('child_scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-
     <script>
         $(document).ready(function() {
 
@@ -289,36 +292,82 @@
         });
     </script>
     <script>
-    let uploadedFiles = [];
+        function loadFile(event) {
+            var input = event.target;
+            var dropzone = input.closest('.image-container-box');
+            var image = dropzone.querySelector('.preview-image');
+            var removeBtn = dropzone.querySelector('.btn-remove');
 
-    // Manual Dropzone instance
-    let myDropzone = new Dropzone("#my-dropzone", {
-        url: "#", // Disable actual upload
-        autoProcessQueue: false, // Prevent auto upload
-        uploadMultiple: true,
-        addRemoveLinks: true,
-        maxFilesize: 5,
-        acceptedFiles: 'image/*',
-        parallelUploads: 10,
-        dictDefaultMessage: "Drag images here or click to upload",
-        init: function () {
-            let dz = this;
+            if (input.files.length > 0) {
+                image.src = URL.createObjectURL(input.files[0]);
+                image.classList.remove('d-none');
+                removeBtn.classList.remove('d-none');
+                dropzone.querySelector('.upload-text').classList.add('d-none');
+            }
+        }
 
-            // Append selected files to main form on submit
-            document.querySelector("form").addEventListener("submit", function (e) {
-                // Loop through Dropzone files and append them
-                dz.files.forEach(function (file, index) {
-                    let fileInput = document.createElement('input');
-                    fileInput.type = 'hidden';
-                    fileInput.name = 'images[]';
-                    fileInput.files = dz.files;
-                    document.querySelector("form").appendChild(fileInput);
-                });
+        function removeImage(event) {
+            event.stopPropagation();
+
+            var imageBox = event.target.closest('.image-box');
+            var container = document.getElementById('image-container');
+            var allBoxes = container.querySelectorAll('.image-box');
+
+            if (allBoxes.length === 1) {
+                var image = imageBox.querySelector('.preview-image');
+                var removeBtn = imageBox.querySelector('.btn-remove');
+                var fileInput = imageBox.querySelector('.image-input');
+
+                image.src = "";
+                image.classList.add('d-none');
+                removeBtn.classList.add('d-none');
+                imageBox.querySelector('.upload-text').classList.remove('d-none');
+                fileInput.value = "";
+            } else {
+                imageBox.remove();
+            }
+
+            updateAddMoreButtons();
+        }
+
+
+        function addMoreImage(event) {
+            event.stopPropagation();
+            var container = document.getElementById('image-container');
+            var existingBoxes = container.querySelectorAll('.image-box');
+
+            if (existingBoxes.length >= 4) {
+                alert("You can only upload a maximum of 4 images.");
+                return;
+            }
+
+            var newBox = document.createElement('div');
+            newBox.classList.add('col-md-3', 'image-box');
+            newBox.innerHTML = `
+            <label class="form-label" for="">Image ${existingBoxes.length + 1}</label>
+            <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
+                <span class="btn-remove" onclick="removeImage(event)">&times;</span>
+                <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
+                <img class="preview-image d-none" />
+                <p class="upload-text">Click and upload an image</p>
+                <input type="file" class="image-input d-none" name="images[]" accept="image/*" onchange="loadFile(event)" />
+            </div>
+        `;
+
+            container.appendChild(newBox);
+            updateAddMoreButtons();
+        }
+
+        function updateAddMoreButtons() {
+            var boxes = document.querySelectorAll('.image-box');
+            console.log(boxes.length);
+            boxes.forEach((box, index) => {
+                var addMoreBtn = box.querySelector('.btn-add-more');
+                addMoreBtn.classList.toggle('d-none', index !== boxes.length - 1 || boxes.length >= 4);
             });
         }
-    });
-</script>
-
+        document.addEventListener("DOMContentLoaded", updateAddMoreButtons);
+    </script>
     <script>
         function getSubCategories(event) {
             var category_id = $(event).val();

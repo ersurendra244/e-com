@@ -1,6 +1,26 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
+    <style>
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            display: inline-block ! important;
+            padding-right: 5px ! important;
+        }
+        .select2-container--default .select2-selection--multiple {
+            padding-bottom: 0px ! important;
+            border: solid #e0e0ef 1px !important;
+            min-height: calc(2.25rem + 10px) !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding: 10px 5px ! important;
+            font-size: small ! important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: relative !important;
+            padding: 0 3px !important;
+        }
+    </style>
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     @include('admin.common.message')
