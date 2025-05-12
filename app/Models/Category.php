@@ -14,7 +14,15 @@ class Category extends Model
 
     ];
 
-    public function parents(){
-        return $this->belongsTo(Category::class, 'parent_id');
+    public function itemTypeList()
+    {
+        return Master::whereIn('id', $this->item_type ?? [])
+                    ->where('type', 'item_type')
+                    ->get();
     }
+
+
+    protected $casts = [
+        'item_type' => 'array',
+    ];
 }

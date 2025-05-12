@@ -139,54 +139,58 @@ class ProductController extends Controller
             'name' => 'required',
             'category' => 'required',
             'price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
 
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
 
         $modal = new Product();
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/products'), $imageName);
-                $imagePaths[] = $imageName; // Store image name in array
-            }
-        }
-        $modal->images = $imagePaths;
         $modal->name = $request->name;
         $modal->category = $request->category;
+        $modal->price = $request->price;
         $modal->pid = generatePID();
         $modal->status = $request->status;
         $modal->is_featured = $request->is_featured ? '1' : '0';
         $modal->is_trending = $request->is_trending ? '1' : '0';
         $modal->save();
 
-        // Update variants
-        $variant = new Variant();
-        $variant->images = $imagePaths;
-        $variant->product_id = $modal->id;
-        $variant->color = $request->color;
-        $variant->size = $request->size;
-        $variant->stock = $request->stock;
-        $variant->price = $request->price;
-        $variant->status = $request->status;
-        $variant->save();
+        $imagePaths = [];
 
-        if (!empty($request->stars)) {
-            $ratings = new Review();
-            $ratings->pid   = $modal->id;
-            $ratings->user_id   = Auth::user()->id;
-            $ratings->user_name = Auth::user()->name;
-            $ratings->email = Auth::user()->email;
-            $ratings->reviews   = $request->reviews;
-            $ratings->rating    = $request->stars;
-            $ratings->save();
-            // return $ratings;
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/products'), $imageName);
+                $imagePaths[] = $imageName;
+            }
         }
-        return redirect()->route('admin.products')->with('success', 'Product saved successfully');
+
+        $modal->images = $imagePaths;
+        $modal->save();
+        // return $modal;
+        // $variant = new Variant();
+        // $variant->images = $imagePaths;
+        // $variant->product_id = $modal->id;
+        // $variant->color = $request->color;
+        // $variant->size = $request->size;
+        // $variant->stock = $request->stock;
+        // $variant->price = $request->price;
+        // $variant->status = $request->status;
+        // $variant->save();
+
+        // if (!empty($request->stars)) {
+        //     $ratings = new Review();
+        //     $ratings->pid   = $modal->id;
+        //     $ratings->user_id   = Auth::user()->id;
+        //     $ratings->user_name = Auth::user()->name;
+        //     $ratings->email = Auth::user()->email;
+        //     $ratings->reviews   = $request->reviews;
+        //     $ratings->rating    = $request->stars;
+        //     $ratings->save();
+        // }
+
+        return response()->json(['success' => true]);
     }
     public function update(Request $request, $id)
     {
@@ -427,6 +431,7 @@ class ProductController extends Controller
     public function get_form_fields(Request $request)
     {
         $data['subcategory_id'] = $request->subcategory_id;
+        $data['item_id'] = $request->item_id;
         $html = view('admin.products.form_fields', $data)->render();
         return response()->json(['success' => true, 'html' => $html]);
     }

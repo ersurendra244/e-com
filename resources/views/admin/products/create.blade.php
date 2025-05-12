@@ -1,10 +1,10 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
     @include('admin.common.message')
 
-    {{-- <style>
+    <style>
         .rating {
             display: flex;
             flex-direction: row-reverse;
@@ -27,74 +27,6 @@
             color: gold;
         }
     </style>
-    <style>
-        .image-container-box {
-            width: 100%;
-            height: 200px;
-            border: 2px dashed #e0e0ef;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            text-align: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .upload-text {
-            color: #777;
-            font-size: 14px;
-        }
-
-        /* Remove Button */
-        .btn-remove {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            z-index: 10;
-        }
-
-        /* Add More Button */
-        .btn-add-more {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: green;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            z-index: 10;
-        }
-    </style> --}}
 
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
@@ -155,8 +87,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="item_id">Item Type</label>
-                                    <select onchange="getFormFields();" name="item_id" class="form-control"
-                                        id="item_id">
+                                    <select onchange="getFormFields(this);" name="item_id" class="form-control" id="item_id">
                                         <option value="">Select Sub Category</option>
                                     </select>
                                     @if ($errors->has('item_id'))
@@ -235,7 +166,7 @@
                                     </div>
                                 </div>
                                 <div class="row d-none" id="reviews-container">
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label class="form-label" for="">Ratings</label>
                                             <div class="rating">
@@ -252,7 +183,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <div class="form-group">
                                             <label class="form-label" for="reviews">Review</label>
                                             <input type="text" class="form-control" id="reviews" name="reviews"
@@ -274,11 +205,10 @@
 @endsection
 
 @push('child_scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
     <script>
         $(document).ready(function() {
-
             $("input[name='is_rateing']").change(function() {
                 if ($("input[name='is_rateing']:checked").val()) {
                     $("#reviews-container").removeClass("d-none").fadeIn();
@@ -289,35 +219,53 @@
         });
     </script>
     <script>
-    let uploadedFiles = [];
+        let myDropzone = new Dropzone("#my-dropzone", {
+            url: "#", // prevent actual dropzone submit
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            addRemoveLinks: true,
+            maxFilesize: 5,
+            acceptedFiles: 'image/*',
+            parallelUploads: 10,
+            dictDefaultMessage: "Drag images here or click to upload",
+        });
 
-    // Manual Dropzone instance
-    let myDropzone = new Dropzone("#my-dropzone", {
-        url: "#", // Disable actual upload
-        autoProcessQueue: false, // Prevent auto upload
-        uploadMultiple: true,
-        addRemoveLinks: true,
-        maxFilesize: 5,
-        acceptedFiles: 'image/*',
-        parallelUploads: 10,
-        dictDefaultMessage: "Drag images here or click to upload",
-        init: function () {
-            let dz = this;
+        document.querySelector("form").addEventListener("submit", function(e) {
+            e.preventDefault();
 
-            // Append selected files to main form on submit
-            document.querySelector("form").addEventListener("submit", function (e) {
-                // Loop through Dropzone files and append them
-                dz.files.forEach(function (file, index) {
-                    let fileInput = document.createElement('input');
-                    fileInput.type = 'hidden';
-                    fileInput.name = 'images[]';
-                    fileInput.files = dz.files;
-                    document.querySelector("form").appendChild(fileInput);
-                });
+            let form = this;
+            let formData = new FormData(form);
+
+            // Add Dropzone files to formData
+            myDropzone.files.forEach(function(file, i) {
+                formData.append('images[]', file, file.name);
             });
-        }
-    });
-</script>
+
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "{{ route('admin.products') }}";
+                    } else if (data.errors) {
+                        alert("Validation error");
+                        console.log(data.errors);
+                    } else {
+                        alert("Error occurred");
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("Unexpected error occurred");
+                });
+        });
+    </script>
+
 
     <script>
         function getSubCategories(event) {
@@ -340,6 +288,7 @@
                 }
             });
         }
+
         function getItems(event) {
             var subcategory_id = $(event).val();
 
@@ -361,8 +310,9 @@
             });
         }
 
-        function getFormFields() {
+        function getFormFields(event) {
             var subcategory_id = $("#subcategory_id").val();
+            var item_id = $(event).val();
             if (!subcategory_id) {
                 $('#form-fields-container').html('');
                 return;
@@ -373,7 +323,8 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    subcategory_id: subcategory_id
+                    subcategory_id: subcategory_id,
+                    item_id: item_id
                 },
                 success: function(response) {
                     if (response.success) {

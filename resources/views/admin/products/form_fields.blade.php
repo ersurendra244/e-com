@@ -1,4 +1,4 @@
-@if(in_array($subcategory_id, ['6', '9']))
+@if(in_array($subcategory_id, ['1', '2']) && in_array($item_id, ['18', '19']))
 
     <div class="col-md-6">
         <div class="form-group">
@@ -42,11 +42,11 @@
     </div>
     <div class="col-md-6">
         <div class="form-group">
-            <label class="form-label" for="price">Base Price</label>
-            <input type="text" class="form-control" id="price" name="price"
-                placeholder="Enter price" value="{{ old('price') }}">
-            @if ($errors->has('price'))
-                <span class="text-danger">{{ $errors->first('price') }}</span>
+            <label class="form-label" for="base_price">Base Price</label>
+            <input type="text" class="form-control" id="base_price" name="base_price"
+                placeholder="Enter base price" value="{{ old('price') }}">
+            @if ($errors->has('base_price'))
+                <span class="text-danger">{{ $errors->first('base_price') }}</span>
             @endif
         </div>
     </div>

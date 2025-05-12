@@ -47,7 +47,7 @@
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
                                     <label class="form-label" for="cat_id">Category</label>
-                                    <select name="cat_id" class="form-control" id="cat_id">
+                                    <select name="cat_id" onchange="getCategoryItems(this.value);" class="form-control" id="cat_id">
                                         <option value="">--select--</option>
                                         <option value="0">None</option>
                                         @foreach ($categories as $key => $value)
@@ -66,11 +66,7 @@
                                     <label class="form-label" for="item_type">Item Type</label>
                                     <select name="item_type[]" class="form-control" id="item_type" multiple size="3">
                                         <option value="">--select--</option>
-                                        @foreach ($item_types as $key => $value)
-                                            <option
-                                                {{ isset($edit_data->item_type) && in_array($value->id, $edit_data->item_type) ? 'selected' : '' }}
-                                                value="{{ $value->id }}">{{ $value->name }}</option>
-                                        @endforeach
+
                                     </select>
                                     @if ($errors->has('item_type'))
                                         <span class="text-danger">{{ $errors->first('item_type') }}</span>
@@ -163,6 +159,27 @@
                 allowClear: true
             });
         });
+
+        function getCategoryItems(category_id) {
+            $('#item_type').html('<option value="">Select Item Type</option>');
+            // $('#form-fields-container').html('');
+
+            $.ajax({
+                url: "{{ route('admin.subcategory.get_categories_items') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: category_id,
+                    subcategory_id: '{{ $edit_data->id }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#item_type').html(response.html);
+                    }
+                }
+            });
+        }
+        getCategoryItems('{{ $edit_data->cat_id }}');
     </script>
 
     <script>

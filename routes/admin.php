@@ -125,9 +125,11 @@ Route::prefix('masters')->group(function () {
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
         Route::post('store', [CategoryController::class, 'store'])->name('admin.categories.store');
         Route::get('create', [CategoryController::class, 'create'])->name('admin.categories.create');
-        Route::get('edit/{slug}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::post('update/{slug}', [CategoryController::class, 'update'])->name('admin.categories.update');
+        Route::get('edit/{slug?}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+        Route::post('update/{slug?}', [CategoryController::class, 'update'])->name('admin.categories.update');
         Route::get('delete/{slug?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+        Route::get('items/{slug?}', [CategoryController::class, 'items'])->name('admin.categories.items');
+        Route::post('items-store', [CategoryController::class, 'items_store'])->name('admin.categories.items_store');
     });
 
     Route::prefix('subcategories')->group(function () {
@@ -138,6 +140,10 @@ Route::prefix('masters')->group(function () {
         Route::get('edit/{slug}', [SubCategoryController::class, 'edit'])->name('admin.subcategory.edit');
         Route::post('update/{slug}', [SubCategoryController::class, 'update'])->name('admin.subcategory.update');
         Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
+        Route::get('items/{slug?}', [SubCategoryController::class, 'items'])->name('admin.subcategory.items');
+        Route::post('items-store', [SubCategoryController::class, 'items_store'])->name('admin.subcategory.items_store');
+        Route::post('get-categories-items', [SubCategoryController::class, 'get_categories_items'])->name('admin.subcategory.get_categories_items');
+
     });
 });
 

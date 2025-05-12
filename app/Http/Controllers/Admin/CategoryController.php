@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Master;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -59,6 +60,9 @@ class CategoryController extends Controller
             if (Gate::allows('category edit')) {
                 $actions .= '<a href="' . route('admin.categories.edit', $value->slug) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
+            if (Gate::allows('category edit')) {
+                $actions .= '<a href="' . route('admin.categories.items', $value->slug) . '" class="btn btn-sm btn-success">Items</a> ';
+            }
             if (Gate::allows('category delete')) {
                 $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.categories.delete', $value->slug) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
@@ -82,6 +86,32 @@ class CategoryController extends Controller
         $data['subtitle'] = 'Masters';
         return view('admin.categories.create', $data);
     }
+
+    public function items(Request $request, $slug)
+    {
+        $data['category'] = Category::where('slug', $slug)->first();
+        $data['title'] = 'Items';
+        $data['subtitle'] = 'Masters';
+        $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->orderBy('name', 'asc')->get();
+        return view('admin.categories.items', $data);
+    }
+    public function items_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'item_type' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+            $modal = Category::findOrFail($request->category_id);
+            $modal->item_type = $request->item_type;
+        $modal->save();
+        Session::flash('success', 'Item added successfully');
+        return redirect()->back();
+    }
+
     public function edit(Request $request, $slug)
     {
         $data['title'] = 'Edit Category';

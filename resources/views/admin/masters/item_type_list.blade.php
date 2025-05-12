@@ -73,7 +73,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="addressForm" action="{{ route('admin.masters.brand_save') }}" method="post"
+                    <form id="addressForm" action="{{ route('admin.masters.item_type_save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
