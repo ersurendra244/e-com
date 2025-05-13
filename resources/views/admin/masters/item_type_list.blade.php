@@ -14,7 +14,6 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th style="width: 10%">Image</th>
                                     <th>Name</th>
                                     <th>Status</th>
                                     <th>Created At</th>
@@ -27,9 +26,6 @@
                                 @foreach ($item_types as $key => $value)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>
-                                            <img class="img-sm rounded w-100 h-100" src="{{ asset('uploads/item_type/' . $value->image) }}" alt=""/>
-                                        </td>
                                         <td>{{ $value->name }}</td>
                                         @php
                                             $status = $value->status == 1
@@ -87,26 +83,6 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <div class="form-group">
-                                            <label class="form-label" for="image">Image</label>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control" id="image" name="image"
-                                                onchange="loadFile(event)" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <img id="output" src="" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label" for="status">Status</label>
                                     <select name="status" class="form-control" id="status">
@@ -130,12 +106,6 @@
         $(document).ready(function() {
             $('#data_table').DataTable();
         });
-
-        const loadFile = function(event) {
-            var output = document.getElementById('output');
-            output.src = URL.createObjectURL(event.target.files[0]);
-            output.style.display = 'block';
-        };
 
         $('#addressForm').submit(function(e) {
             e.preventDefault();
@@ -179,10 +149,7 @@
                             $('#exampleModalLabel').text('Edit Item Type');
                             $('#edit_id').val(response.data.id);
                             $('#name').val(response.data.name);
-                            $('#description').val(response.data.description);
                             $('#status').val(response.data.status);
-                            $('#output').attr('src', '{{ asset('uploads/item_type') }}/' + response.data.image);
-                            $('#image').val('');
                         }
                     }
                 });

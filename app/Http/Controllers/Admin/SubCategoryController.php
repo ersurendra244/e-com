@@ -90,7 +90,6 @@ class SubCategoryController extends Controller
         $data['title'] = 'Add Subcategory';
         $data['subtitle'] = 'Masters';
         $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
-        $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->get();
         return view('admin.sub_categories.create', $data);
     }
     public function edit(Request $request, $slug)
@@ -99,7 +98,6 @@ class SubCategoryController extends Controller
         $data['subtitle'] = 'Masters';
         $data['edit_data'] = SubCategory::where('slug', $slug)->first();
         $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
-        // $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->get();
         return view('admin.sub_categories.edit', $data);
     }
     public function store(Request $request)
@@ -129,7 +127,6 @@ class SubCategoryController extends Controller
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
         $modal->cat_id = $request->cat_id;
-        // $modal->item_type = $request->item_type;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -164,7 +161,6 @@ class SubCategoryController extends Controller
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
         $modal->cat_id = $request->cat_id;
-        // $modal->item_type = $request->item_type;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -234,8 +230,8 @@ class SubCategoryController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-            $modal = SubCategory::findOrFail($request->subcategory_id);
-            $modal->item_type = $request->item_type;
+        $modal = SubCategory::findOrFail($request->subcategory_id);
+        $modal->item_type = $request->item_type;
         $modal->save();
         Session::flash('success', 'Item added successfully');
         return redirect()->back();

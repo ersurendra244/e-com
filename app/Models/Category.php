@@ -16,8 +16,7 @@ class Category extends Model
 
     public function itemTypeList()
     {
-        return Master::whereIn('id', $this->item_type ?? [])
-                    ->where('type', 'item_type')
+        return Item::whereIn('id', $this->item_type ?? [])
                     ->get();
     }
 

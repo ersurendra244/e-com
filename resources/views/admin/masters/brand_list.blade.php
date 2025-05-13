@@ -102,12 +102,6 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-label" for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
                                     <label class="form-label" for="status">Status</label>
                                     <select name="status" class="form-control" id="status">
                                         <option value="1">Active</option>
@@ -179,7 +173,6 @@
                             $('#exampleModalLabel').text('Edit Brand');
                             $('#edit_id').val(response.data.id);
                             $('#name').val(response.data.name);
-                            $('#description').val(response.data.description);
                             $('#status').val(response.data.status);
                             $('#output').attr('src', '{{ asset('uploads/brands') }}/' + response.data.image);
                             $('#image').val('');

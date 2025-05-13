@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Item;
 use App\Models\Master;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -92,7 +93,7 @@ class CategoryController extends Controller
         $data['category'] = Category::where('slug', $slug)->first();
         $data['title'] = 'Items';
         $data['subtitle'] = 'Masters';
-        $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->orderBy('name', 'asc')->get();
+        $data['item_types'] = Item::where('is_delete', '0')->orderBy('name', 'asc')->get();
         return view('admin.categories.items', $data);
     }
     public function items_store(Request $request)

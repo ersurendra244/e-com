@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Master;
+use App\Models\Item;
+use App\Models\Menu;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-use App\Models\Menu;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,7 +17,7 @@ class MasterController extends Controller
     {
         $data['title'] = 'Menu List';
         $data['subtitle'] = 'Master';
-        $data['menus'] = Menu::all();
+        $data['menus'] = Menu::where('is_delete', '0')->get();
         return view('admin.masters.menu_list', $data);
     }
     public function menu_edit(Request $request)
@@ -31,8 +32,8 @@ class MasterController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',
-                Rule::unique('masters')->where(function ($query) {
-                    return $query->where('type', 'menu');
+                Rule::unique('menus')->where(function ($query) {
+                    return $query;
                 })->ignore($edit_id),
             ],
         ]);
@@ -59,7 +60,6 @@ class MasterController extends Controller
         $modal->name = $request->name;
         $modal->is_home = $request->is_home;
         $modal->order = $request->order;
-        $modal->description = $request->description;
         $modal->status = $request->status;
         $modal->save();
         Session::flash('success', $msg);
@@ -85,13 +85,13 @@ class MasterController extends Controller
     {
         $data['title'] = 'Brand List';
         $data['subtitle'] = 'Master';
-        $data['brands'] = Master::where('type', 'brand')->get();
+        $data['brands'] = Brand::where('is_delete', '0')->get();
         return view('admin.masters.brand_list', $data);
     }
     public function brand_edit(Request $request)
     {
         $id = $request->id;
-        $data = Master::find($id);
+        $data = Brand::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
     public function brand_save(Request $request)
@@ -100,8 +100,8 @@ class MasterController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',
-                Rule::unique('masters')->where(function ($query) {
-                    return $query->where('type', 'brand');
+                Rule::unique('brands')->where(function ($query) {
+                    return $query;
                 })->ignore($edit_id),
             ],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -110,10 +110,10 @@ class MasterController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
         if($edit_id){
-            $modal = Master::find($edit_id);
+            $modal = Brand::find($edit_id);
             $msg = 'Brand updated successfully';
         } else {
-            $modal = new Master();
+            $modal = new Brand();
             $msg = 'Brand added successfully';
         }
         if ($request->hasFile('image')) {
@@ -127,8 +127,6 @@ class MasterController extends Controller
             $modal->image = $imageName;
         }
         $modal->name = $request->name;
-        $modal->type = 'brand';
-        $modal->description = $request->description;
         $modal->status = $request->status;
         $modal->save();
         Session::flash('success', $msg);
@@ -137,7 +135,7 @@ class MasterController extends Controller
 
     public function brand_delete($id)
     {
-        $modal = Master::find($id);
+        $modal = Brand::find($id);
         if ($modal) {
             $modal->status = '0';
             $modal->is_delete = '1';
@@ -153,13 +151,13 @@ class MasterController extends Controller
     {
         $data['title'] = 'Item type List';
         $data['subtitle'] = 'Master';
-        $data['item_types'] = Master::where('type', 'item_type')->where('is_delete', '0')->get();
+        $data['item_types'] = Item::where('is_delete', '0')->get();
         return view('admin.masters.item_type_list', $data);
     }
     public function item_type_edit(Request $request)
     {
         $id = $request->id;
-        $data = Master::find($id);
+        $data = Item::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
     public function item_type_save(Request $request)
@@ -168,8 +166,8 @@ class MasterController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',
-                Rule::unique('masters')->where(function ($query) {
-                    return $query->where('type', 'item_type');
+                Rule::unique('items')->where(function ($query) {
+                    return $query;
                 })->ignore($edit_id),
             ],
         ]);
@@ -177,10 +175,10 @@ class MasterController extends Controller
             return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
         if($edit_id){
-            $modal = Master::find($edit_id);
+            $modal = Item::find($edit_id);
             $msg = 'Item type updated successfully';
         } else {
-            $modal = new Master();
+            $modal = new Item();
             $msg = 'Item type added successfully';
         }
         if ($request->hasFile('image')) {
@@ -194,8 +192,6 @@ class MasterController extends Controller
             $modal->image = $imageName;
         }
         $modal->name = $request->name;
-        $modal->type = 'item_type';
-        $modal->description = $request->description;
         $modal->status = $request->status;
         $modal->save();
         Session::flash('success', $msg);
@@ -204,7 +200,7 @@ class MasterController extends Controller
 
     public function item_type_delete($id)
     {
-        $modal = Master::find($id);
+        $modal = Item::find($id);
         if ($modal) {
             $modal->status = '0';
             $modal->is_delete = '1';

@@ -1,28 +1,6 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
-    <!-- Select2 CSS -->
-    <style>
-        .select2-container .select2-selection--multiple .select2-selection__rendered {
-            display: inline-block ! important;
-            padding-right: 5px ! important;
-        }
-        .select2-container--default .select2-selection--multiple {
-            padding-bottom: 0px ! important;
-            border: solid #e0e0ef 1px !important;
-            min-height: calc(2.25rem + 10px) !important;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            padding: 10px 5px ! important;
-            font-size: small ! important;
-        }
-
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            position: relative !important;
-            padding: 0 3px !important;
-        }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     @include('admin.common.message')
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
@@ -58,18 +36,6 @@
                                     </select>
                                     @if ($errors->has('cat_id'))
                                         <span class="text-danger">{{ $errors->first('cat_id') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-group">
-                                    <label class="form-label" for="item_type">Item Type</label>
-                                    <select name="item_type[]" class="form-control" id="item_type" multiple size="3">
-                                        <option value="">--select--</option>
-
-                                    </select>
-                                    @if ($errors->has('item_type'))
-                                        <span class="text-danger">{{ $errors->first('item_type') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -150,37 +116,6 @@
 @endsection
 
 @push('child_scripts')
-    <!-- Select2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#item_type').select2({
-                placeholder: "Select Item Types",
-                allowClear: true
-            });
-        });
-
-        function getCategoryItems(category_id) {
-            $('#item_type').html('<option value="">Select Item Type</option>');
-            // $('#form-fields-container').html('');
-
-            $.ajax({
-                url: "{{ route('admin.subcategory.get_categories_items') }}",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    category_id: category_id,
-                    subcategory_id: '{{ $edit_data->id }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#item_type').html(response.html);
-                    }
-                }
-            });
-        }
-        getCategoryItems('{{ $edit_data->cat_id }}');
-    </script>
 
     <script>
         const loadFile = function(event) {
