@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MasterController;
@@ -67,7 +68,7 @@ Route::prefix('products')->group(function () {
     Route::post('save', [ProductController::class, 'save'])->name('admin.products.save');
     Route::get('delete/{id?}', [ProductController::class, 'delete'])->name('admin.products.delete');
     Route::post('get-sub-categories', [ProductController::class, 'get_sub_categories'])->name('admin.product.get_sub_categories');
-    Route::post('get-sub-categories-items', [ProductController::class, 'get_sub_categories_items'])->name('admin.product.get_sub_categories_items');
+    Route::post('get-items', [ProductController::class, 'get_items'])->name('admin.product.get_items');
     Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
 
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
@@ -120,6 +121,16 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{id?}', [MasterController::class, 'item_type_delete'])->name('admin.masters.item_type_delete');
     });
 
+    Route::prefix('items')->group(function () {
+        Route::get('/', [ItemController::class, 'index'])->name('admin.items');
+        Route::post('list', [ItemController::class, 'list'])->name('admin.items.list');
+        Route::post('store', [ItemController::class, 'store'])->name('admin.items.store');
+        Route::get('create', [ItemController::class, 'create'])->name('admin.items.create');
+        Route::get('edit/{slug?}', [ItemController::class, 'edit'])->name('admin.items.edit');
+        Route::post('update/{slug?}', [ItemController::class, 'update'])->name('admin.items.update');
+        Route::get('delete/{slug?}', [ItemController::class, 'delete'])->name('admin.items.delete');
+    });
+
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index'])->name('admin.categories');
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
@@ -128,8 +139,6 @@ Route::prefix('masters')->group(function () {
         Route::get('edit/{slug?}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
         Route::post('update/{slug?}', [CategoryController::class, 'update'])->name('admin.categories.update');
         Route::get('delete/{slug?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
-        Route::get('items/{slug?}', [CategoryController::class, 'items'])->name('admin.categories.items');
-        Route::post('items-store', [CategoryController::class, 'items_store'])->name('admin.categories.items_store');
     });
 
     Route::prefix('subcategories')->group(function () {
@@ -141,8 +150,6 @@ Route::prefix('masters')->group(function () {
         Route::post('update/{slug}', [SubCategoryController::class, 'update'])->name('admin.subcategory.update');
         Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
         Route::get('items/{slug?}', [SubCategoryController::class, 'items'])->name('admin.subcategory.items');
-        Route::post('items-store', [SubCategoryController::class, 'items_store'])->name('admin.subcategory.items_store');
-        Route::post('get-categories-items', [SubCategoryController::class, 'get_categories_items'])->name('admin.subcategory.get_categories_items');
 
     });
 });

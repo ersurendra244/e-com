@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Item;
 use App\Models\Review;
 use App\Models\Product;
 use App\Models\Variant;
@@ -155,6 +156,13 @@ class ProductController extends Controller
         $modal->is_featured = $request->is_featured ? '1' : '0';
         $modal->is_trending = $request->is_trending ? '1' : '0';
         $modal->save();
+
+
+        // foreach ($request->variant_images as $index => $images) {
+        //     foreach ($images as $image) {
+        //         // Handle upload (store image, link to variant, etc.)
+        //     }
+        // }
 
         $imagePaths = [];
 
@@ -439,7 +447,6 @@ class ProductController extends Controller
     public function get_sub_categories(Request $request)
     {
         $subcategories = SubCategory::where('cat_id', $request->category_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
-        // return $subcategories;
         if ($subcategories) {
             $html = '<option value="">Select Sub Category</option>';
             foreach ($subcategories as $value) {
@@ -449,21 +456,15 @@ class ProductController extends Controller
         return response()->json(['success' => true, 'html' => $html]);
     }
 
-    public function get_sub_categories_items(Request $request)
+    public function get_items(Request $request)
     {
-        $subcategory = SubCategory::where('id', $request->subcategory_id)
-            ->where('status', '1')
-            ->where('is_delete', '0')
-            ->first();
-
-        if ($subcategory && is_array($subcategory->item_type)) {
-            $html = '<option value="">Select Item Type</option>';
-            foreach ($subcategory->itemTypeList() as $type) {
-                $html .= '<option value="' . $type->id . '">' . $type->name . '</option>';
+        $items = Item::whereJsonContains('sub_cat_id', $request->subcategory_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
+        if ($items) {
+            $html = '<option value="">Select Item</option>';
+            foreach ($items as $value) {
+                $html .= '<option value="' . $value->id . '">' . $value->name . '</option>';
             }
-            return response()->json(['success' => true, 'html' => $html]);
         }
-
-        return response()->json(['success' => false, 'html' => '<option value="">No Item Types Found</option>']);
+        return response()->json(['success' => true, 'html' => $html]);
     }
 }

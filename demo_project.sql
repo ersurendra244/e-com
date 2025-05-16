@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 08, 2025 at 02:40 PM
+-- Generation Time: May 16, 2025 at 02:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -54,6 +54,35 @@ INSERT INTO `addresses` (`id`, `user_id`, `street`, `city`, `state`, `country`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `brands`
+--
+
+CREATE TABLE `brands` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `image` varchar(191) DEFAULT NULL,
+  `is_delete` enum('0','1') NOT NULL DEFAULT '0' COMMENT '1=Delete, 0=Not Delete',
+  `status` enum('0','1') NOT NULL DEFAULT '1' COMMENT '1=Active, 0=Inactive',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `brands`
+--
+
+INSERT INTO `brands` (`id`, `name`, `image`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'FabIndia', '1744977372_68023ddc68cc1.jpg', '0', '1', NULL, '2025-05-13 07:02:22'),
+(2, 'Manyavar', '1744977396_68023df4c6bcf.jpg', '0', '1', NULL, NULL),
+(3, 'Allen Solly', '1744977565_68023e9d2b64c.jpg', '0', '1', NULL, NULL),
+(4, 'Van Heusen', '1744979065_680244792a78f.jpg', '0', '1', NULL, NULL),
+(5, 'W for Woman', '1744977460_68023e348690b.jpg', '0', '1', NULL, NULL),
+(6, 'Flying Machine', '1744977485_68023e4d2099b.jpg', '0', '1', NULL, NULL),
+(7, 'Spykar', '1744977504_68023e6026154.jpg', '0', '1', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `categories`
 --
 
@@ -77,8 +106,8 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`, `slug`, `thumbnail`, `image`, `description`, `order`, `is_home`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
-(1, 'Fashion', 'fashion', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:31:34', '2025-05-06 03:31:34'),
-(2, 'Electronics', 'electronics', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:31:43', '2025-05-06 03:31:43'),
+(1, 'Fashion', 'fashion', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:31:34', '2025-05-12 07:27:44'),
+(2, 'Electronics', 'electronics', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:31:43', '2025-05-13 05:31:31'),
 (3, 'Home & Kitchen', 'home-&-kitchen', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:32:00', '2025-05-06 03:32:00'),
 (4, 'Books & Media', 'books-&-media', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:32:09', '2025-05-06 03:32:09'),
 (5, 'Beauty & Personal Care', 'beauty-&-personal-care', NULL, NULL, NULL, NULL, '1', '1', '0', '2025-05-06 03:32:18', '2025-05-06 03:32:18');
@@ -171,6 +200,50 @@ INSERT INTO `file_shares` (`id`, `file_id`, `role_id`, `user_id`, `action_type`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `items`
+--
+
+CREATE TABLE `items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `sub_cat_id` longtext DEFAULT NULL,
+  `is_delete` enum('0','1') NOT NULL DEFAULT '0' COMMENT '1=Delete, 0=Not Delete',
+  `status` enum('0','1') NOT NULL DEFAULT '1' COMMENT '1=Active, 0=Inactive',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `items`
+--
+
+INSERT INTO `items` (`id`, `name`, `slug`, `sub_cat_id`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Digital SLRs', 'digital-slrs', '[\"1\"]', '0', '1', '2025-05-15 05:11:49', '2025-05-15 05:11:49'),
+(2, 'Point & shoot', 'point-&-shoot', '[\"1\"]', '0', '1', '2025-05-15 05:12:10', '2025-05-15 05:12:10'),
+(3, 'Mirrorless Cameras', 'mirrorless-cameras', '[\"1\"]', '0', '1', '2025-05-15 05:12:22', '2025-05-15 05:12:22'),
+(4, 'Camcorders', 'camcorders', '[\"1\"]', '0', '1', '2025-05-15 05:12:32', '2025-05-15 05:12:32'),
+(5, 'Camera Lenses', 'camera-lenses', '[\"1\"]', '0', '1', '2025-05-15 05:12:58', '2025-05-15 05:12:58'),
+(6, 'Action Cameras', 'action-cameras', '[\"1\"]', '0', '1', '2025-05-15 05:13:14', '2025-05-15 05:13:14'),
+(7, 'Surveillance & Security Cameras', 'surveillance-&-security-cameras', '[\"1\"]', '0', '1', '2025-05-15 05:13:40', '2025-05-15 05:13:40'),
+(8, '360 degree cameras', '360-degree-cameras', '[\"1\"]', '0', '1', '2025-05-15 05:13:54', '2025-05-15 05:13:54'),
+(9, 'Spy cameras', 'spy-cameras', '[\"1\"]', '0', '1', '2025-05-15 05:14:08', '2025-05-15 05:14:08'),
+(10, 'Cases & Covers', 'cases-&-covers', '[\"2\"]', '0', '1', '2025-05-15 05:14:29', '2025-05-15 05:14:29'),
+(11, 'Screen guards', 'screen-guards', '[\"2\"]', '0', '1', '2025-05-15 05:14:44', '2025-05-15 05:14:44'),
+(12, 'Power Banks', 'power-banks', '[\"2\"]', '0', '1', '2025-05-15 05:14:54', '2025-05-15 05:14:54'),
+(13, 'Headsets', 'headsets', '[\"2\"]', '0', '1', '2025-05-15 05:15:05', '2025-05-15 05:15:05'),
+(14, 'Data Cables', 'data-cables', '[\"2\"]', '0', '1', '2025-05-15 05:15:16', '2025-05-15 05:15:16'),
+(15, 'Chargers', 'chargers', '[\"2\"]', '0', '1', '2025-05-15 05:15:27', '2025-05-15 05:15:27'),
+(16, 'Selfie Sticks', 'selfie-sticks', '[\"2\"]', '0', '1', '2025-05-15 05:15:45', '2025-05-15 05:15:45'),
+(17, 'Skin Stickers', 'skin-stickers', '[\"2\"]', '0', '1', '2025-05-15 05:15:57', '2025-05-15 05:15:57'),
+(18, 'Internal Batteries', 'internal-batteries', '[\"2\"]', '0', '1', '2025-05-15 05:16:11', '2025-05-15 05:16:11'),
+(19, 'Mounts & Stands', 'mounts-&-stands', '[\"2\"]', '0', '1', '2025-05-15 05:16:22', '2025-05-15 05:16:22'),
+(20, 'Lens Kits', 'lens-kits', '[\"2\"]', '0', '1', '2025-05-15 05:16:32', '2025-05-15 05:16:32'),
+(21, 'Replacement Parts', 'replacement-parts', '[\"2\"]', '0', '1', '2025-05-15 05:16:45', '2025-05-15 05:16:45');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `masters`
 --
 
@@ -187,54 +260,6 @@ CREATE TABLE `masters` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `masters`
---
-
-INSERT INTO `masters` (`id`, `name`, `type`, `order`, `image`, `description`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
-(1, 'Users', 'menu', 2, NULL, NULL, '1', '0', '2025-04-17 07:47:29', '2025-04-17 07:47:29'),
-(2, 'Categories', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:48:31', '2025-04-17 07:48:31'),
-(3, 'Products', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:48:41', '2025-04-17 07:48:41'),
-(4, 'Roles', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:48:50', '2025-04-17 07:48:50'),
-(5, 'Permissions', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:48:57', '2025-04-17 07:48:57'),
-(6, 'Files', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:49:04', '2025-04-17 07:49:04'),
-(7, 'Settings', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:49:12', '2025-04-17 07:49:12'),
-(8, 'Masters', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 07:49:19', '2025-04-17 07:50:46'),
-(9, 'Menus', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-17 08:09:49', '2025-04-18 06:01:29'),
-(10, 'Brands', 'menu', NULL, NULL, NULL, '1', '0', '2025-04-18 04:47:18', '2025-04-18 06:01:23'),
-(11, 'FabIndia', 'brand', NULL, '1744977372_68023ddc68cc1.jpg', 'FabIndia is one of the top 10 clothing brands in India. It is known for its ethnic wear, home furnishings, and accessories. The brand emphasizes traditional craftsmanship, promoting handmade and handwoven products. It is committed to providing sustainable and handmade products and promoting traditional Indian crafts.', '1', '0', '2025-04-18 06:26:12', '2025-04-18 06:26:12'),
-(12, 'Manyavar', 'brand', NULL, '1744977396_68023df4c6bcf.jpg', 'Manyavar is among the top 100 clothing brands in India. It is known for capturing the essence of grand celebrations. This brand is mainly focused on traditional and ceremonial wear for men, capturing the essence of Indian weddings and festivals. It is one of the leading Indian clothing brands for ethnic menswear in India.', '1', '0', '2025-04-18 06:26:36', '2025-04-18 06:26:36'),
-(13, 'Allen Solly', 'brand', NULL, '1744977565_68023e9d2b64c.jpg', 'Allen Solly is one of the most versatile Indian clothing brands, known for both formal and casual Western wear for men and women. It aims to bring a modern touch to workwear and everyday fashion. It blends sophistication with contemporary fashion, offering a wide range of styles for various occasions.', '1', '0', '2025-04-18 06:26:53', '2025-04-18 06:29:25'),
-(14, 'Van Heusen', 'brand', NULL, '1744979065_680244792a78f.jpg', 'Van Heusen is a brand famous for providing sophisticated formal and semi-formal wear for both men and women. It is known for its tailored and refined designs, catering to professionals and individuals with a taste for elegant fashion. It is one of the top 10 clothing brands in India.', '1', '0', '2025-04-18 06:27:19', '2025-04-18 06:54:25'),
-(15, 'W for Woman', 'brand', NULL, '1744977460_68023e348690b.jpg', 'W for Woman is a brand that speaks to the modern woman’s desire for fashion that embraces both style and ease. This brand in the list of top clothing brands in India combines traditional Indian aesthetics with modern designs. It caters to the diverse fashion needs of women. W for Woman offers a mix of ethnic and contemporary women’s wear. It is one of the top female clothing brands in India.', '1', '0', '2025-04-18 06:27:40', '2025-04-18 06:27:40'),
-(16, 'Flying Machine', 'brand', NULL, '1744977485_68023e4d2099b.jpg', 'Flying Machine is a youth-oriented brand known for its trendy denim and casual wear. It captures the essence of casual and stylish clothing for youth. From trendy jeans to casual apparel, this Indian clothing brand embodies the dynamic and modern fashion preferences of the younger generation. It is India’s first homegrown denim brand.', '1', '0', '2025-04-18 06:28:05', '2025-04-18 06:28:05'),
-(17, 'Spykar', 'brand', NULL, '1744977504_68023e6026154.jpg', 'Spykar is a name synonymous with urban fashion. It is one of the top clothing brands in India. It mainly focuses on denim and casual wear, catering to an urban and fashion-forward audience. This is one of the largest and fastest-growing Indian clothing brands. It is known for its trendy denim products and contemporary casual wear.', '1', '0', '2025-04-18 06:28:24', '2025-04-18 06:28:24'),
-(18, 'Smartphone', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(19, 'Gaming Laptop', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(20, 'Smart TV', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(21, 'DSLR', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(22, 'Bluetooth Speaker', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(23, 'T-Shirt', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(24, 'Kurti', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(25, 'Sneakers', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(26, 'Analog Watch', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(27, 'Sunglasses', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(28, 'Mixer Grinder', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(29, 'Wall Clock', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(30, 'Bedsheet', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(31, 'Non-stick Pan', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(32, 'LED Bulb', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(33, 'Engineering Book', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(34, 'Novel', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(35, 'Graphic Novel', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(36, 'Monthly Magazine', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(37, 'Story Book', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(38, 'Face Cream', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(39, 'Shampoo', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(40, 'Lipstick', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(41, 'Perfume', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL),
-(42, 'Beard Oil', 'item_type', NULL, NULL, NULL, '1', '0', '2025-05-06 12:48:51', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -244,9 +269,7 @@ INSERT INTO `masters` (`id`, `name`, `type`, `order`, `image`, `description`, `s
 CREATE TABLE `menus` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(191) NOT NULL,
-  `image` varchar(191) DEFAULT NULL,
   `order` int(11) DEFAULT NULL,
-  `description` varchar(191) DEFAULT NULL,
   `is_home` enum('0','1') NOT NULL DEFAULT '0' COMMENT '1=Publish, 0=Unpublish',
   `status` enum('0','1') NOT NULL DEFAULT '1' COMMENT '1=Active, 0=Inactive',
   `is_delete` enum('1','0') NOT NULL DEFAULT '0',
@@ -258,19 +281,19 @@ CREATE TABLE `menus` (
 -- Dumping data for table `menus`
 --
 
-INSERT INTO `menus` (`id`, `name`, `image`, `order`, `description`, `is_home`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
-(1, 'Users', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:56:30'),
-(2, 'Categories', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:23'),
-(3, 'Products', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:40'),
-(4, 'Roles', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:30'),
-(5, 'Permissions', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:38'),
-(6, 'Files', NULL, NULL, NULL, '1', '1', '0', '2025-04-22 06:01:01', '2025-04-22 06:01:01'),
-(7, 'Settings', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:29'),
-(8, 'Masters', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:03'),
-(9, 'Menus', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:52'),
-(10, 'Brands', NULL, NULL, NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:45'),
-(16, 'Subcategories', NULL, NULL, NULL, '1', '1', '0', '2025-04-22 01:51:17', '2025-04-22 01:51:17'),
-(17, 'Item Types', NULL, NULL, NULL, '1', '1', '0', '2025-05-06 07:10:32', '2025-05-06 07:10:32');
+INSERT INTO `menus` (`id`, `name`, `order`, `is_home`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
+(1, 'Users', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:56:30'),
+(2, 'Categories', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:23'),
+(3, 'Products', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:40'),
+(4, 'Roles', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:30'),
+(5, 'Permissions', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:38'),
+(6, 'Files', NULL, '1', '1', '0', '2025-04-22 06:01:01', '2025-04-22 06:01:01'),
+(7, 'Settings', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:29'),
+(8, 'Masters', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:59:03'),
+(9, 'Menus', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:52'),
+(10, 'Brands', NULL, '0', '1', '0', '2025-04-22 06:01:01', '2025-04-22 00:58:45'),
+(16, 'Subcategories', NULL, '1', '1', '0', '2025-04-22 01:51:17', '2025-04-22 01:51:17'),
+(17, 'Item Types', NULL, '1', '1', '0', '2025-05-06 07:10:32', '2025-05-06 07:10:32');
 
 -- --------------------------------------------------------
 
@@ -308,7 +331,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (18, '2025_04_17_061919_create_settings_table', 10),
 (19, '2025_04_17_123759_create_masters_table', 11),
 (20, '2025_04_22_055222_create_menus_table', 12),
-(21, '2025_05_06_113712_create_sub_categories_table', 13);
+(21, '2025_05_06_113712_create_sub_categories_table', 13),
+(22, '2025_05_13_115305_create_items_table', 14),
+(23, '2025_05_13_121357_create_brands_table', 15);
 
 -- --------------------------------------------------------
 
@@ -430,6 +455,14 @@ CREATE TABLE `products` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `pid`, `name`, `category`, `image`, `images`, `price`, `is_featured`, `is_trending`, `status`, `is_delete`, `short_description`, `full_description`, `add_description`, `created_at`, `updated_at`) VALUES
+(1, 'PID0001', 'Aman Kumar', '2', NULL, '[\"1747039336-6821b4684b0d2.jpg\",\"1747039336-6821b4684b4d9.jpg\",\"1747039336-6821b4684b7e5.jpg\",\"1747039336-6821b4684baa6.jpg\",\"1747039336-6821b4684bd1d.jpg\",\"1747039336-6821b4684bf96.jpg\"]', '250', '1', '1', '1', '0', NULL, NULL, NULL, '2025-05-12 03:12:16', '2025-05-12 03:12:16'),
+(2, 'PID0002', 'Aman Kumar', '2', NULL, '[\"1747039354-6821b47ae0acd.jpg\",\"1747039354-6821b47ae0e86.jpg\",\"1747039354-6821b47ae112d.jpg\",\"1747039354-6821b47ae13eb.jpg\",\"1747039354-6821b47ae1674.jpg\",\"1747039354-6821b47ae1922.jpg\"]', '250', '1', '1', '1', '0', NULL, NULL, NULL, '2025-05-12 03:12:34', '2025-05-12 03:12:34');
+
 -- --------------------------------------------------------
 
 --
@@ -456,7 +489,8 @@ CREATE TABLE `reviews` (
 INSERT INTO `reviews` (`id`, `pid`, `user_id`, `user_name`, `email`, `rating`, `reviews`, `is_delete`, `created_at`, `updated_at`) VALUES
 (1, 1, 1, 'Admin', 'admin@gmail.com', 4, 'Motorola Edge 50 Fusion is best product in this price range.', '0', '2025-04-03 07:01:54', '2025-04-03 07:01:54'),
 (2, 2, 1, 'Admin', 'admin@gmail.com', 5, 'Product 1 is best product in this price range.', '0', '2025-04-10 00:05:20', '2025-04-10 00:05:20'),
-(3, 1, 6, 'Shanu Kashyap', 'shanukashyap244@gmail.com', 5, 'Motorola Edge 50 Fusion is best product in this price range.', '0', '2025-04-11 08:13:43', '2025-04-11 08:13:43');
+(3, 1, 6, 'Shanu Kashyap', 'shanukashyap244@gmail.com', 5, 'Motorola Edge 50 Fusion is best product in this price range.', '0', '2025-04-11 08:13:43', '2025-04-11 08:13:43'),
+(4, 2, 1, 'Admin', 'admin@gmail.com', 5, 'swdfghj', '0', '2025-05-12 03:12:34', '2025-05-12 03:12:34');
 
 -- --------------------------------------------------------
 
@@ -708,7 +742,6 @@ CREATE TABLE `sub_categories` (
   `name` varchar(191) NOT NULL,
   `slug` varchar(191) NOT NULL,
   `cat_id` int(11) NOT NULL,
-  `item_type` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`item_type`)),
   `image` varchar(191) DEFAULT NULL,
   `thumbnail` varchar(191) DEFAULT NULL,
   `description` varchar(191) DEFAULT NULL,
@@ -724,31 +757,11 @@ CREATE TABLE `sub_categories` (
 -- Dumping data for table `sub_categories`
 --
 
-INSERT INTO `sub_categories` (`id`, `name`, `slug`, `cat_id`, `item_type`, `image`, `thumbnail`, `description`, `order`, `is_home`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Mobiles', 'mobiles', 2, '[\"18\",\"19\",\"20\",\"21\"]', NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:32:50', '2025-05-06 07:32:09'),
-(2, 'Laptops', 'laptops', 2, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:33:00', '2025-05-06 03:33:00'),
-(3, 'Televisions', 'televisions', 2, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:33:29', '2025-05-06 03:33:29'),
-(4, 'Cameras', 'cameras', 2, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:33:38', '2025-05-06 03:33:38'),
-(5, 'Audio', 'audio', 2, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:33:48', '2025-05-06 03:33:48'),
-(6, 'Men\'s Clothing', 'men\'s-clothing', 1, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:34:25', '2025-05-06 03:34:25'),
-(7, 'Women\'s Clothing', 'women\'s-clothing', 1, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:34:35', '2025-05-06 03:34:35'),
-(8, 'Footwear', 'footwear', 1, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:34:45', '2025-05-06 03:34:45'),
-(9, 'Watches', 'watches', 1, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:34:53', '2025-05-06 03:34:53'),
-(10, 'Kitchen Appliances', 'kitchen-appliances', 3, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:35:07', '2025-05-06 03:35:07'),
-(11, 'Decor', 'decor', 3, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:37:32', '2025-05-06 03:37:32'),
-(12, 'Furnishing', 'furnishing', 3, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:37:47', '2025-05-06 03:37:47'),
-(13, 'Cookware', 'cookware', 3, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:37:59', '2025-05-06 03:37:59'),
-(14, 'Lighting', 'lighting', 3, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:38:11', '2025-05-06 03:38:11'),
-(15, 'Academic', 'academic', 4, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:38:22', '2025-05-06 03:38:22'),
-(16, 'Fiction', 'fiction', 4, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:38:34', '2025-05-06 03:38:34'),
-(17, 'Comics', 'comics', 4, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:38:43', '2025-05-06 03:38:43'),
-(18, 'Magazines', 'magazines', 4, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:38:54', '2025-05-06 03:38:54'),
-(19, 'Children', 'children', 4, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:39:10', '2025-05-06 03:39:10'),
-(20, 'Skincare', 'skincare', 5, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:39:21', '2025-05-06 03:39:21'),
-(21, 'Haircare', 'haircare', 5, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:39:29', '2025-05-06 03:39:29'),
-(22, 'Makeup', 'makeup', 5, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:39:41', '2025-05-06 03:39:41'),
-(23, 'Fragrances', 'fragrances', 5, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:39:50', '2025-05-06 03:39:50'),
-(24, 'Men\'s Grooming', 'men\'s-grooming', 5, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-06 03:40:03', '2025-05-06 03:40:03');
+INSERT INTO `sub_categories` (`id`, `name`, `slug`, `cat_id`, `image`, `thumbnail`, `description`, `order`, `is_home`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Cameras', 'cameras', 2, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-15 05:07:10', '2025-05-15 05:07:10'),
+(2, 'Mobile Accessories', 'mobile-accessories', 2, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-15 05:08:03', '2025-05-15 05:08:03'),
+(3, 'Men Clothings', 'men-clothings', 1, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-15 05:11:01', '2025-05-15 05:11:01'),
+(4, 'Women Clothings', 'women-clothings', 1, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-05-15 05:11:16', '2025-05-15 05:11:16');
 
 -- --------------------------------------------------------
 
@@ -834,6 +847,13 @@ CREATE TABLE `variants` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Dumping data for table `variants`
+--
+
+INSERT INTO `variants` (`id`, `product_id`, `color`, `size`, `price`, `images`, `stock`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
+(1, 2, 'Black', 'SM', 250, '[\"1747039354-6821b47ae0acd.jpg\",\"1747039354-6821b47ae0e86.jpg\",\"1747039354-6821b47ae112d.jpg\",\"1747039354-6821b47ae13eb.jpg\",\"1747039354-6821b47ae1674.jpg\",\"1747039354-6821b47ae1922.jpg\"]', 4, '1', '0', '2025-05-12 03:12:34', '2025-05-12 03:12:34');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -843,6 +863,12 @@ CREATE TABLE `variants` (
 ALTER TABLE `addresses`
   ADD PRIMARY KEY (`id`),
   ADD KEY `addresses_user_id_foreign` (`user_id`);
+
+--
+-- Indexes for table `brands`
+--
+ALTER TABLE `brands`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `categories`
@@ -873,6 +899,12 @@ ALTER TABLE `files`
 -- Indexes for table `file_shares`
 --
 ALTER TABLE `file_shares`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `items`
+--
+ALTER TABLE `items`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -987,6 +1019,12 @@ ALTER TABLE `addresses`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `brands`
+--
+ALTER TABLE `brands`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
@@ -1017,10 +1055,16 @@ ALTER TABLE `file_shares`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `items`
+--
+ALTER TABLE `items`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
 -- AUTO_INCREMENT for table `masters`
 --
 ALTER TABLE `masters`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `menus`
@@ -1032,7 +1076,7 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -1050,13 +1094,13 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1080,7 +1124,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `sub_categories`
 --
 ALTER TABLE `sub_categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -1098,7 +1142,7 @@ ALTER TABLE `user_roles`
 -- AUTO_INCREMENT for table `variants`
 --
 ALTER TABLE `variants`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables

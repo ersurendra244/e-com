@@ -97,7 +97,7 @@
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
                         @endcan
                         @can('item type list')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.item_type') }}">Item Types</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.items') }}">Items</a></li>
                         @endcan
                         @can('category list')
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a>

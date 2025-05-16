@@ -11,4 +11,8 @@ class Item extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'sub_cat_id' => 'array',
+    ];
+
 }

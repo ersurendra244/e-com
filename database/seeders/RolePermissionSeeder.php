@@ -16,20 +16,59 @@ class RolePermissionSeeder extends Seeder
         $author = Role::firstOrCreate(['name' => 'Author']);
         $user   = Role::firstOrCreate(['name' => 'User']);
 
+        // Commond for sync permission
+        // php artisan permissions:sync-to-seeder
+
         // Create Permissions
-        $permissions = [
-            'role list',
-            'role create',
-            'role edit',
-            'role delete',
-            'permission list',
+        $defaultPermissions = [
+            'brand create',
+            'brand delete',
+            'brand edit',
+            'brand list',
+            'category create',
+            'category delete',
+            'category edit',
+            'category list',
+            'file create',
+            'file delete',
+            'file edit',
+            'file list',
+            'item type create',
+            'item type delete',
+            'item type edit',
+            'item type list',
+            'masters',
+            'menu create',
+            'menu delete',
+            'menu edit',
+            'menu list',
             'permission create',
-            'permission edit',
             'permission delete',
+            'permission edit',
+            'permission list',
+            'product create',
+            'product delete',
+            'product edit',
+            'product list',
+            'product review',
+            'role create',
+            'role delete',
+            'role edit',
+            'role list',
+            'settings',
+            'site settings',
+            'subcategory create',
+            'subcategory delete',
+            'subcategory edit',
+            'subcategory list',
+            'user create',
+            'user delete',
+            'user edit',
+            'user list',
         ];
 
         $permissionsList = [];
-        foreach ($permissions as $permission) {
+        foreach ($defaultPermissions as $permission) {
             $permissionsList[$permission] = Permission::firstOrCreate(['name' => $permission]);
         }
 
