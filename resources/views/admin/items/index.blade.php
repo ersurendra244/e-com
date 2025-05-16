@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('category create')
-                <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ route('admin.items.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -15,10 +15,8 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th>image</th>
                                     <th>Name</th>
-                                    <th>Order By</th>
-                                    <th>Is Home</th>
+                                    <th>created At</th>
                                     <th>Status</th>
                                     @canany(['category edit', 'category delete'])
                                         <th>Action</th>
@@ -48,7 +46,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.categories.list') }}",
+                    "url": "{{ route('admin.items.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {
@@ -59,16 +57,10 @@
                         "data": "id"
                     },
                     {
-                        "data": "image"
-                    },
-                    {
                         "data": "name"
                     },
                     {
-                        "data": "order"
-                    },
-                    {
-                        "data": "is_home"
+                        "data": "created_at"
                     },
                     {
                         "data": "status"

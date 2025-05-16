@@ -20,6 +20,8 @@ class CreateCartsTable extends Migration
             $table->unsignedBigInteger('variant_id');
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2);
+            $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
+            $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

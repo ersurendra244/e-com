@@ -19,7 +19,8 @@ class CreateContactsTable extends Migration
             $table->string('email');
             $table->string('subject');
             $table->text('message');
-            $table->boolean('status')->default(0);
+            $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
+            $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();
         });
     }

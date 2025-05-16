@@ -28,6 +28,8 @@ class CreateSettingsTable extends Migration
             $table->string('linkedin_url')->nullable();
             $table->string('instagram_url')->nullable();
             $table->text('map_iframe')->nullable();
+            $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
+            $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();
         });
     }

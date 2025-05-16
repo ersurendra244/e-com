@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MasterController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\SubCategoryController;
 
 
 // Admin Routes (Only Accessible by Admins)
@@ -65,6 +67,8 @@ Route::prefix('products')->group(function () {
     Route::post('update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::post('save', [ProductController::class, 'save'])->name('admin.products.save');
     Route::get('delete/{id?}', [ProductController::class, 'delete'])->name('admin.products.delete');
+    Route::post('get-sub-categories', [ProductController::class, 'get_sub_categories'])->name('admin.product.get_sub_categories');
+    Route::post('get-items', [ProductController::class, 'get_items'])->name('admin.product.get_items');
     Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
 
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
@@ -110,24 +114,43 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{id?}', [MasterController::class, 'brand_delete'])->name('admin.masters.brand_delete');
     });
 
+    Route::prefix('item-types')->group(function () {
+        Route::get('/', [MasterController::class, 'item_type'])->name('admin.masters.item_type');
+        Route::post('edit', [MasterController::class, 'item_type_edit'])->name('admin.masters.item_type_edit');
+        Route::post('save', [MasterController::class, 'item_type_save'])->name('admin.masters.item_type_save');
+        Route::get('delete/{id?}', [MasterController::class, 'item_type_delete'])->name('admin.masters.item_type_delete');
+    });
+
+    Route::prefix('items')->group(function () {
+        Route::get('/', [ItemController::class, 'index'])->name('admin.items');
+        Route::post('list', [ItemController::class, 'list'])->name('admin.items.list');
+        Route::post('store', [ItemController::class, 'store'])->name('admin.items.store');
+        Route::get('create', [ItemController::class, 'create'])->name('admin.items.create');
+        Route::get('edit/{slug?}', [ItemController::class, 'edit'])->name('admin.items.edit');
+        Route::post('update/{slug?}', [ItemController::class, 'update'])->name('admin.items.update');
+        Route::get('delete/{slug?}', [ItemController::class, 'delete'])->name('admin.items.delete');
+    });
+
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index'])->name('admin.categories');
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
         Route::post('store', [CategoryController::class, 'store'])->name('admin.categories.store');
         Route::get('create', [CategoryController::class, 'create'])->name('admin.categories.create');
-        Route::get('edit/{slug}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::post('update/{slug}', [CategoryController::class, 'update'])->name('admin.categories.update');
-        Route::get('delete/{id?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+        Route::get('edit/{slug?}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+        Route::post('update/{slug?}', [CategoryController::class, 'update'])->name('admin.categories.update');
+        Route::get('delete/{slug?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
     });
 
     Route::prefix('subcategories')->group(function () {
-        Route::get('/', [CategoryController::class, 'subcategory'])->name('admin.subcategory');
-        Route::post('list', [CategoryController::class, 'subcategory_list'])->name('admin.subcategory.list');
-        Route::post('store', [CategoryController::class, 'subcategory_store'])->name('admin.subcategory.store');
-        Route::get('create', [CategoryController::class, 'subcategory_create'])->name('admin.subcategory.create');
-        Route::get('edit/{id}', [CategoryController::class, 'subcategory_edit'])->name('admin.subcategory.edit');
-        Route::post('update/{id}', [CategoryController::class, 'subcategory_update'])->name('admin.subcategory.update');
-        Route::get('delete/{id?}', [CategoryController::class, 'subcategory_delete'])->name('admin.subcategory.delete');
+        Route::get('/', [SubCategoryController::class, 'index'])->name('admin.subcategory');
+        Route::post('list', [SubCategoryController::class, 'list'])->name('admin.subcategory.list');
+        Route::post('store', [SubCategoryController::class, 'store'])->name('admin.subcategory.store');
+        Route::get('create', [SubCategoryController::class, 'create'])->name('admin.subcategory.create');
+        Route::get('edit/{slug}', [SubCategoryController::class, 'edit'])->name('admin.subcategory.edit');
+        Route::post('update/{slug}', [SubCategoryController::class, 'update'])->name('admin.subcategory.update');
+        Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
+        Route::get('items/{slug?}', [SubCategoryController::class, 'items'])->name('admin.subcategory.items');
+
     });
 });
 

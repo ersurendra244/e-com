@@ -1,64 +1,42 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg') }}" width="400"></a></p>
+Category → Subcategory → Item Type → Attributes → Variants
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg') }}" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+✅ 1. Electronics
+Category	Subcategory	Item Type	Sample Attributes
+Electronics	Mobiles	Smartphone	Brand, Model, RAM, Storage, Camera, Battery, OS
+Electronics	Laptops	Gaming Laptop	Brand, Processor, RAM, GPU, SSD, Display Size, Battery Backup
+Electronics	Televisions	Smart TV	Screen Size, Resolution, OS, Connectivity, Refresh Rate
+Electronics	Cameras	DSLR	Megapixels, Lens Mount, ISO Range, Sensor Size, Brand
+Electronics	Audio	Bluetooth Speaker	Brand, Battery Life, Connectivity, Output Power, Waterproof
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+✅ 2. Fashion
+Category	Subcategory	Item Type	Sample Attributes
+Fashion	Men's Clothing	T-Shirt	Brand, Size, Color, Fit, Neck Type, Sleeve Type
+Fashion	Women's Clothing	Kurti	Fabric, Sleeve Length, Pattern, Length, Neck Style
+Fashion	Footwear	Sneakers	Brand, Size, Material, Closure Type, Sole Type
+Fashion	Watches	Analog Watch	Brand, Display Type, Strap Material, Dial Color, Water Resistance
+Fashion	Accessories	Sunglasses	Frame Shape, Lens Color, UV Protection, Material
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+✅ 3. Home & Kitchen
+Category	Subcategory	Item Type	Sample Attributes
+Home & Kitchen	Kitchen Appliances	Mixer Grinder	Brand, Wattage, No. of Jars, Speed Settings, Material
+Home & Kitchen	Decor	Wall Clock	Size, Material, Shape, Display Type, Battery Type
+Home & Kitchen	Furnishing	Bedsheet	Size, Fabric, Thread Count, Pattern, Wash Care
+Home & Kitchen	Cookware	Non-stick Pan	Diameter, Coating Type, Induction Compatible, Lid Included
+Home & Kitchen	Lighting	LED Bulb	Wattage, Color Temperature, Base Type, Lifespan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+✅ 4. Books & Media
+Category	Subcategory	Item Type	Sample Attributes
+Books & Media	Academic	Engineering Book	Author, Publisher, Language, Edition, Subject
+Books & Media	Fiction	Novel	Author, Genre, Language, Format, Pages
+Books & Media	Comics	Graphic Novel	Illustrator, Publisher, Genre, Language
+Books & Media	Magazines	Monthly Magazine	Title, Frequency, Language, Category
+Books & Media	Children	Story Book	Age Group, Author, Pages, Illustrated, Language
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+✅ 5. Beauty & Personal Care
+Category	Subcategory	Item Type	Sample Attributes
+Beauty & Personal Care	Skincare	Face Cream	Skin Type, Ingredients, SPF, Scent, Brand
+Beauty & Personal Care	Haircare	Shampoo	Hair Type, Ingredient Base, Sulfate-Free, Volume
+Beauty & Personal Care	Makeup	Lipstick	Shade, Finish Type, Long Lasting, Waterproof
+Beauty & Personal Care	Fragrances	Perfume	Fragrance Type, Volume, Notes, Brand
+Beauty & Personal Care	Men's Grooming	Beard Oil	Ingredients, Skin Type, Fragrance, Quantity

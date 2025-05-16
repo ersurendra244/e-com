@@ -1,12 +1,7 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
-    <script>
-        const allColors = @json(colors());
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
     @include('admin.common.message')
-
     <style>
         .rating {
             display: flex;
@@ -30,57 +25,74 @@
             color: gold;
         }
     </style>
-
     <style>
-        .dropzone {
-            display: flex !important;
-            align-items: center !important;
-            min-height: 64px !important;
-            padding: 0px 20px !important;
-            height: 125px !important;
-            border: 2px dashed #ccc;
-            border-radius: 10px !important;
-            position: relative !important;
-            text-align: center !important;
-        }
-
-        .dropzone .dz-preview {
-            margin: 12px 20px !important;
-            min-height: 72px !important;
-        }
-
-        .dropzone .dz-preview .dz-image {
-            width: 80px !important;
-            height: 80px !important;
-        }
-
-        .dropzone .dz-preview .dz-progress {
-            display: none !important;
-        }
-
-
-
-        .dz-message {
+        .image-container-box {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #e0e0ef;
+            border-radius: 5px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .dz-button {
-            font-size: 16px;
-            padding: 12px 24px;
-            background-color: #f0f0f0;
-            border: none;
-            border-radius: 6px;
+            flex-direction: column;
+            text-align: center;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .dz-button:hover {
-            background-color: #e0e0e0;
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .upload-text {
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* Remove Button */
+        .btn-remove {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        /* Add More Button */
+        .btn-add-more {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
         }
     </style>
-
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
@@ -140,63 +152,18 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="item_id">Item Type</label>
-                                    <select onchange="getFormFields(this);" name="item_id" class="form-control"
+                                    <select onchange="getFormFields();" name="item_id" class="form-control"
                                         id="item_id">
-                                        <option value="">Select Item</option>
+                                        <option value="">Select Sub Category</option>
                                     </select>
                                     @if ($errors->has('item_id'))
                                         <span class="text-danger">{{ $errors->first('item_id') }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <p class="form-label" for="">Collections</p>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input type="checkbox" class="form-check-input" name="is_featured"
-                                                        value="1">
-                                                    Featured<i class="input-helper"></i></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input type="checkbox" class="form-check-input" name="is_trending"
-                                                        value="1">
-                                                    Trending<i class="input-helper"></i></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="price">Price</label>
-                                    <input type="text" class="form-control" id="price" name="price"
-                                        placeholder="Enter price" value="{{ old('price') }}">
-                                    @if ($errors->has('price'))
-                                        <span class="text-danger">{{ $errors->first('price') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" for="base_price">Base Price</label>
-                                    <input type="text" class="form-control" id="base_price" name="base_price"
-                                        placeholder="Enter base price" value="{{ old('price') }}">
-                                    @if ($errors->has('base_price'))
-                                        <span class="text-danger">{{ $errors->first('base_price') }}</span>
-                                    @endif
-                                </div>
-                            </div>
+                        <div class="row" id="form-fields-container">
 
                         </div>
 
@@ -222,50 +189,46 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <label class="form-label">Variants</label>
-                        <div id="variant-wrapper">
-                            <div class="variant-group row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Color</label>
-                                        <select name="color[]" class="form-control color-select">
-                                            <option value="">Select color</option>
-                                            @php $colors = colors(); @endphp
-                                            @foreach ($colors as $key => $color)
-                                                <option value="{{ $key }}">{{ $color }}</option>
-                                            @endforeach
-                                        </select>
+                            <div class="col-md-6">
+                                <label class="form-label" for="">Collections</label>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="is_featured"
+                                                        value="1">
+                                                    Featured<i class="input-helper"></i></label>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Size</label>
-                                        <select name="size[]" class="form-control">
-                                            <option value="">Choose a size</option>
-                                            @php $sizes = sizes(); @endphp
-                                            @foreach ($sizes as $key => $size)
-                                                <option value="{{ $key }}">{{ $size }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="is_trending"
+                                                        value="1">
+                                                    Trending<i class="input-helper"></i></label>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <p class="form-label mb-1">Attribute Images</p>
-                                    <div class="dropzone my-dropzone"></div>
-                                </div>
-                                <div class="col-md-12 text-end">
-                                    <button type="button" class="btn btn-danger btn-sm remove-variant mt-2">-</button>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="mt-3">
-                            <button type="button" id="add-variant" class="btn btn-sm btn-success">+</button>
+                        <div class="row mb-3" id="image-container">
+                            <div class="col-md-3 image-box">
+                                <label class="form-label" for="">Image 1</label>
+                                <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
+                                    <span class="btn-remove d-none" onclick="removeImage(event)">&times;</span>
+                                    <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
+                                    <img class="preview-image d-none" />
+                                    <p class="upload-text">Click and upload an image</p>
+                                    <input type="file" class="image-input d-none" name="images[]" accept="image/*"
+                                        onchange="loadFile(event)" />
+                                </div>
+                            </div>
                         </div>
-
-
-                        <div class="row mt-3">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="form-check">
@@ -277,7 +240,7 @@
                                     </div>
                                 </div>
                                 <div class="row d-none" id="reviews-container">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label" for="">Ratings</label>
                                             <div class="rating">
@@ -294,7 +257,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label class="form-label" for="reviews">Review</label>
                                             <input type="text" class="form-control" id="reviews" name="reviews"
@@ -316,10 +279,9 @@
 @endsection
 
 @push('child_scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-
     <script>
         $(document).ready(function() {
+
             $("input[name='is_rateing']").change(function() {
                 if ($("input[name='is_rateing']:checked").val()) {
                     $("#reviews-container").removeClass("d-none").fadeIn();
@@ -329,106 +291,83 @@
             });
         });
     </script>
-    <!-- BEFORE Dropzone is included -->
     <script>
-        Dropzone.autoDiscover = false;
-    </script>
-    <script>
-        let dropzoneInstances = [];
+        function loadFile(event) {
+            var input = event.target;
+            var dropzone = input.closest('.image-container-box');
+            var image = dropzone.querySelector('.preview-image');
+            var removeBtn = dropzone.querySelector('.btn-remove');
 
-        function initSingleDropzone(element) {
-            const dz = new Dropzone(element, {
-                url: "#",
-                autoProcessQueue: false,
-                uploadMultiple: true,
-                addRemoveLinks: true,
-                maxFilesize: 5,
-                acceptedFiles: 'image/*',
-                parallelUploads: 10,
-                dictDefaultMessage: "Drag images here or click to upload"
-            });
-
-            dropzoneInstances.push(dz);
+            if (input.files.length > 0) {
+                image.src = URL.createObjectURL(input.files[0]);
+                image.classList.remove('d-none');
+                removeBtn.classList.remove('d-none');
+                dropzone.querySelector('.upload-text').classList.add('d-none');
+            }
         }
 
-        function updateColorOptions() {
-            const selectedColors = [];
+        function removeImage(event) {
+            event.stopPropagation();
 
-            // Get selected values
-            $('.color-select').each(function() {
-                const val = $(this).val();
-                if (val) selectedColors.push(val);
-            });
+            var imageBox = event.target.closest('.image-box');
+            var container = document.getElementById('image-container');
+            var allBoxes = container.querySelectorAll('.image-box');
 
-            // For each select, rebuild options
-            $('.color-select').each(function() {
-                const currentVal = $(this).val();
+            if (allBoxes.length === 1) {
+                var image = imageBox.querySelector('.preview-image');
+                var removeBtn = imageBox.querySelector('.btn-remove');
+                var fileInput = imageBox.querySelector('.image-input');
 
-                let optionsHtml = '<option value="">Select color</option>';
-                $.each(allColors, function(key, label) {
-                    if (!selectedColors.includes(key) || currentVal === key) {
-                        optionsHtml +=
-                            `<option value="${key}" ${currentVal === key ? 'selected' : ''}>${label}</option>`;
-                    }
-                });
+                image.src = "";
+                image.classList.add('d-none');
+                removeBtn.classList.add('d-none');
+                imageBox.querySelector('.upload-text').classList.remove('d-none');
+                fileInput.value = "";
+            } else {
+                imageBox.remove();
+            }
 
-                $(this).html(optionsHtml);
-            });
+            updateAddMoreButtons();
         }
 
-        $(document).ready(function() {
-            // Initialize first dropzone
-            document.querySelectorAll(".my-dropzone").forEach(el => initSingleDropzone(el));
 
-            // Handle add variant
-            $('#add-variant').click(function() {
-                const firstVariant = $('.variant-group').first();
-                const newVariant = firstVariant.clone();
+        function addMoreImage(event) {
+            event.stopPropagation();
+            var container = document.getElementById('image-container');
+            var existingBoxes = container.querySelectorAll('.image-box');
 
-                // Reset inputs
-                newVariant.find('select').val('');
-                newVariant.find('.dz-preview').remove();
-                newVariant.find('.my-dropzone').removeClass('dz-started dz-max-files-reached').empty();
+            if (existingBoxes.length >= 4) {
+                alert("You can only upload a maximum of 4 images.");
+                return;
+            }
 
-                // Create new dropzone wrapper
-                const newDropzone = $('<div class="dropzone my-dropzone"></div>');
-                newVariant.find('.my-dropzone').replaceWith(newDropzone);
+            var newBox = document.createElement('div');
+            newBox.classList.add('col-md-3', 'image-box');
+            newBox.innerHTML = `
+            <label class="form-label" for="">Image ${existingBoxes.length + 1}</label>
+            <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
+                <span class="btn-remove" onclick="removeImage(event)">&times;</span>
+                <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
+                <img class="preview-image d-none" />
+                <p class="upload-text">Click and upload an image</p>
+                <input type="file" class="image-input d-none" name="images[]" accept="image/*" onchange="loadFile(event)" />
+            </div>
+        `;
 
-                $('#variant-wrapper').append(newVariant);
+            container.appendChild(newBox);
+            updateAddMoreButtons();
+        }
 
-                initSingleDropzone(newDropzone[0]);
-                updateColorOptions(); // update color dropdowns after adding
+        function updateAddMoreButtons() {
+            var boxes = document.querySelectorAll('.image-box');
+            console.log(boxes.length);
+            boxes.forEach((box, index) => {
+                var addMoreBtn = box.querySelector('.btn-add-more');
+                addMoreBtn.classList.toggle('d-none', index !== boxes.length - 1 || boxes.length >= 4);
             });
-
-            // Handle remove variant
-            $(document).on('click', '.remove-variant', function() {
-                if ($('.variant-group').length > 1) {
-                    const removedGroup = $(this).closest('.variant-group');
-                    const indexToRemove = $('.variant-group').index(removedGroup);
-
-                    // Remove dropzone instance
-                    const dz = dropzoneInstances[indexToRemove];
-                    if (dz) {
-                        dz.destroy();
-                        dropzoneInstances.splice(indexToRemove, 1);
-                    }
-
-                    removedGroup.remove();
-                    updateColorOptions(); // update color dropdowns after removal
-                } else {
-                    alert("At least one variant is required.");
-                }
-            });
-
-            // Color change event
-            $(document).on('change', '.color-select', function() {
-                updateColorOptions();
-            });
-
-            updateColorOptions(); // Initial call
-        });
+        }
+        document.addEventListener("DOMContentLoaded", updateAddMoreButtons);
     </script>
-
     <script>
         function getSubCategories(event) {
             var category_id = $(event).val();
@@ -450,7 +389,6 @@
                 }
             });
         }
-
         function getItems(event) {
             var subcategory_id = $(event).val();
 
@@ -458,7 +396,7 @@
             $('#form-fields-container').html('');
 
             $.ajax({
-                url: "{{ route('admin.product.get_items') }}",
+                url: "{{ route('admin.product.get_sub_categories_items') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -472,9 +410,8 @@
             });
         }
 
-        function getFormFields(event) {
+        function getFormFields() {
             var subcategory_id = $("#subcategory_id").val();
-            var item_id = $(event).val();
             if (!subcategory_id) {
                 $('#form-fields-container').html('');
                 return;
@@ -485,8 +422,7 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    subcategory_id: subcategory_id,
-                    item_id: item_id
+                    subcategory_id: subcategory_id
                 },
                 success: function(response) {
                     if (response.success) {

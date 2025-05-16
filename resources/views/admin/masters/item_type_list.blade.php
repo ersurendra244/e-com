@@ -3,7 +3,7 @@
     @include('admin.common.message')
     <div class="card">
         <div class="card-body">
-            @can('brand create')
+            @can('item type create')
                 <a href="javascript:void(0)" onclick="addnew()" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
@@ -14,22 +14,18 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th style="width: 10%">Image</th>
                                     <th>Name</th>
                                     <th>Status</th>
                                     <th>Created At</th>
-                                    @canany(['brand edit','brand delete'])
+                                    @canany(['item type edit','item type delete'])
                                         <th>Action</th>
                                     @endcan
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($brands as $key => $value)
+                                @foreach ($item_types as $key => $value)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>
-                                            <img class="img-sm rounded w-100 h-100" src="{{ asset('uploads/brands/' . $value->image) }}" alt=""/>
-                                        </td>
                                         <td>{{ $value->name }}</td>
                                         @php
                                             $status = $value->status == 1
@@ -39,13 +35,13 @@
 
                                         <td>{!! $status !!}</td>
                                         <td>{{ date('d-m-Y', strtotime($value->created_at)) }}</td>
-                                        @canany(['brand edit','brand delete'])
+                                        @canany(['item type edit','item type delete'])
                                             <td>
-                                                @can('brand edit')
+                                                @can('item type edit')
                                                 <a href="javascript:void(0)" onclick="addnew({{ $value->id }})"
                                                     class="btn btn-sm btn-info">Edit</a>
                                                 @endcan
-                                                @can('brand delete')
+                                                @can('item type delete')
                                                 <button class="btn btn-sm btn-danger"
                                                     onclick="deleteData({{ $value->id }})">Delete</button>
                                                 @endcan
@@ -73,7 +69,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="addressForm" action="{{ route('admin.masters.brand_save') }}" method="post"
+                    <form id="addressForm" action="{{ route('admin.masters.item_type_save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -84,20 +80,6 @@
                                     <input type="text" class="form-control" id="name" name="name"
                                         placeholder="Enter name" value="">
 
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <div class="form-group">
-                                            <label class="form-label" for="image">Image</label>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control" id="image" name="image"
-                                                onchange="loadFile(event)" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <img id="output" src="" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -124,12 +106,6 @@
         $(document).ready(function() {
             $('#data_table').DataTable();
         });
-
-        const loadFile = function(event) {
-            var output = document.getElementById('output');
-            output.src = URL.createObjectURL(event.target.files[0]);
-            output.style.display = 'block';
-        };
 
         $('#addressForm').submit(function(e) {
             e.preventDefault();
@@ -162,7 +138,7 @@
             $('#addressForm')[0].reset();
             if (id) {
                 $.ajax({
-                    url: "{{ route('admin.masters.brand_edit') }}",
+                    url: "{{ route('admin.masters.item_type_edit') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -170,12 +146,10 @@
                     },
                     success: function(response) {
                         if (response.status === "success") {
-                            $('#exampleModalLabel').text('Edit Brand');
+                            $('#exampleModalLabel').text('Edit Item Type');
                             $('#edit_id').val(response.data.id);
                             $('#name').val(response.data.name);
                             $('#status').val(response.data.status);
-                            $('#output').attr('src', '{{ asset('uploads/brands') }}/' + response.data.image);
-                            $('#image').val('');
                         }
                     }
                 });

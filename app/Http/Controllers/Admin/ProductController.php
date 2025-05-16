@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Item;
 use App\Models\Review;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\Category;
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -138,54 +140,65 @@ class ProductController extends Controller
             'name' => 'required',
             'category' => 'required',
             'price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
 
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
 
         $modal = new Product();
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/products'), $imageName);
-                $imagePaths[] = $imageName; // Store image name in array
-            }
-        }
-        $modal->images = $imagePaths;
         $modal->name = $request->name;
         $modal->category = $request->category;
+        $modal->price = $request->price;
         $modal->pid = generatePID();
         $modal->status = $request->status;
         $modal->is_featured = $request->is_featured ? '1' : '0';
         $modal->is_trending = $request->is_trending ? '1' : '0';
         $modal->save();
 
-        // Update variants
-        $variant = new Variant();
-        $variant->images = $imagePaths;
-        $variant->product_id = $modal->id;
-        $variant->color = $request->color;
-        $variant->size = $request->size;
-        $variant->stock = $request->stock;
-        $variant->price = $request->price;
-        $variant->status = $request->status;
-        $variant->save();
 
-        if (!empty($request->stars)) {
-            $ratings = new Review();
-            $ratings->pid   = $modal->id;
-            $ratings->user_id   = Auth::user()->id;
-            $ratings->user_name = Auth::user()->name;
-            $ratings->email = Auth::user()->email;
-            $ratings->reviews   = $request->reviews;
-            $ratings->rating    = $request->stars;
-            $ratings->save();
-            // return $ratings;
+        // foreach ($request->variant_images as $index => $images) {
+        //     foreach ($images as $image) {
+        //         // Handle upload (store image, link to variant, etc.)
+        //     }
+        // }
+
+        $imagePaths = [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/products'), $imageName);
+                $imagePaths[] = $imageName;
+            }
         }
-        return redirect()->route('admin.products')->with('success', 'Product saved successfully');
+
+        $modal->images = $imagePaths;
+        $modal->save();
+        // return $modal;
+        // $variant = new Variant();
+        // $variant->images = $imagePaths;
+        // $variant->product_id = $modal->id;
+        // $variant->color = $request->color;
+        // $variant->size = $request->size;
+        // $variant->stock = $request->stock;
+        // $variant->price = $request->price;
+        // $variant->status = $request->status;
+        // $variant->save();
+
+        // if (!empty($request->stars)) {
+        //     $ratings = new Review();
+        //     $ratings->pid   = $modal->id;
+        //     $ratings->user_id   = Auth::user()->id;
+        //     $ratings->user_name = Auth::user()->name;
+        //     $ratings->email = Auth::user()->email;
+        //     $ratings->reviews   = $request->reviews;
+        //     $ratings->rating    = $request->stars;
+        //     $ratings->save();
+        // }
+
+        return response()->json(['success' => true]);
     }
     public function update(Request $request, $id)
     {
@@ -423,9 +436,35 @@ class ProductController extends Controller
         return response()->json($json_data);
     }
 
-    public function get_form_fields(Request $request){
-        $data['category'] = $request->category;
+    public function get_form_fields(Request $request)
+    {
+        $data['subcategory_id'] = $request->subcategory_id;
+        $data['item_id'] = $request->item_id;
         $html = view('admin.products.form_fields', $data)->render();
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    public function get_sub_categories(Request $request)
+    {
+        $subcategories = SubCategory::where('cat_id', $request->category_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
+        if ($subcategories) {
+            $html = '<option value="">Select Sub Category</option>';
+            foreach ($subcategories as $value) {
+                $html .= '<option value="' . $value->id . '">' . $value->name . '</option>';
+            }
+        }
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    public function get_items(Request $request)
+    {
+        $items = Item::whereJsonContains('sub_cat_id', $request->subcategory_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
+        if ($items) {
+            $html = '<option value="">Select Item</option>';
+            foreach ($items as $value) {
+                $html .= '<option value="' . $value->id . '">' . $value->name . '</option>';
+            }
+        }
         return response()->json(['success' => true, 'html' => $html]);
     }
 }
