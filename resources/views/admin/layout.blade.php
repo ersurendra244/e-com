@@ -15,6 +15,9 @@
         .error-message {
             font-size: small !important;
         }
+        body {
+        font-family: "Font Awesome 5 Free", sans-serif ! important;
+        }
     </style>
 </head>
 
