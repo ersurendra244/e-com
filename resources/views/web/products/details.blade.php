@@ -44,7 +44,11 @@
             <div class="col-lg-5 mb-30">
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light" id="carousel-images">
-                        @foreach ($productData->variants[0]->images as $key => $image)
+                        @php
+                            $images = $productData->variants[0]->images;
+                            // print_r($images); die;
+                        @endphp
+                        @foreach ($images as $key => $image)
                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
                                 <img class="w-100 h-100" src="{{ asset('uploads/products/' . $image) }}" alt="Image">
                             </div>
@@ -61,7 +65,7 @@
 
             <div class="col-lg-7 h-auto mb-30">
                 <div class="h-100 bg-light p-30">
-                    <h3>{{ ucWords($productData->name) }}</h3>
+                    <h3>{{ ucWords($productData->title) }}</h3>
                     @php
                         $reviews = $productData->reviews()->latest()->get();
                         $rating = ceil($productData->reviews_avg_rating);
@@ -79,9 +83,9 @@
                         <small class="pt-1">({{ $reviews->count() }} Reviews)</small>
                     </div>
                     <div class="d-flex align-items-center mb-4">
-                        <h3 class="font-weight-semi-bold mb-0">₹{{ $productData->variants[0]->price }}/ </h3>
+                        <h3 class="font-weight-semi-bold mb-0">₹{{ $productData->price }}/ </h3>
                         <h6 class="text-muted mb-0">
-                            <del>₹{{ $productData->variants[0]->price * 1.1 }}</del>
+                            <del>₹{{ $productData->base_price ?? $productData->price * 1.1 }}</del>
                         </h6>
                     </div>
                     <p class="mb-4">{{ $productData->short_description }}</p>
@@ -91,8 +95,8 @@
                         <form>
                             @foreach ($productData->variants as $key => $variant)
                                 <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" class="custom-control-input color-option" id="color-{{ $key }}"
-                                        name="color" value="{{ $variant->color }}">
+                                    <input type="radio" class="custom-control-input color-option"
+                                        id="color-{{ $key }}" name="color" value="{{ $variant->color }}">
                                     <label class="custom-control-label"
                                         for="color-{{ $key }}">{{ $variant->color }}</label>
                                 </div>
@@ -105,8 +109,8 @@
                             <form>
                                 @foreach ($productData->variants as $key => $variant)
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" class="custom-control-input size-option" id="size-{{ $key }}"
-                                            name="size">
+                                        <input type="radio" class="custom-control-input size-option"
+                                            id="size-{{ $key }}" name="size">
                                         <label class="custom-control-label"
                                             for="size-{{ $key }}">{{ $variant->size }}</label>
                                     </div>
@@ -114,9 +118,12 @@
                             </form>
                         </div>
                     </div>
-
-                    <input type="text" name="product_id" id="product_id" class="form-control" value="{{ $productData->id }}">
-                    <input type="text" name="variant_id" id="variant_id" class="form-control" value="">
+                    <div class="d-flex align-items-center mb-4">
+                        <p>{!! $productData->highlights !!}</p>
+                    </div>
+                    {{-- <input type="text" name="product_id" id="product_id" class="form-control"
+                        value="{{ $productData->id }}">
+                    <input type="text" name="variant_id" id="variant_id" class="form-control" value=""> --}}
                     <div class="d-flex align-items-center mb-4 pt-2">
                         <div class="input-group quantity mr-3" style="width: 130px;">
                             <div class="input-group-btn">
@@ -124,15 +131,17 @@
                                     <i class="fa fa-minus"></i>
                                 </button>
                             </div>
-                            {{-- <input type="text" name="quantity" id="quantity" class="form-control bg-secondary border-0 text-center" min="1" value="1"> --}}
-                            <input type="text" name="variant_id" id="variant_id" class="form-control bg-secondary border-0 text-center" value="1">
+                            <input type="text" name="quantity" id="quantity" class="form-control bg-secondary border-0 text-center" min="1" value="1">
+                            {{-- <input type="text" name="variant_id" id="variant_id"
+                                class="form-control bg-secondary border-0 text-center" value="1"> --}}
                             <div class="input-group-btn">
                                 <button class="btn btn-primary btn-plus">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
                         </div>
-                        <button class="btn btn-primary px-3" onclick="addToCart({{ $productData->id }})"><i class="fa fa-shopping-cart mr-1"></i> Add To
+                        <button class="btn btn-primary px-3" onclick="addToCart({{ $productData->id }})"><i
+                                class="fa fa-shopping-cart mr-1"></i> Add To
                             Cart</button>
                     </div>
                     <div class="d-flex pt-2">
@@ -159,19 +168,19 @@
             <div class="col">
                 <div class="bg-light p-30">
                     <div class="nav nav-tabs mb-4">
-                        <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-pane-1">Description</a>
-                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Information</a>
+                        <a class="nav-item nav-link text-dark active" data-toggle="tab"
+                            href="#tab-pane-1">Description</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Specifications</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Reviews
                             ({{ $reviews->count() }})</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-pane-1">
                             <h4 class="mb-3">Product Description</h4>
-                            <p>{!! $productData->full_description !!}</p>
+                            <p>{!! $productData->description !!}</p>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-2">
-                            <h4 class="mb-3">Additional Information</h4>
-                            <p>{!! $productData->add_description !!}</p>
+                            <p>{!! $productData->specifications !!}</p>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-3">
                             <div class="row">
@@ -181,11 +190,9 @@
 
                                     @foreach ($reviews as $key => $review)
                                         <div class="media mb-4">
-                                            @php $userimg = $review->user && $review->user->image
-                                            ? asset('uploads/profile/' . $review->user->image)
-                                            : asset('web/img/user.jpg'); @endphp
-                                            <img src="{{ $userimg }}" alt="Image"
-                                                class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                            @php $userimg = $review->user && $review->user->image ? asset('uploads/profile/' . $review->user->image) : asset('web/img/user.jpg'); @endphp
+                                            <img src="{{ $userimg }}" alt="Image" class="img-fluid mr-3 mt-1"
+                                                style="width: 45px;">
                                             <div class="media-body">
                                                 <h6>{{ $review->user_name }}<small> -
                                                         <i>{{ date('d M Y', strtotime($review->created_at)) }}</i></small>
@@ -211,7 +218,8 @@
                                 <div class="col-md-6">
                                     <h4 class="mb-4">Leave a review</h4>
                                     <small>Your email address will not be published. Required fields are marked *</small>
-                                    <form id="reviewForm" action="{{ route('web.products.reviews.save') }}" method="post">
+                                    <form id="reviewForm" action="{{ route('web.products.reviews.save') }}"
+                                        method="post">
                                         @csrf
                                         <div class="d-flex my-3">
                                             <p class="mb-0 mr-2">Your Rating * :</p>
@@ -240,11 +248,13 @@
                                         @if (!Auth::user())
                                             <div class="form-group">
                                                 <label for="user_name">Your Name *</label>
-                                                <input type="text" class="form-control" name="user_name" id="user_name">
+                                                <input type="text" class="form-control" name="user_name"
+                                                    id="user_name">
                                             </div>
                                             <div class="form-group">
                                                 <label for="email">Your Email *</label>
-                                                <input type="email" class="form-control" name="email" id="email">
+                                                <input type="email" class="form-control" name="email"
+                                                    id="email">
                                             </div>
                                         @endif
                                         <div id="successMessage" style="display:none;"></div>
@@ -290,7 +300,8 @@
                         <div class="product-item bg-light">
                             <div class="product-img position-relative overflow-hidden">
                                 @php $image = $related->images[0] ?? ''; @endphp
-                                <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}" alt="">
+                                <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}"
+                                    alt="">
                                 <div class="product-action">
                                     <a class="btn btn-outline-dark btn-square" href=""><i
                                             class="fa fa-shopping-cart"></i></a>
@@ -329,47 +340,47 @@
 @endsection
 
 @push('child_scripts')
-<script>
-    $(document).ready(function () {
-        $('.color-option').on('change', function () {
-            let color = $(this).val();
-            let productId = $('#product_id').val();
-            $.ajax({
-                url: "{{ url('/get-sizes-by-color') }}",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    color: color,
-                    product_id: productId
-                },
-                success: function (response) {
-                    console.log(response);
-                    let sizes = response.sizes;
-                    let sizeForm = $('#size-form');
-                    sizeForm.empty(); // Clear previous size options
+    <script>
+        $(document).ready(function() {
+            $('.color-option').on('change', function() {
+                let color = $(this).val();
+                let productId = $('#product_id').val();
+                $.ajax({
+                    url: "{{ url('/get-sizes-by-color') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        color: color,
+                        product_id: productId
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        let sizes = response.sizes;
+                        let sizeForm = $('#size-form');
+                        sizeForm.empty(); // Clear previous size options
 
-                    if (sizes.length > 0) {
-                        sizes.forEach(function (size, index) {
-                            let id = `size-${index}`;
-                            let sizeOption = `
+                        if (sizes.length > 0) {
+                            sizes.forEach(function(size, index) {
+                                let id = `size-${index}`;
+                                let sizeOption = `
                                 <div class="custom-control custom-radio custom-control-inline">
                                     <input type="radio" class="custom-control-input size-option"
                                         id="${id}" name="size" value="${size}">
                                     <label class="custom-control-label" for="${id}">${size}</label>
                                 </div>
                             `;
-                            sizeForm.append(sizeOption);
-                        });
-                    } else {
-                        sizeForm.append('<p>No sizes available for this color.</p>');
+                                sizeForm.append(sizeOption);
+                            });
+                        } else {
+                            sizeForm.append('<p>No sizes available for this color.</p>');
+                        }
+                    },
+                    error: function() {
+                        alert('Something went wrong while fetching sizes.');
                     }
-                },
-                error: function () {
-                    alert('Something went wrong while fetching sizes.');
-                }
+                });
             });
         });
-    });
     </script>
 
 
@@ -384,52 +395,56 @@
 
         //         images[selectedVariantIndex].forEach((image, index) => {
         //             carouselInner.append(`
-        //                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
-        //                     <img class="w-100 h-100" src="{{ asset('uploads/products/') }}/` + image + `" alt="Image">
-        //                 </div>
-        //             `);
+    //                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
+    //                     <img class="w-100 h-100" src="{{ asset('uploads/products/') }}/` + image + `" alt="Image">
+    //                 </div>
+    //             `);
         //         });
         //     });
         // });
+    </script>
 
-        <script>
-    const variants = @json($productData->variants);
+    <script>
+        const variants = @json($productData->variants);
+        const imageBasePath = "{{ asset('uploads/products') }}/";
 
-    function updateVariantId() {
-        const selectedColor = $("input[name='color']:checked").val();
-        const selectedSize = $("input[name='size']:checked").val();
+        function updateVariantId() {
+            const selectedColor = $("input[name='color']:checked").val();
+            const selectedSize = $("input[name='size']:checked").val();
 
-        const matchedVariant = variants.find(v =>
-            v.color === selectedColor && v.size === selectedSize
-        );
+            const matchedVariant = variants.find(v =>
+                v.color === selectedColor && v.size === selectedSize
+            );
 
-        if (matchedVariant) {
-            $("#variant_id").val(matchedVariant.id);
+            if (matchedVariant) {
+                $("#variant_id").val(matchedVariant.id);
 
-            // Update carousel images
-            const carouselInner = $("#carousel-images");
-            carouselInner.empty();
+                // Update carousel images
+                const carouselInner = $("#carousel-images");
+                carouselInner.empty();
 
-            matchedVariant.images.forEach((image, index) => {
-                carouselInner.append(`
+                matchedVariant.images.forEach((image, index) => {
+                    carouselInner.append(`
                     <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                        <img class="w-100 h-100" src="{{ asset('uploads/products/') }}/` + image + `" alt="Image">
+                        <img class="w-100 h-100" src="${imageBasePath}${image}" alt="Image">
                     </div>
                 `);
-            });
-        } else {
-            $("#variant_id").val('');
+                });
+            } else {
+                $("#variant_id").val('');
+            }
         }
-    }
 
-    $(document).ready(function () {
-        $(".color-option, .size-option").change(function () {
+        $(document).ready(function() {
+            $(".color-option, .size-option").change(function() {
+                updateVariantId();
+            });
+
+            // Optionally run once on load to initialize default
             updateVariantId();
         });
-    });
-</script>
-
     </script>
+
     <script>
         $("#reviewForm").submit(function(e) {
             e.preventDefault(); // Prevent form submission
@@ -456,7 +471,8 @@
                         $("#reviewForm")[0].reset();
                     } else if (response.status == "error") {
                         $.each(response.errors, function(key, value) {
-                            $("#" + key).after('<span class="text-danger error-message">' + value[0] + '</span>');
+                            $("#" + key).after('<span class="text-danger error-message">' +
+                                value[0] + '</span>');
                         });
                     }
                 },
@@ -472,7 +488,6 @@
                 $("#successMessage").fadeOut();
             }, 3000);
         });
-
     </script>
     <script>
         function addToCart(id) {

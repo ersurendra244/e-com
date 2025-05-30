@@ -147,7 +147,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                     <div class="product-item bg-light mb-4">
                         <div class="product-img position-relative overflow-hidden">
-                            @php $image = $featured->images[0] ?? ''; @endphp
+                            @php $image = $featured->image ?? ''; @endphp
                             <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}" alt="">
                             <div class="product-action">
                                 <a onclick="addToCart({{ $featured->id }})" class="btn btn-outline-dark btn-square" href="javascript:void(0);"><i
@@ -156,12 +156,12 @@
                                         class="far fa-heart"></i></a>
                             </div>
                         </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate"
-                                href="{{ route('web.products.details', $featured->id) }}">{{ ucWords($featured->name) }}</a>
+                        <div class="text-center p-2">
+                            <a class="h6 text-decoration-none"
+                                href="{{ route('web.products.details', $featured->id) }}">{{ ucWords($featured->title) }}</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>₹{{ $featured->variants[0]->price }}</h5>
-                                <h6 class="text-muted ml-2"><del>₹{{ $featured->variants[0]->price * 1.1 }}</del></h6>
+                                <h5>₹{{ $featured->price }}</h5>
+                                <h6 class="text-muted ml-2"><del>₹{{ $featured->base_price ?? $featured->price*1.1 }}</del></h6>
                             </div>
                             <div class="d-flex align-items-center justify-content-center mb-1">
                                 @php
@@ -222,7 +222,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                     <div class="product-item bg-light mb-4">
                         <div class="product-img position-relative overflow-hidden">
-                            @php $image = $recent->images[0] ?? ''; @endphp
+                            @php $image = $recent->image ?? ''; @endphp
                             <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}" alt="">
                             <div class="product-action">
                                 <a class="btn btn-outline-dark btn-square" href=""><i
@@ -231,12 +231,12 @@
                                         class="far fa-heart"></i></a>
                             </div>
                         </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate"
-                                href="{{ route('web.products.details', $recent->id) }}">{{ ucWords($recent->name) }}</a>
+                        <div class="text-center p-2">
+                            <a class="h6 text-decoration-none"
+                                href="{{ route('web.products.details', $recent->id) }}">{{ ucWords($recent->title) }}</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>₹{{ $recent->variants[0]->price }}</h5>
-                                <h6 class="text-muted ml-2"><del>₹{{ $recent->variants[0]->price * 1.1 }}</del></h6>
+                                <h5>₹{{ $recent->price }}</h5>
+                                <h6 class="text-muted ml-2"><del>₹{{ $recent->base_price ?? $featured->price*1.1 }}</del></h6>
                             </div>
                             <div class="d-flex align-items-center justify-content-center mb-1">
                                 @php

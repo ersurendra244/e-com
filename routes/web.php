@@ -9,12 +9,14 @@ use App\Http\Controllers\Web\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/clear-cache', function () {
-    Artisan::call('route:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('optimize');
-
-    return "✅ Cache, Cache cleared successfully!";
+    Artisan::call('config:clear');    // Clear config cache
+    Artisan::call('cache:clear');     // Clear application cache
+    Artisan::call('route:clear');     // Clear route cache
+    Artisan::call('view:clear');      // Clear compiled views
+    Artisan::call('optimize:clear');  // Clear all compiled caches (optional, recommended)
+    return "✅ All caches cleared successfully!";
 });
+
 // Route::get('/calculator', function () {
 //     return view('calculator');
 // });
@@ -23,7 +25,7 @@ Route::get('/', [HomeController::class, 'index'])->name('web.home');
 Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('web.home.contact_us');
 Route::post('/contact-us-save', [HomeController::class, 'contact_us_save'])->name('web.home.contact_us_save');
 
-Route::get('/shop', [ProductController::class, 'shop'])->name('web.products.shop');
+Route::get('/shop/{slug?}', [ProductController::class, 'shop'])->name('web.products.shop');
 Route::post('/list', [ProductController::class, 'list'])->name('web.products.list');
 Route::get('/product-details/{id}', [ProductController::class, 'details'])->name('web.products.details');
 Route::post('/product-details/reviews_save', [ProductController::class, 'reviews_save'])->name('web.products.reviews.save');
