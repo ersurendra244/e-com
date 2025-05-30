@@ -25,7 +25,7 @@ class ProductController extends Controller
 
     public function list(Request $request)
     {
-        $columns = ['id', 'images', 'name', 'category', 'pid', 'price', 'status'];
+        $columns = ['id', 'images', 'pid', 'title', 'cat_id', 'sub_cat_id', 'price', 'status'];
 
         $totalData = Product::count();
         $totalFiltered = $totalData;
@@ -44,8 +44,8 @@ class ProductController extends Controller
             $search = $request->input('search.value');
 
             $users = Product::where('id', 'LIKE', "%{$search}%")
-                ->orWhere('name', 'LIKE', "%{$search}%")
-                ->orWhere('category', 'LIKE', "%{$search}%")
+                ->orWhere('title', 'LIKE', "%{$search}%")
+                ->orWhere('cat_id', 'LIKE', "%{$search}%")
                 ->orWhere('pid', 'LIKE', "%{$search}%")
                 ->offset($start)
                 ->limit($limit)
@@ -53,8 +53,8 @@ class ProductController extends Controller
                 ->get();
 
             $totalFiltered = Product::where('id', 'LIKE', "%{$search}%")
-                ->orWhere('name', 'LIKE', "%{$search}%")
-                ->orWhere('category', 'LIKE', "%{$search}%")
+                ->orWhere('title', 'LIKE', "%{$search}%")
+                ->orWhere('cat_id', 'LIKE', "%{$search}%")
                 ->orWhere('pid', 'LIKE', "%{$search}%")
                 ->count();
         }
@@ -65,18 +65,17 @@ class ProductController extends Controller
             // $variants = Variant::where('product_id', $value->id)->count();
             $total_variants = $value->variants()->count();
             $nestedData['id'] = $value->id;
-            $nestedData['image'] = '<img class="img-sm rounded" src="' . asset('uploads/products/' . $image) . '" alt=""/>';
+            $nestedData['image'] = '<img class="img-sm rounded" style="height: 75px; width: auto;" src="' . asset('uploads/products/' . $value->image) . '" alt=""/>';
             $nestedData['pid'] = $value->pid;
-            $nestedData['name'] = $value->name;
-            $nestedData['category'] = $value->category;
-            $nestedData['price'] = $value->variants[0]->price;
-            $variants = '<a href="' . route('admin.products.variants', ['product_id' => $value->id]) . '" class="btn btn-sm btn-success">Variants [' . $total_variants . ']</a>';
+            $nestedData['title'] = '<b>' . e($value->pid) . '</b><br>' .
+                       e($value->title) . '<br>' .
+                       '₹' . number_format($value->price, 2) . ' / <s>₹' . number_format($value->base_price, 2) . '</s>';
 
-            $nestedData['variants'] = $variants;
-
+            $nestedData['cat_id'] = $value->category->name.' <br> '. $value->subCategory->name;
+            $nestedData['price'] = $value->price;
             $status = $value->status == 1 ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>' : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
             $nestedData['status'] = $status;
-            $collections = '<div class="form-group">';
+            $collections = '<div class="form-group mb-0">';
             $collections .= '<div class="form-check">
                                 <label class="form-check-label">
                                 <input ' . ($value->is_featured == 1 ? 'checked' : '') . ' type="checkbox" class="form-check-input" name="is_featured" value="1">
@@ -89,18 +88,19 @@ class ProductController extends Controller
                             </div>';
             $collections .= '</div>';
             $nestedData['collections'] = $collections;
-            $actions = "";
-            if (Gate::allows('product edit')) {
-                $actions .= '<a href="' . route('admin.products.edit', $value->id) . '" class="btn btn-sm btn-info">Edit</a> ';
-            }
-            if (Gate::allows('product review')) {
-                $actions .= '<a href="' . route('admin.products.reviews', $value->id) . '" class="btn btn-sm btn-warning">Reviews</a> ';
-            }
-
-            if (Gate::allows('product delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.products.delete', $value->id) . '`)" class="btn btn-sm btn-danger">Delete</a>';
-            }
-
+            $actions = '<div class="dropdown">
+                        <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
+                        <div class="dropdown-content">';
+                        if (Gate::allows('product edit')) {
+                            $actions .= '<a href="' . route('admin.products.edit', $value->id) . '" class="text-primary">Edit</a> ';
+                        }
+                        if (Gate::allows('product review')) {
+                            $actions .= '<a href="' . route('admin.products.reviews', $value->id) . '" class="text-warning">Reviews</a> ';
+                        }
+                        if (Gate::allows('product delete')) {
+                            $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.products.delete', $value->id) . '`)" class="text-danger">Delete</a>';
+                        }
+            $actions .= '</div></div>';
             $nestedData['action'] = $actions;
             $data[] = $nestedData;
         }
@@ -128,136 +128,173 @@ class ProductController extends Controller
     {
         $data['title'] = 'Edit Product';
         $data['subtitle'] = 'Products';
-        $data['data'] = Product::with('variants')->find($id);
-        // return $data['data']->variants[0]->color;
+        $data['edit_data'] = Product::with('variants')->find($id);
+        // return $data['edit_data']->variants;
         $data['categories'] = Category::where('status', '1')->get();
         return view('admin.products.edit', $data);
     }
 
     public function save(Request $request)
     {
+        // return $request->all();
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'category' => 'required',
-            'price' => 'required',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title' => 'required|string|max:255',
+            'category' => 'required|integer',
+            'subcategory' => 'required|integer',
+            'item_type' => 'required|integer',
+            'price' => 'nullable|numeric',
+            'color.*' => 'nullable|string',
+            'size.*' => 'nullable|string',
+            'quantity.*' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $modal = new Product();
-        $modal->name = $request->name;
-        $modal->category = $request->category;
-        $modal->price = $request->price;
-        $modal->pid = generatePID();
-        $modal->status = $request->status;
-        $modal->is_featured = $request->is_featured ? '1' : '0';
-        $modal->is_trending = $request->is_trending ? '1' : '0';
-        $modal->save();
+        $product = new Product();
+        $product->pid               = generatePID();
+        $product->title             = $request->title;
+        $product->slug              = slug($request->title);
+        $product->sub_title         = $request->sub_title;
+        $product->cat_id            = $request->category;
+        $product->sub_cat_id        = $request->subcategory;
+        $product->item_id           = $request->item_type;
+        $product->price             = $request->price;
+        $product->base_price        = $request->base_price;
+        $product->description       = $request->description;
+        $product->highlights        = $request->highlights;
+        $product->specifications    = $request->specifications;
+        $product->is_featured       = $request->is_featured ? '1' : '0';
+        $product->is_trending       = $request->is_trending ? '1' : '0';
+        $product->status            = $request->status;
+        if ($request->hasFile('image')) {
+            removeImage($product->image, 'uploads/products');
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/products'), $imageName);
+            $product->image = $imageName;
+        }
+        $product->save();
 
 
-        // foreach ($request->variant_images as $index => $images) {
-        //     foreach ($images as $image) {
-        //         // Handle upload (store image, link to variant, etc.)
-        //     }
-        // }
+        if (!empty($request->color)) {
+            foreach ($request->color as $index => $color) {
+                $variant = new Variant();
+                $variant->product_id = $product->id;
+                $variant->color      = $color ?? null;
+                $variant->size       = $request->size[$index] ?? null;
+                $variant->quantity   = $request->quantity[$index] ?? 0;
+                $variant->status     = $request->status;
+                $imagePaths = [];
 
-        $imagePaths = [];
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/products'), $imageName);
-                $imagePaths[] = $imageName;
+                if ($request->hasFile("images.$index")) {
+                    foreach ($request->file("images")[$index] as $image) {
+                        $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $image->move(public_path('uploads/products'), $imageName);
+                        $imagePaths[] = $imageName;
+                    }
+                }
+                $variant->images = $imagePaths ?? [];
+                $variant->save();
             }
         }
 
-        $modal->images = $imagePaths;
-        $modal->save();
-        // return $modal;
-        // $variant = new Variant();
-        // $variant->images = $imagePaths;
-        // $variant->product_id = $modal->id;
-        // $variant->color = $request->color;
-        // $variant->size = $request->size;
-        // $variant->stock = $request->stock;
-        // $variant->price = $request->price;
-        // $variant->status = $request->status;
-        // $variant->save();
-
-        // if (!empty($request->stars)) {
-        //     $ratings = new Review();
-        //     $ratings->pid   = $modal->id;
-        //     $ratings->user_id   = Auth::user()->id;
-        //     $ratings->user_name = Auth::user()->name;
-        //     $ratings->email = Auth::user()->email;
-        //     $ratings->reviews   = $request->reviews;
-        //     $ratings->rating    = $request->stars;
-        //     $ratings->save();
-        // }
-
-        return response()->json(['success' => true]);
+        if (!empty($request->stars)) {
+            $ratings = new Review();
+            $ratings->product_id    = $product->id;
+            $ratings->user_id       = Auth::user()->id;
+            $ratings->user_name     = Auth::user()->name;
+            $ratings->email         = Auth::user()->email;
+            $ratings->reviews       = $request->reviews;
+            $ratings->rating        = $request->stars;
+            $ratings->save();
+        }
+        // Session::flash('success', 'Product saved successfully');
+        return redirect()->route('admin.products')->with('success', 'Product saved successfully');
     }
     public function update(Request $request, $id)
     {
+
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'category' => 'required',
-            'price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title' => 'required|string|max:255',
+            'category' => 'required|integer',
+            'subcategory' => 'required|integer',
+            'item_type' => 'required|integer',
+            'price' => 'nullable|numeric',
+            'color.*' => 'nullable|string',
+            'size.*' => 'nullable|string',
+            'quantity.*' => 'nullable|numeric|min:0',
         ]);
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $modal = Product::find($id);
-        $imagePaths = $modal->images ?? [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $key => $image) {
-                if (isset($imagePaths[$key])) {
-                    // Delete the old image if it exists
-                    $oldImagePath = public_path('uploads/products/' . $imagePaths[$key]);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-                }
-
-                // Upload new image
-                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/products'), $imageName);
-
-                // Replace in array
-                $imagePaths[$key] = $imageName;
-            }
+        $product = Product::find($id);
+        $product->pid               = generatePID();
+        $product->title             = $request->title;
+        $product->slug              = slug($request->title);
+        $product->sub_title         = $request->sub_title;
+        $product->cat_id            = $request->category;
+        $product->sub_cat_id        = $request->subcategory;
+        $product->item_id           = $request->item_type;
+        $product->price             = $request->price;
+        $product->base_price        = $request->base_price;
+        $product->description       = $request->description;
+        $product->highlights        = $request->highlights;
+        $product->specifications    = $request->specifications;
+        $product->is_featured       = $request->is_featured ? '1' : '0';
+        $product->is_trending       = $request->is_trending ? '1' : '0';
+        $product->status            = $request->status;
+        if ($request->hasFile('image')) {
+            removeImage($product->image, 'uploads/products');
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/products'), $imageName);
+            $product->image = $imageName;
         }
-        $modal->images = $imagePaths;
-        $modal->name = $request->name;
-        $modal->category = $request->category;
-        $modal->status = $request->status;
-        $modal->is_featured = $request->is_featured ? '1' : '0';
-        $modal->is_trending = $request->is_trending ? '1' : '0';
-        $modal->short_description = $request->short_description;
-        $modal->full_description = $request->full_description;
-        $modal->add_description = $request->add_description;
-        $modal->save();
+        $product->save();
 
         // Update variants
-        $variant = Variant::where('product_id', $modal->id)->firstOrNew();
-        $variant->product_id = $modal->id;
-        $variant->images = $imagePaths;
-        $variant->color = $request->color;
-        $variant->size = $request->size;
-        $variant->stock = $request->stock;
-        $variant->price = $request->price;
-        $variant->status = $request->status;
-        $variant->save();
 
+        if (!empty($request->color)) {
+            foreach ($request->color as $index => $color) {
+                $variant_id = $request->variant_id[$index] ?? null;
+                $variant = Variant::where('id', $variant_id)->firstOrNew();
+                $variant->product_id = $product->id;
+                $variant->color      = $color ?? null;
+                $variant->size       = $request->size[$index] ?? null;
+                $variant->quantity   = $request->quantity[$index] ?? 0;
+                $variant->status     = $request->status;
+                $imagePaths = [];
+
+                if ($request->hasFile("images.$index")) {
+                    foreach ($request->file("images")[$index] as $image) {
+                        $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $image->move(public_path('uploads/products'), $imageName);
+                        removeImage($variant->image, 'uploads/products');
+                        $imagePaths[] = $imageName;
+                    }
+                    // Purani images sirf tab remove karein jab naye image aaye ho (optional logic)
+                    if ($variant->exists && is_array($variant->images)) {
+                        foreach ($variant->images as $oldImage) {
+                            removeImage($oldImage, 'uploads/products');
+                        }
+                    }
+                }
+                // Merge karna tab hi chahiye jab new image aayi ho + purani bhi rakhi ja rahi ho
+                if ($variant->exists && is_array($variant->images)) {
+                    $existingImages = $variant->images ?? [];
+                    $imagePaths = array_merge($existingImages, $imagePaths);
+                }
+                $variant->images = $imagePaths ?? [];
+                $variant->save();
+            }
+        }
         // Ratings
         if (!empty($request->stars)) {
             $ratings = new Review();
-            $ratings->pid   = $modal->id;
+            $ratings->pid   = $product->id;
             $ratings->user_id   = Auth::user()->id;
             $ratings->user_name = Auth::user()->name;
             $ratings->email = Auth::user()->email;
@@ -275,97 +312,66 @@ class ProductController extends Controller
             $modal->status = '0';
             $modal->is_delete = '1';
             $modal->save();
+            removeImage($modal->image, 'uploads/products');
             Session::flash('success', 'Product deleted successfully');
             return response()->json(['success' => true]);
         }
         Session::flash('error', 'Product not found');
         return response()->json(['success' => false]);
     }
-
-    public function variants($product_id)
+    public function variants_image_delete(Request $request)
     {
-        $data['title'] = 'Variants';
-        $data['subtitle'] = 'Products';
-        $data['productData'] = Product::with('variants')->find($product_id);
-        return view('admin.products.variants', $data);
-    }
+        $image = $request->image;
+        $id = $request->variant_id;
 
-    public function variants_manage($product_id, $id = null)
-    {
-        if (!empty($id)) {
-            $data['title']       = 'Edit Variant';
-            $data['variantData'] = Variant::find($id);
-        } else {
-            $data['title']       = 'Add Variant';
-            $data['variantData'] = Variant::find($id);
-        }
-        $data['productData'] = Product::find($product_id);
-        $data['subtitle'] = 'Products';
+        $variant = Variant::where('id', $id)
+            ->whereJsonContains('images', $image)
+            ->first();
 
-        return view('admin.products.variants_manage', $data);
-    }
-
-    public function variants_save(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'color' => 'required',
-            'price' => 'required',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-        $id = $request->edit_id;
-        if (!empty($id)) {
-            $modal = Variant::find($id);
-            $msg = 'Variant updated successfully';
-        } else {
-            $modal = new Variant();
-            $msg = 'Variant saved successfully';
-        }
-        $imagePaths = $modal->images ?? [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $key => $image) {
-                if (isset($imagePaths[$key])) {
-                    // Delete the old image if it exists
-                    $oldImagePath = public_path('uploads/products/' . $imagePaths[$key]);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-                }
-
-                // Upload new image
-                $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/products'), $imageName);
-
-                // Replace in array
-                $imagePaths[$key] = $imageName;
+        if ($variant) {
+            // Remove image from filesystem
+            $filePath = public_path('uploads/products/' . $image);
+            if (file_exists($filePath)) {
+                unlink($filePath);
             }
+
+            // Remove image from DB (images array)
+            $images = array_filter($variant->images, fn($img) => $img !== $image);
+            $variant->images = array_values($images); // re-index
+            $variant->save();
+            Session::flash('success', 'Image deleted successfully');
+            return response()->json(['success' => true]);
         }
-        $modal->images = $imagePaths;
-        $modal->product_id = $request->product_id;
-        $modal->color = $request->color;
-        $modal->size = $request->size;
-        $modal->stock = $request->stock;
-        $modal->price = $request->price;
-        $modal->status = $request->status;
-        $modal->save();
-        return redirect()->route('admin.products.variants', ['product_id' => $request->product_id])->with('success', $msg);
+
+        return response()->json(['success' => false, 'message' => 'Image not found']);
     }
 
-    public function variants_delete($id)
+    public function variants_delete(Request $request)
     {
+        $id = $request->variant_id;
         $modal = Variant::find($id);
+
         if ($modal) {
-            $modal->status = '0';
-            $modal->is_delete = '1';
-            $modal->save();
+            $image = $modal->image;
+
+            if (!empty($image)) {
+                $filePath = public_path('uploads/products/' . $image);
+
+                // Ensure it's a file, not a directory
+                if (file_exists($filePath) && is_file($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            $modal->delete(); // You forgot to delete the variant
             Session::flash('success', 'Variant deleted successfully');
             return response()->json(['success' => true]);
         }
+
         Session::flash('error', 'Variant not found');
         return response()->json(['success' => false]);
     }
+
 
     public function reviews($id)
     {
@@ -438,6 +444,7 @@ class ProductController extends Controller
 
     public function get_form_fields(Request $request)
     {
+        $data['edit_data'] = Product::with('variants')->find($request->product_id);
         $data['subcategory_id'] = $request->subcategory_id;
         $data['item_id'] = $request->item_id;
         $html = view('admin.products.form_fields', $data)->render();
@@ -447,10 +454,15 @@ class ProductController extends Controller
     public function get_sub_categories(Request $request)
     {
         $subcategories = SubCategory::where('cat_id', $request->category_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
+        $product = Product::find($request->product_id);
         if ($subcategories) {
             $html = '<option value="">Select Sub Category</option>';
             foreach ($subcategories as $value) {
-                $html .= '<option value="' . $value->id . '">' . $value->name . '</option>';
+                $slected = '';
+                if ($product) {
+                    $slected = $value->id == $product->sub_cat_id ? 'selected' : '';
+                }
+                $html .= '<option ' . $slected . ' value="' . $value->id . '">' . $value->name . '</option>';
             }
         }
         return response()->json(['success' => true, 'html' => $html]);
@@ -459,10 +471,15 @@ class ProductController extends Controller
     public function get_items(Request $request)
     {
         $items = Item::whereJsonContains('sub_cat_id', $request->subcategory_id)->where('status', '1')->where('is_delete', '0')->select('id', 'name')->get();
+        $product = Product::find($request->product_id);
         if ($items) {
             $html = '<option value="">Select Item</option>';
             foreach ($items as $value) {
-                $html .= '<option value="' . $value->id . '">' . $value->name . '</option>';
+                $slected = '';
+                if ($product) {
+                    $slected = $value->id == $product->item_id ? 'selected' : '';
+                }
+                $html .= '<option ' . $slected . ' value="' . $value->id . '">' . $value->name . '</option>';
             }
         }
         return response()->json(['success' => true, 'html' => $html]);

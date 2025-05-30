@@ -50,47 +50,6 @@ if (! function_exists('removeImage')) {
     }
 }
 
-if (!function_exists('priceRange')) {
-    function priceRange()
-    {
-        return [
-            '1' => '500 - 1000',
-            '2' => '1000 - 2000',
-            '3' => '2000 - 3000',
-            '4' => '3000 - 4000',
-            '5' => '4000 - 5000',
-            '6' => '6000 - 30000',
-        ];
-    }
-}
-
-if (!function_exists('colors')) {
-    function colors()
-    {
-        return [
-            'Black'  => 'Black',
-            'White'  => 'White',
-            'Red'    => 'Red',
-            'Blue'   => 'Blue',
-            'Green'  => 'Green',
-        ];
-    }
-}
-
-if (!function_exists('sizes')) {
-    function sizes()
-    {
-        return [
-            'XS'  => 'XS',
-            'SM'  => 'SM',
-            'MD'  => 'MD',
-            'LG'  => 'LG',
-            'XL'  => 'XL',
-            'XXL' => 'XXL',
-        ];
-    }
-}
-
 if (!function_exists('generatePID')) {
     function generatePID()
     {

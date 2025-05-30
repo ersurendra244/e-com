@@ -1,6 +1,50 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
+    <style>
+        tbody td {
+            /* padding: 5px 5px 5px 5px !important;
+            margin: 0px 0px 0px 0px !important; */
+            line-height: 1.5 !important;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown.show .dropdown-content {
+            display: block;
+        }
+    </style>
     @include('admin.common.message')
     <div class="card">
         <div class="card-body">
@@ -16,11 +60,9 @@
                                 <tr>
                                     <th style="width: 10px">#</th>
                                     <th>Image</th>
-                                    <th>PId</th>
-                                    <th>Name</th>
+                                    <th>Products</th>
                                     <th>Category</th>
                                     <th>Price</th>
-                                    <th>Variants</th>
                                     <th>Status</th>
                                     <th>Collections</th>
                                     <th>Action</th>
@@ -63,19 +105,13 @@
                         "data": "image"
                     },
                     {
-                        "data": "pid"
+                        "data": "title"
                     },
                     {
-                        "data": "name"
-                    },
-                    {
-                        "data": "category"
+                        "data": "cat_id"
                     },
                     {
                         "data": "price"
-                    },
-                    {
-                        "data": "variants"
                     },
                     {
                         "data": "status"
@@ -92,6 +128,23 @@
 
             });
         });
+    </script>
 
+    <script>
+        document.addEventListener('click', function(e) {
+            const dropdown = e.target.closest('.dropdown');
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown').forEach(el => {
+                if (el !== dropdown) el.classList.remove('show');
+            });
+
+            if (e.target.matches('.dropbtn') || e.target.closest('.dropbtn')) {
+                if (dropdown) dropdown.classList.toggle('show');
+            } else {
+                // Click outside dropdown closes all
+                document.querySelectorAll('.dropdown').forEach(el => el.classList.remove('show'));
+            }
+        });
     </script>
 @endpush

@@ -1,79 +1,169 @@
+<style>
+    .header {
+        position: relative;
+        background: #fff;
+        padding: 10px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .navbar {
+        padding: 0px 20px!important;
+    }
+
+    .navbar-nav .nav-link {
+        color: #000;
+        padding: 10px 15px;
+        font-weight: 500;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        color: #e74c3c;
+    }
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+    }
+.dropdown-menu {
+    display: none;
+}
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+}
+    .mega-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        display: none;
+        background: #fff;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        z-index: 99;
+    }
+
+    .menu-item-has-children:hover .mega-menu {
+        display: flex;
+    }
+
+    .mega-menu-column-4 {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+
+    .list-item {
+        flex: 1;
+        padding: 0 15px;
+    }
+
+    .list-item h4.title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e74c3c;
+        margin-bottom: 10px;
+    }
+
+    .list-item ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+
+    .list-item ul li {
+        margin: 5px 0;
+    }
+
+    .list-item ul li a {
+        color: #333;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .list-item ul li a:hover {
+        text-decoration: underline;
+    }
+
+    .list-item.text-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .list-item.text-center img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+</style>
+
 <div class="container-fluid bg-dark mb-30">
     <div class="row px-xl-5">
-        <div class="col-lg-3 d-none d-lg-block">
-            <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse"
-                href="#navbar-vertical" style="height: 65px; padding: 0 30px;">
-                <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categories</h6>
-                <i class="fa fa-angle-down text-dark"></i>
-            </a>
-            <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
-                id="navbar-vertical" style="width: calc(100% - 30px); z-index: 999;">
-                <div class="navbar-nav w-100">
-                    <div class="nav-item dropdown dropright">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Dresses <i
-                                class="fa fa-angle-right float-right mt-1"></i></a>
-                        <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                            <a href="" class="dropdown-item">Men's Dresses</a>
-                            <a href="" class="dropdown-item">Women's Dresses</a>
-                            <a href="" class="dropdown-item">Baby's Dresses</a>
-                        </div>
-                    </div>
-                    <a href="" class="nav-item nav-link">Shirts</a>
-                    <a href="" class="nav-item nav-link">Jeans</a>
-                    <a href="" class="nav-item nav-link">Swimwear</a>
-                    <a href="" class="nav-item nav-link">Sleepwear</a>
-                    <a href="" class="nav-item nav-link">Sportswear</a>
-                    <a href="" class="nav-item nav-link">Jumpsuits</a>
-                    <a href="" class="nav-item nav-link">Blazers</a>
-                    <a href="" class="nav-item nav-link">Jackets</a>
-                    <a href="" class="nav-item nav-link">Shoes</a>
-                </div>
-            </nav>
-        </div>
-        <div class="col-lg-9">
-            <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-                <a href="" class="text-decoration-none d-block d-lg-none">
-                    <span class="h1 text-uppercase text-dark bg-light px-2">Multi</span>
-                    <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">Shop</span>
-                </a>
-                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                    <div class="navbar-nav mr-auto py-0">
-                        <a href="{{ route('web.home') }}" class="nav-item nav-link active">Home</a>
-                        <a href="{{ route('web.products.shop') }}" class="nav-item nav-link">Shop</a>
-                        @php
-                            $categories = \App\Models\Category::where('is_home', '1')->where('status', '1')->latest('order')->get();
-                        @endphp
-                        @foreach ($categories as $value)
-                        <a href="#" class="nav-item nav-link">{{ $value->name }}</a>
-                        @endforeach
+        <div class="col-lg-12">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <div class="collapse navbar-collapse" id="mainNav">
+                        <ul class="navbar-nav mr-auto">
+                            @php
+                                $categories = \App\Models\Category::where('is_home', '1')->where('status', '1')->latest('order')->get();
+                            @endphp
+                            @foreach ($categories as $key => $value)
+                            <li class="nav-item dropdown mega-dropdown position-static">
+                                <a class="nav-link text-white" href="{{ route('web.products.shop', $value->slug) }}">{{ $value->name }}
+                                </a>
 
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages <i
-                                    class="fa fa-angle-down mt-1"></i></a>
-                            <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                                <a href="cart.html" class="dropdown-item">Shopping Cart</a>
-                                <a href="checkout.html" class="dropdown-item">Checkout</a>
-                            </div>
-                        </div>
-                        <a href="{{ route('web.home.contact_us') }}" class="nav-item nav-link">Contact Us</a>
-                    </div>
-                    <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                        <a href="" class="btn px-0">
-                            <i class="fas fa-heart text-primary"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle"
-                                style="padding-bottom: 2px;">0</span>
-                        </a>
-                        <a href="" class="btn px-0 ml-3">
-                            <i class="fas fa-shopping-cart text-primary"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle"
-                                style="padding-bottom: 2px;">0</span>
-                        </a>
+                                <div class="dropdown-menu w-100 border-0 p-3"
+                                    style="background-color:#fff;">
+                                    <div class="container">
+                                        <div class="row">
+                                            @php
+                                                $subCategories = \App\Models\SubCategory::where('cat_id', $value->id)->where('status', '1')->latest('order')->get();
+                                            @endphp
+                                            @foreach ($subCategories as $subCategory)
+                                                <div class="col-md-3">
+                                                <h6 class="text-danger font-weight-bold">{{ $subCategory->name }}</h6>
+                                                @php
+                                                    $items = \App\Models\Item::whereJsonContains('sub_cat_id', (string) $subCategory->id)
+                                                            ->where('status', '1')->where('is_delete', '0')->orderBy('name', 'asc')->select('id', 'name')
+                                                            ->get();
+                                                @endphp
+                                                <ul class="list-unstyled">
+                                                    @foreach ($items as $item)
+                                                        <li><a href="#" class="text-dark">{{ $item->name }}</a></li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            @endforeach
+
+
+                                            <div class="col-md-3 text-center">
+                                                <img src="https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=761&q=80"
+                                                    class="img-fluid rounded" alt="Chair" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            @endforeach
+
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ route('web.home.contact_us') }}">Contact Us</a>
+                            </li>
+                        </ul>
+
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="#"><i class="far fa-heart"></i> 0</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="#"><i class="fas fa-shopping-cart"></i>
+                                    0</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </nav>
+
         </div>
     </div>
 </div>

@@ -9,7 +9,8 @@ class Variant extends Model
 {
     use HasFactory;
 
-    public function product() {
+    public function product()
+    {
         return $this->belongsTo(Product::class, 'product_id');
     }
 

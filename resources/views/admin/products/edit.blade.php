@@ -1,7 +1,11 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
 
 @section('content')
+    <script>
+        const allColors = @json(colors());
+    </script>
     @include('admin.common.message')
+
     <style>
         .rating {
             display: flex;
@@ -25,101 +29,48 @@
             color: gold;
         }
     </style>
-    <style>
-        .image-container-box {
-            width: 100%;
-            height: 200px;
-            border: 2px dashed #e0e0ef;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            text-align: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
 
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .upload-text {
-            color: #777;
-            font-size: 14px;
-        }
-
-        /* Remove Button */
-        .btn-remove {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            z-index: 10;
-        }
-
-        /* Add More Button */
-        .btn-add-more {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: green;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            z-index: 10;
-        }
-    </style>
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
                     <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form action="{{ route('admin.products.update', $data->id) }}" method="post"
+                    <form action="{{ route('admin.products.update', $edit_data->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label" for="name">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        placeholder="Enter name" value="{{ $data->name ?? '' }}">
-                                    @if ($errors->has('name'))
-                                        <span class="text-danger">{{ $errors->first('name') }}</span>
+                                    <label class="form-label" for="title">Title</label>
+                                    <input type="text" class="form-control" id="title" name="title"
+                                        placeholder="Enter title"
+                                        value="{{ !empty($edit_data->title) ? $edit_data->title : old('title') }}">
+                                    @if ($errors->has('title'))
+                                        <span class="text-danger">{{ $errors->first('title') }}</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label class="form-label" for="sub_title">Sub Title</label>
+                                    <input type="text" class="form-control" id="sub_title" name="sub_title"
+                                        placeholder="Enter sub title"
+                                        value="{{ !empty($edit_data->sub_title) ? $edit_data->sub_title : old('sub_title') }}">
+                                    @if ($errors->has('sub_title'))
+                                        <span class="text-danger">{{ $errors->first('sub_title') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
                                     <label class="form-label" for="category">Category</label>
-                                    <select name="category" class="form-control" id="category">
+                                    <select onchange="getSubCategories(this);" name="category" class="form-control"
+                                        id="category">
                                         <option value="">Choose a category</option>
                                         @foreach ($categories as $key => $category)
-                                            <option {{ !empty($data->category) && $data->category == $category->name ? 'selected' : '' }} value="{{ $category->name }}">{{ $category->name }}</option>
+                                            <option {{ $edit_data->cat_id == $category->id ? 'selected' : '' }}
+                                                value="{{ $category->id }}">{{ $category->name }}</option>
                                         @endforeach
                                     </select>
                                     @if ($errors->has('category'))
@@ -127,90 +78,101 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="color">Color</label>
-                                    <select name="color" class="form-control" id="color">
-                                        <option value="">Choose a color</option>
-                                        @php $colors = colors(); @endphp
-                                        @foreach ($colors as $key => $color)
-                                            <option {{ !empty($data->variants[0]->color) && $data->variants[0]->color == $key ? 'selected' : '' }} value="{{ $key }}">{{ $color }}</option>
-                                        @endforeach
+                                    <label class="form-label" for="subcategory">Sub Category</label>
+                                    <select onchange="getItems(this);" name="subcategory" class="form-control"
+                                        id="subcategory">
+                                        <option value="">Select Sub Category</option>
                                     </select>
-                                    @if ($errors->has('color'))
-                                        <span class="text-danger">{{ $errors->first('color') }}</span>
+                                    @if ($errors->has('subcategory'))
+                                        <span class="text-danger">{{ $errors->first('subcategory') }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="size">Size</label>
-                                    <select name="size" class="form-control" id="size">
-                                        <option value="">Choose a size</option>
-                                        @php $sizes = sizes(); @endphp
-                                        @foreach ($sizes as $key => $size)
-                                            <option {{ !empty($data->variants[0]->size) && $data->variants[0]->size == $key ? 'selected' : '' }} value="{{ $key }}">{{ $size }}</option>
-                                        @endforeach
+                                    <label class="form-label" for="item_type">Item Type</label>
+                                    <select onchange="getFormFields(this);" name="item_type" class="form-control"
+                                        id="item_type">
+                                        <option value="">Select Item</option>
                                     </select>
-                                    @if ($errors->has('size'))
-                                        <span class="text-danger">{{ $errors->first('size') }}</span>
+                                    @if ($errors->has('item_type'))
+                                        <span class="text-danger">{{ $errors->first('item_type') }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-label" for="price">Price</label>
                                     <input type="text" class="form-control" id="price" name="price"
-                                        placeholder="Enter price" value="{{ $data->variants[0]->price ?? '' }}">
+                                        placeholder="Enter price"
+                                        value="{{ !empty($edit_data->price) ? $edit_data->price : old('price') }}">
                                     @if ($errors->has('price'))
                                         <span class="text-danger">{{ $errors->first('price') }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="stock">Stock</label>
-                                    <input type="number" class="form-control" id="stock" name="stock"
-                                        placeholder="Enter stock" value="{{ $data->variants[0]->stock ?? '' }}" min="0">
-                                    @if ($errors->has('stock'))
-                                        <span class="text-danger">{{ $errors->first('stock') }}</span>
+                                    <label class="form-label" for="base_price">Base Price</label>
+                                    <input type="text" class="form-control" id="base_price" name="base_price"
+                                        placeholder="Enter base price"
+                                        value="{{ !empty($edit_data->base_price) ? $edit_data->base_price : old('base_price') }}">
+                                    @if ($errors->has('base_price'))
+                                        <span class="text-danger">{{ $errors->first('base_price') }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <div class="form-group">
+                                        <label class="form-label" for="image">Main Image</label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control mr-1" id="image" name="image"
+                                                onchange="loadFile(event)" />
+                                        </div>
+                                        @if ($errors->has('image'))
+                                            <span class="text-danger">{{ $errors->first('image') }}</span>
+                                        @endif
+                                    </div>
+                                    <img id="output" src="{{ asset('uploads/products/' . $edit_data->image) }}"
+                                        style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-label" for="status">Status</label>
                                     <select name="status" class="form-control" id="status">
-                                        <option {{ !empty($data->status) && $data->status == 1 ? 'selected' : '' }}
-                                            value="1">Active
+                                        <option {{ $edit_data->status == 1 ? 'selected' : '' }} value="1">Active
                                         </option>
-                                        <option {{ !empty($data->status) && $data->status == 0 ? 'selected' : '' }}
-                                            value="0">Inactive
+                                        <option {{ $edit_data->status == 0 ? 'selected' : '' }} value="0">Inactive
                                         </option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="">Collections</label>
+                            <div class="col-md-4">
+                                <p class="form-label" for="">Collections</p>
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                    <input
-                                                        {{ !empty($data->is_featured) && $data->is_featured == 1 ? 'checked' : '' }}
+                                                    <input {{ $edit_data->is_featured == 1 ? 'checked' : '' }}
                                                         type="checkbox" class="form-check-input" name="is_featured"
                                                         value="1">
                                                     Featured<i class="input-helper"></i></label>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                    <input
-                                                        {{ !empty($data->is_trending) && $data->is_trending == 1 ? 'checked' : '' }}
+                                                    <input {{ $edit_data->is_trending == 1 ? 'checked' : '' }}
                                                         type="checkbox" class="form-check-input" name="is_trending"
                                                         value="1">
                                                     Trending<i class="input-helper"></i></label>
@@ -220,40 +182,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-3" id="image-container">
-                            @if (!empty($data->images))
-                                @foreach ($data->images as $key => $image)
-                                    <div class="col-md-3 image-box">
-                                        <label class="form-label" for="">Image {{ $key+1 }}</label>
-                                        <div class="image-container-box"
-                                            onclick="this.querySelector('.image-input').click()">
-                                            <span class="btn-remove"
-                                                onclick="removeImage(event, '{{ $key }}')">&times;</span>
-                                            <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
-                                            <img class="preview-image" src="{{ asset('uploads/products/' . $image) }}" />
-                                            <p class="upload-text">Click and upload an image</p>
-                                            <input type="file" class="image-input" name="images[{{ $key }}]"
-                                                accept="image/*" onchange="loadFile(event)" />
-                                            <input type="hidden" name="existing_images[{{ $key }}]"
-                                                value="{{ $image }}" />
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="col-md-3 image-box">
-                                    <label class="form-label" for="">Image 1</label>
-                                    <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
-                                        <span class="btn-remove d-none" onclick="removeImage(event)">&times;</span>
-                                        <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
-                                        <img class="preview-image d-none" />
-                                        <p class="upload-text">Click and upload an image</p>
-                                        <input type="file" class="image-input d-none" name="images[]"
-                                            accept="image/*" onchange="loadFile(event)" />
-                                    </div>
-                                </div>
-                            @endif
+                        <div class="row" id="form-fields-container">
                         </div>
-                        <div class="row">
+
+                        <div class="row mt-3">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="form-check">
@@ -265,7 +197,7 @@
                                     </div>
                                 </div>
                                 <div class="row d-none" id="reviews-container">
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label class="form-label" for="">Ratings</label>
                                             <div class="rating">
@@ -282,7 +214,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <div class="form-group">
                                             <label class="form-label" for="reviews">Review</label>
                                             <input type="text" class="form-control" id="reviews" name="reviews"
@@ -295,35 +227,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="">Short Description</label>
-                                    <textarea name="short_description" class="form-control" id="short_description" rows="3">{{ $data->short_description ?? '' }}</textarea>
-                                    @if ($errors->has('short_description'))
-                                        <span class="text-danger">{{ $errors->first('short_description') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="full_description">Description</label>
-                                    <textarea name="full_description" class="form-control summernote" id="full_description" rows="15">{{ $data->full_description ?? '' }}</textarea>
-                                    @if ($errors->has('full_description'))
-                                        <span class="text-danger">{{ $errors->first('full_description') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="add_description">Additional Information</label>
-                                    <textarea name="add_description" class="form-control summernote" id="add_description" rows="15">{{ $data->add_description ?? '' }}</textarea>
-                                    @if ($errors->has('add_description'))
-                                        <span class="text-danger">{{ $errors->first('add_description') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
@@ -333,6 +236,185 @@
 @endsection
 
 @push('child_scripts')
+    <script>
+        const loadFile = function(event) {
+            var output = document.getElementById('output');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.style.display = 'block';
+        };
+    </script>
+    <script>
+        function removeImage(element) {
+            const wrapper = element.closest('.image-wrapper');
+            const imagePath = wrapper.getAttribute('data-path');
+            var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]').val();
+            if (!confirm('Are you sure you want to delete this image?')) return;
+
+            // Remove from UI
+            wrapper.remove();
+
+            // Call backend to delete from server and DB
+            if (imagePath) {
+                $.ajax({
+                    url: "{{ route('admin.product.variants_image_delete') }}", // Define this route
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        image: imagePath,
+                        variant_id: variant_id // or variant_id if needed
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('Image deleted');
+                        } else {
+                            alert('Failed to delete image.');
+                        }
+                    },
+                    error: function() {
+                        alert('Server error while deleting image.');
+                    }
+                });
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(function() {
+            toggleButtons();
+            // Image preview handler
+            $(document).on('change', '.image-input', function(event) {
+                const input = event.target;
+                const files = input.files;
+                const $container = $(input).closest('.variant-group').find('.preview-container');
+                // $container.empty(); // Clear old previews
+
+                Array.from(files).forEach(file => {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.style.width = '70px';
+                    img.style.height = '70px';
+                    img.style.border = '1px solid #ddd';
+                    img.style.borderRadius = '5px';
+                    img.style.marginRight = '5px';
+                    img.onload = () => URL.revokeObjectURL(img.src);
+                    $container.append(img);
+                });
+            });
+
+            // Clone variant with reset
+            $(document).on('click', '.add-variant', function() {
+                const $lastVariant = $('.variant-group').last();
+                const $newVariant = $lastVariant.clone();
+
+                // Get new index based on how many groups exist
+                const newIndex = $('.variant-group').length;
+
+                // Update name and id attributes
+                $newVariant.find('input, select').each(function() {
+                    const nameAttr = $(this).attr('name');
+                    const idAttr = $(this).attr('id');
+
+                    if (nameAttr) {
+                        const updatedName = nameAttr.replace(/\[\d+\]/, `[${newIndex}]`);
+                        $(this).attr('name', updatedName);
+                    }
+
+                    if (idAttr) {
+                        const updatedId = idAttr.replace(/_\d+$/, `_${newIndex}`);
+                        $(this).attr('id', updatedId);
+                    }
+
+                    if ($(this).is('input[type="number"]') || $(this).is('select')) {
+                        $(this).val('');
+                    }
+
+                    if ($(this).hasClass('image-input')) {
+                        $(this).val('');
+                    }
+                });
+
+                // Clear image previews
+                $newVariant.find('.preview-container').empty();
+                $newVariant.find('input[name^="variant_id"]').val('');
+                // Append and toggle buttons
+                $('#variant-wrapper').append($newVariant);
+                updateColorOptions();
+                toggleButtons();
+            });
+
+            // Remove variant logic
+            $(document).on('click', '.remove-variant', function() {
+                if ($('.variant-group').length > 1) {
+                    var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]')
+                        .val();
+
+                    // Call backend to delete from server and DB
+                    if (variant_id) {
+                        if (!confirm('Are you sure you want to delete this variant?')) return;
+                        $.ajax({
+                            url: "{{ route('admin.product.variants_delete') }}", // Define this route
+                            type: 'POST',
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                variant_id: variant_id
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    console.log('Variant deleted');
+                                } else {
+                                    alert('Failed to delete variant.');
+                                }
+                            },
+                            error: function() {
+                                alert('Server error while deleting variant.');
+                            }
+                        });
+                    }
+                    $(this).closest('.variant-group').remove();
+                    updateColorOptions();
+                    toggleButtons();
+                } else {
+                    alert("At least one variant is required.");
+                }
+            });
+
+            // Color dropdown onchange
+            $(document).on('change', '.color-select', function() {
+                updateColorOptions();
+            });
+        });
+
+        function updateColorOptions() {
+            const selectedColors = [];
+
+            $('.color-select').each(function() {
+                const val = $(this).val();
+                if (val) selectedColors.push(val);
+            });
+
+            $('.color-select').each(function() {
+                const currentVal = $(this).val();
+                let optionsHtml = '<option value="">Select color</option>';
+
+                $.each(allColors, function(key, label) {
+                    if (!selectedColors.includes(key) || currentVal === key) {
+                        optionsHtml +=
+                            `<option value="${key}" ${currentVal === key ? 'selected' : ''}>${label}</option>`;
+                    }
+                });
+
+                $(this).html(optionsHtml);
+            });
+        }
+
+        function toggleButtons() {
+            const variants = $('.variant-group');
+            variants.each(function(index) {
+                const isLast = index === variants.length - 1;
+                $(this).find('.remove-variant').toggle(variants.length > 1);
+                $(this).find('.add-variant').toggle(isLast);
+            });
+        }
+    </script>
     <script>
         $(document).ready(function() {
             $("input[name='is_rateing']").change(function() {
@@ -351,80 +433,111 @@
         });
     </script>
     <script>
-        function loadFile(event) {
-            var input = event.target;
-            var dropzone = input.closest('.image-container-box');
-            var image = dropzone.querySelector('.preview-image');
-            var removeBtn = dropzone.querySelector('.btn-remove');
-
-            if (input.files.length > 0) {
-                image.src = URL.createObjectURL(input.files[0]);
-                image.classList.remove('d-none');
-                removeBtn.classList.remove('d-none');
-                dropzone.querySelector('.upload-text').classList.add('d-none');
-            }
-            updateButtons();
-        }
-
-        function removeImage(event, key = null) {
-            event.stopPropagation();
-            var imageBox = event.target.closest('.image-box');
-
-            if (key !== null) {
-                var hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = "remove_images[]";
-                hiddenInput.value = key;
-                imageBox.appendChild(hiddenInput);
-            }
-
-            imageBox.remove();
-            updateButtons();
-        }
-
-        function addMoreImage(event) {
-            event.stopPropagation();
-            var container = document.getElementById('image-container');
-            var existingBoxes = container.querySelectorAll('.image-box');
-
-            if (existingBoxes.length >= 4) {
-                alert("You can only upload a maximum of 4 images.");
+        function getFormFields(event) {
+            var subcategory_id = $("#subcategory").val();
+            var item_id = $(event).val();
+            if (!subcategory_id) {
+                $('#form-fields-container').html('');
                 return;
             }
 
-            var newBox = document.createElement('div');
-            newBox.classList.add('col-md-3', 'image-box');
-            newBox.innerHTML = `
-                <label class="form-label" for="">Image ${existingBoxes.length + 1}</label>
-                <div class="image-container-box" onclick="this.querySelector('.image-input').click()">
-                    <span class="btn-remove" onclick="removeImage(event)">&times;</span>
-                    <span class="btn-add-more" onclick="addMoreImage(event)">+</span>
-                    <img class="preview-image d-none" />
-                    <p class="upload-text">Click and upload an image</p>
-                    <input type="file" class="image-input d-none" name="images[]" accept="image/*" onchange="loadFile(event)" />
-                </div>
-            `;
+            $.ajax({
+                url: "{{ route('admin.product.get_form_fields') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    product_id: "{{ $edit_data->id }}",
+                    subcategory_id: subcategory_id,
+                    item_id: item_id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#form-fields-container').html(response.html);
+                        if ($(".summernote").length) {
+                            $(".summernote").each(function() {
+                                // Destroy previous instance if exists
+                                if ($(this).next().hasClass('note-editor')) {
+                                    $(this).summernote('destroy');
+                                }
 
-            container.appendChild(newBox);
-            updateButtons();
-        }
-
-        function updateButtons() {
-            var boxes = document.querySelectorAll('.image-box');
-            var totalBoxes = boxes.length;
-
-            boxes.forEach((box, index) => {
-                var addMoreBtn = box.querySelector('.btn-add-more');
-                var removeBtn = box.querySelector('.btn-remove');
-
-                // Show add button only in the last box if less than 4 boxes exist
-                addMoreBtn.classList.toggle('d-none', totalBoxes >= 4 || index !== totalBoxes - 1);
-
-                // Show remove button on all except when only one box is left
-                removeBtn.classList.toggle('d-none', totalBoxes === 1);
+                                // Initialize again
+                                $(this).summernote({
+                                    height: 300,
+                                    tabsize: 2
+                                });
+                            });
+                        }
+                    }
+                }
             });
         }
+    </script>
+    <script>
+        $(document).ready(function() {
+            getSubCategories('#category');
+            setTimeout(function() {
+                getItems('#subcategory');
+                setTimeout(function() {
+                    getFormFields('#item_type')
+                }, 300);
+            }, 300);
+        });
 
-        document.addEventListener("DOMContentLoaded", updateButtons);
+        function getSubCategories(selector) {
+            var category_id = $(selector).val();
+
+            $('#subcategory').html('<option value="">Select Sub Category</option>');
+            $('#form-fields-container').html('');
+
+            if (category_id) {
+                $.ajax({
+                    url: "{{ route('admin.product.get_sub_categories') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        category_id: category_id,
+                        product_id: "{{ $edit_data->id }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#subcategory').html(response.html);
+                        }
+                    }
+                });
+            }
+        }
+
+        function getItems(selector) {
+            var subcategory_id = $(selector).val();
+
+            $('#item_type').html('<option value="">Select Item Type</option>');
+            $('#form-fields-container').html('');
+
+            if (subcategory_id) {
+                $.ajax({
+                    url: "{{ route('admin.product.get_items') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        subcategory_id: subcategory_id,
+                        product_id: "{{ $edit_data->id }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#item_type').html(response.html);
+                        }
+                    }
+                });
+            }
+        }
+
+        // On change events for dropdowns (optional)
+        $('#category').on('change', function() {
+            getSubCategories(this);
+        });
+
+        $('#subcategory').on('change', function() {
+            getItems(this);
+        });
     </script>
 @endpush

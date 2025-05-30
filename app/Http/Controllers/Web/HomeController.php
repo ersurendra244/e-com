@@ -14,7 +14,8 @@ class HomeController extends Controller
     public function index()
     {
         $data['title'] = 'home';
-        $data['featuredProducts'] = Product::withAvg('reviews', 'rating')->where('is_featured', 1)->limit(8)->get();
+        $data['featuredProducts'] = Product::with('variants')->withAvg('reviews', 'rating')->where('is_featured', 1)->limit(8)->get();
+        // return $data['featuredProducts'][0]->variants[0]->images[0];
         $data['recentProducts'] = Product::withAvg('reviews', 'rating')->latest()->limit(8)->get();
         $data['categories'] = Category::where('status', '1')->latest()->limit(8)->get();
         return view('web.home', $data);

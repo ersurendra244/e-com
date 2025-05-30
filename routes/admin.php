@@ -70,11 +70,14 @@ Route::prefix('products')->group(function () {
     Route::post('get-sub-categories', [ProductController::class, 'get_sub_categories'])->name('admin.product.get_sub_categories');
     Route::post('get-items', [ProductController::class, 'get_items'])->name('admin.product.get_items');
     Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
+    Route::post('variants-delete', [ProductController::class, 'variants_delete'])->name('admin.product.variants_delete');
+    Route::post('variants-image-delete', [ProductController::class, 'variants_image_delete'])->name('admin.product.variants_image_delete');
+
+
 
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
     Route::get('variants-manage/{product_id}/{id?}', [ProductController::class, 'variants_manage'])->name('admin.products.variants_manage');
     Route::post('variants-save/{id?}', [ProductController::class, 'variants_save'])->name('admin.products.variants_save');
-    Route::get('variants-delete/{id?}', [ProductController::class, 'variants_delete'])->name('admin.products.variants_delete');
     Route::get('reviews/{id}', [ProductController::class, 'reviews'])->name('admin.products.reviews');
     Route::post('reviews-list', [ProductController::class, 'reviews_list'])->name('admin.products.reviews_list');
 });
