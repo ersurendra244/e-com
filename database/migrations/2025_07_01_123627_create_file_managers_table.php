@@ -19,6 +19,7 @@ class CreateFileManagersTable extends Migration
             $table->enum('type', ['folder', 'file', 'image']);
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('path')->nullable();
+            $table->integer('size')->nullable();
             $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
             $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();
