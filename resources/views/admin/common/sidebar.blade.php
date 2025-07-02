@@ -62,6 +62,12 @@
                 </a>
             </li>
         @endcan
+        <li class="nav-item {{ request()->routeIs('admin.file_manager*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.file_manager') }}">
+                    <i class="fas fa-pen-square menu-icon"></i>
+                    <span class="menu-title">File Manager</span>
+                </a>
+            </li>
         @canany(['site settings'])
             <li class="nav-item d-none d-lg-block">
                 <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false" aria-controls="settings">

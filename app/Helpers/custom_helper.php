@@ -8,6 +8,27 @@ use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
+if (!function_exists('renameImage')) {
+    function renameImage($image, $path, $newName)
+    {
+        if (!$image || !$path || !$newName) {
+            return false;
+        }
+
+        $oldPath = public_path(trim($path, '/') . '/' . $image);
+        $extension = pathinfo($image, PATHINFO_EXTENSION);
+        $newNameWithExt = pathinfo($newName, PATHINFO_FILENAME) . '.' . $extension;
+        $newPath = public_path(trim($path, '/') . '/' . $newNameWithExt);
+
+        if (file_exists($oldPath)) {
+            rename($oldPath, $newPath);
+            return $newNameWithExt; // Return new filename
+        }
+
+        return false;
+    }
+}
+
 function createThumbnail($name, $imagePath, $folderPath, $width, $height)
 {
     $manager = new ImageManager(new Driver());

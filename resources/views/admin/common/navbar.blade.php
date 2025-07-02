@@ -26,7 +26,7 @@
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown d-none d-lg-flex">
                 <div class="nav-link">
-                    <a href="{{ route('web.home') }}" class="btn btn-outline-dark"><i class="fas fa-globe"></i> Home</a>
+                    <a href="{{ route('web.home') }}" target="_blank" class="text-primary fw-bold"><i class="fas fa-globe"></i></a>
                 </div>
             </li>
             <li class="nav-item dropdown d-none d-lg-flex">
