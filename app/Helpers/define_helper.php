@@ -1,4 +1,29 @@
 <?php
+if (!function_exists('fileTypeIcon')) {
+    function fileTypeIcon($fileName)
+    {
+        $fileTypeIcons = [
+            'jpg' => '🖼️', 'jpeg' => '🖼️', 'png' => '🖼️', 'gif' => '🖼️', 'svg' => '🖼️',
+            'webp' => '🖼️', 'ico' => '🖼️', 'bmp' => '🖼️', 'tif' => '🖼️', 'tiff' => '🖼️', 'avif' => '🖼️',
+            'txt' => '📄', 'html' => '🌐', 'php' => '🐘', 'js' => '🟨', 'css' => '🎨',
+            'pdf' => '📕', 'doc' => '📝', 'docx' => '📝', 'xls' => '📊', 'xlsx' => '📊',
+            'ppt' => '📈', 'pptx' => '📈',
+            'mp4' => '🎬', 'avi' => '🎬', 'mov' => '🎬', 'webm' => '🎬', 'mkv' => '🎬',
+            'mp3' => '🎧', 'wav' => '🎧', 'aac' => '🎧', 'ogg' => '🎧', 'flac' => '🎧',
+            'zip' => '🗜️', 'rar' => '🗜️', '7z' => '🗜️', 'tar' => '🗜️', 'gz' => '🗜️',
+            'folder' => '📁',
+        ];
+
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        if (empty($extension)) {
+            return $fileTypeIcons['folder'];
+        }
+
+        return $fileTypeIcons[$extension] ?? $fileTypeIcons['folder'];
+    }
+}
+
 
 if (!function_exists('priceRange')) {
     function priceRange()

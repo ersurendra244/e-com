@@ -27,6 +27,7 @@
             color: #495057;
             margin: 0 0;
         }
+
         .veiw-area ul {
             list-style-type: none;
         }
@@ -37,6 +38,7 @@
             text-decoration: none !important;
             transition: color 0.2s ease !important;
         }
+
         .veiw-area ul li a:hover {
             color: #0056b3;
             text-decoration: underline;
@@ -83,62 +85,74 @@
 
     @include('admin.common.message')
     <div class="card">
-        <div class="card">
-            <div class="card-body">
-                <div class="dropdown">
-                    <button class="dropbtn float-right"><i class="fas fa-ellipsis-v"></i></button>
-                    <div class="dropdown-content">
-                        <a href="javascript:void(0)" onclick="addnew('folder')" class="text-primary">New Folder</a>
-                        <a href="javascript:void(0)" onclick="addnew('file')" class="text-primary">New File</a>
-                        <a href="javascript:void(0)" onclick="addnew('image')" class="text-primary">Upload Image</a>
-                        <a href="javascript:void(0)" onclick="addnew('text')" class="text-primary">Text Document</a>
-                    </div>
+        <div class="card-body">
+            <div class="dropdown">
+                <button class="dropbtn float-right"><i class="fas fa-ellipsis-v"></i></button>
+                <div class="dropdown-content">
+                    <a href="javascript:void(0)" onclick="addnew('folder')" class="text-primary">New Folder</a>
+                    <a href="javascript:void(0)" onclick="addnew('file')" class="text-primary">Upload File</a>
+                    <a href="javascript:void(0)" onclick="addnew('text')" class="text-primary">Text Document</a>
                 </div>
-                <div class="breadcrumb-trail">
-                    <a href="{{ route('admin.file_manager', null) }}">File Manager</a>
-                    @foreach ($breadcrumbs as $crumb)
-                        <span>/</span>
-                        <a href="{{ route('admin.file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
-                    @endforeach
-                </div>
-                <div class="row mt-2">
-                    <div class="col-12 veiw-area">
-                        <table class="table table-hover">
-                            @foreach ($items as $item)
-                                <tr>
-                                    <td width="80%">
-                                        @if ($item->type === 'folder')
-                                            📁 <a href="{{ route('admin.file_manager', $item->id) }}">{{ $item->name }}</a>
-                                        @elseif($item->type === 'image')
-                                            🖼️ <a href="{{ asset($item->path . $item->name) }}" target="_blank">{{ $item->name }}</a>
-                                        @else
-                                            📄 <a href="{{ asset($item->path . $item->name) }}" target="_blank">{{ $item->name }}</a>
-                                        @endif
-                                    </td>
+            </div>
+            <div class="breadcrumb-trail">
+                <a href="{{ route('admin.file_manager', null) }}">File Manager</a>
+                @foreach ($breadcrumbs as $crumb)
+                    <span>/</span>
+                    <a href="{{ route('admin.file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
+                @endforeach
+            </div>
+            <div class="row mt-2" style="min-height: 56vh;">
+                <div class="col-12 veiw-area">
+                    <table class="table table-hover">
+                        @foreach ($items as $item)
+                            <tr>
+                                <td width="80%">
+                                    @if ($item->type === 'folder')
+                                        {!! fileTypeIcon($item->name) !!} <a href="{{ route('admin.file_manager', $item->id) }}">{{ $item->name }}</a>
+                                    @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                        {!! fileTypeIcon($item->name) !!} <a href="{{ route('admin.file_manager.file_preview', $item->id) }}" class="text-primary"
+                                            target="_blank">{{ $item->name }}</a>
+                                    @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico', 'bmp', 'tif', 'tiff', 'avif']))
+                                        {!! fileTypeIcon($item->name) !!} <a href="{{ asset($item->path . $item->name) }}" class="text-primary"
+                                                target="_blank">{{ $item->name }}</a>
+                                    @else
+                                        {!! fileTypeIcon($item->name) !!} <a href="{{ asset($item->path . $item->name) }}" class="text-primary"
+                                            target="_blank">{{ $item->name }}</a>
+                                    @endif
+                                </td>
 
-                                    <td width="15%">
-                                        {{ $item->total_size_formatted }}
-                                    </td>
-                                    <td width="5%">
-                                        <div class="dropdown">
-                                            <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
-                                            <div class="dropdown-content">
-                                                @if ($item->type === 'folder')
-                                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-primary">Open</a>
-                                                @elseif($item->type === 'image')
-                                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-primary">View</a>
-                                                @else
-                                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-primary">Download</a>
-                                                @endif
-                                                <a href="javascript:void(0)" onclick="addnew('folder' , {{ $item->id }}, '{{ $item->name }}')" class="text-primary">Rename</a>
-                                                <a href="javascript:void(0)" onclick="addnew('file')" class="text-danger">Delete</a>
-                                            </div>
+                                <td width="15%">
+                                    {{ $item->total_size_formatted }}
+                                </td>
+                                <td width="5%">
+                                    <div class="dropdown">
+                                        <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
+                                        <div class="dropdown-content">
+                                            @if ($item->type === 'folder')
+                                                <a href="{{ route('admin.file_manager', $item->id) }}"
+                                                    class="text-primary">Open</a>
+                                            @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                                <a href="{{ route('admin.file_manager.file_preview', $item->id) }}" class="text-primary"
+                                                    target="_blank">View</a>
+                                            @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico', 'bmp', 'tif', 'tiff', 'avif']))
+                                                <a href="{{ asset($item->path . $item->name) }}" class="text-primary"
+                                                    target="_blank">Open</a>
+                                            @else
+                                                <a href="{{ asset($item->path . $item->name) }}" class="text-primary"
+                                                    target="_blank">Download</a>
+                                            @endif
+                                            <a href="javascript:void(0)"
+                                                onclick="addnew('folder' , {{ $item->id }}, '{{ $item->name }}')"
+                                                class="text-primary">Rename</a>
+                                            <a href="javascript:void(0)"
+                                                onclick="deleteData(`{{ route('admin.file_manager.delete', $item->id) }}`)"
+                                                class="text-danger">Delete</a>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
                 </div>
             </div>
         </div>
@@ -171,19 +185,14 @@
 
                                 </div>
                             </div>
-                            <div class="col-md-12 image">
-                                <p class="form-label mb-1">Upload Images</p>
+                            <div class="col-md-12 file">
+                                <p class="form-label mb-1">Upload Files</p>
                                 <div class="form-group mb-0">
                                     <div class="input-group">
-                                        <input type="file" class="form-control image-input" name="images[]" multiple
-                                            accept="image/*" />
+                                        <input type="file" class="form-control file-input" name="files[]" multiple />
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12 my-2 image">
-                                <div class="preview-container d-flex flex-wrap gap-2 mt-2">
-
-                                </div>
+                                <ul id="fileList" class="mt-2"></ul>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary submit">Submit</button>
@@ -198,39 +207,25 @@
 @push('child_scripts')
     <script>
         $(document).ready(function() {
-            toggleSubmitButton(); // Initial check
+            toggleSubmitButton();
 
-            // On input in #name field
             $(document).on('input', '#name', function() {
                 toggleSubmitButton();
             });
 
-            // On file input change
-            $(document).on('change', '.image-input', function(event) {
+            $(document).on('change', '.file-input', function(event) {
+                const fileList = document.getElementById('fileList');
                 const input = event.target;
                 const files = input.files;
-                const $container = $(input).closest('.row').find('.preview-container');
-                $container.empty();
-                Array.from(files).forEach(file => {
-                    $container.css({
-                        border: '1px solid #e0e0ef',
-                        borderRadius: '2px',
-                    });
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(file);
-                    $(img).css({
-                        width: '75px',
-                        height: '75px',
-                        border: '1px solid #ddd',
-                        borderRadius: '5px',
-                        margin: '5px',
-                    });
-                    img.onload = () => URL.revokeObjectURL(img.src);
-                    $container.append(img);
+                fileList.innerHTML = '';
+                Array.from(files).forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.textContent =
+                        `${index + 1}. ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    fileList.appendChild(li);
                 });
                 toggleSubmitButton();
             });
-
         });
 
         function addnew(type, item_id = null, name = '') {
@@ -239,20 +234,14 @@
             $('#type').val(type);
             $('#item_id').val(item_id);
             $('#name').val(name);
-            $('.image-input').val('');
-            $('.preview-container').empty();
-            $('.preview-container').css({
-                border: 'none',
-                borderRadius: '0',
-            });
 
-            if (type === 'folder' || type === 'file' || type === 'text') {
-                $('.image').hide();
+            if (type === 'folder') {
+                $('.file').hide();
                 $('.folder').show();
-            } else if (type === 'image' || item_id === null) {
+            } else if (type === 'file' || item_id === null) {
                 $('.folder').hide();
-                $('.image').show();
-            }
+                $('.file').show();
+            } else {}
 
             $('#manage-form-label').text('Add New ' + type.charAt(0).toUpperCase() + type.slice(1));
             $('#exampleModal').modal('show');
@@ -263,11 +252,11 @@
             const currentType = $('#type').val();
             let isValid = false;
 
-            if (currentType === 'image') {
-                // Only image is required
-                const fileInput = $('.image:visible').find('.image-input')[0];
-                const imageSelected = fileInput && fileInput.files.length > 0;
-                isValid = imageSelected;
+            if (currentType === 'file') {
+                // Only file is required
+                const fileInput = $('.file:visible').find('.file-input')[0];
+                const fileSelected = fileInput && fileInput.files.length > 0;
+                isValid = fileSelected;
             } else {
                 // For folder, file, or text — only name required
                 const nameFilled = $('#name').val().trim().length > 0;
@@ -276,9 +265,6 @@
 
             $('#manage-form').find('.submit').prop('disabled', !isValid);
         }
-        // $('#manage-form').submit(function(e) {
-        //     console.log("Submitting form with type =", $('#type').val());
-        // });
     </script>
     <script>
         document.addEventListener('click', function(e) {

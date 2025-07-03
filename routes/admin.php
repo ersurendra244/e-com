@@ -75,7 +75,6 @@ Route::prefix('products')->group(function () {
     Route::post('variants-image-delete', [ProductController::class, 'variants_image_delete'])->name('admin.product.variants_image_delete');
 
 
-
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
     Route::get('variants-manage/{product_id}/{id?}', [ProductController::class, 'variants_manage'])->name('admin.products.variants_manage');
     Route::post('variants-save/{id?}', [ProductController::class, 'variants_save'])->name('admin.products.variants_save');
@@ -104,7 +103,10 @@ Route::prefix('settings')->group(function () {
 Route::prefix('file-manager')->group(function () {
     Route::get('{parent_id?}', [FileManagerController::class, 'index'])->name('admin.file_manager');
     Route::post('create', [FileManagerController::class, 'create'])->name('admin.file_manager.create');
-    // Route::post('tree/{parent_id?}', [FileManagerController::class, 'tree'])->name('admin.file_manager.tree');
+    Route::get('delete/{id?}', [FileManagerController::class, 'delete'])->name('admin.file_manager.delete');
+    Route::get('file-preview/{id}', [FileManagerController::class, 'preview'])->name('admin.file_manager.file_preview');
+    Route::post('file-save/{id}', [FileManagerController::class, 'saveContent'])->name('admin.file_manager.file_save');
+
 });
 
 // masters
