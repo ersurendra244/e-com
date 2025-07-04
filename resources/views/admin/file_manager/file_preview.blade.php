@@ -39,7 +39,7 @@
                 theme: 'vs-light',
                 automaticLayout: true,
                 readOnly: false,
-                scrollBeyondLastLine: false,
+                scrollBeyondLastLine: true,
                 minimap: {
                     enabled: false
                 }

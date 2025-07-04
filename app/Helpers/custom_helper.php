@@ -40,20 +40,6 @@ if (!function_exists('deleteFolder')) {
     }
 }
 
-if (!function_exists('createFileWithContent')) {
-    function createFileWithContent($fileName, $content, $parentPath = 'uploads/file-manager')
-    {
-        $fullPath = public_path($parentPath . '/' . $fileName);
-
-        if (!file_exists($fullPath)) {
-            file_put_contents($fullPath, $content); // Create file with content
-            chmod($fullPath, 0666); // Set permissions
-        }
-
-        return str_replace(public_path() . '/', '', $fullPath);
-    }
-}
-
 if (!function_exists('createFile')) {
     function createFile($fileName, $parentPath = 'uploads/file-manager')
     {

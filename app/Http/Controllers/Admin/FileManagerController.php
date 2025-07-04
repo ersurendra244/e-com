@@ -37,116 +37,197 @@ class FileManagerController extends Controller
         return array_reverse($breadcrumbs);
     }
 
+    // public function create(Request $request)
+    // {
+    //     $type = $request->type;
+    //     $item_id = $request->item_id ?? null;
+    //     $parent_id = $request->parent_id ?? null;
+
+    //     try {
+    //         if ($item_id) {
+    //             $model = FileManager::find($item_id);
+    //             $name = $request->name ?? $model->name;
+
+    //             if ($model->type === 'file') {
+    //                 $image = $model->name;
+    //                 $path = $model->path;
+    //                 $newFileName = renameImage($image, $path, $name);
+
+    //                 if ($newFileName) {
+    //                     $model->name = $newFileName;
+    //                 }
+    //             } elseif ($model->type === 'folder') {
+    //                 $newRelativePath = renameFolder($model->path, $name);
+
+    //                 if ($newRelativePath) {
+    //                     $model->name = $name;
+    //                     $model->path = $newRelativePath;
+    //                 }
+    //             } else {
+    //                 $model->name = $name;
+    //             }
+
+    //             $model->save();
+
+    //             Session::flash('success', ucwords($model->type) . ' renamed successfully');
+    //         } else {
+    //             if ($type === 'folder') {
+    //                 $folderName = $request->name;
+
+    //                 $basePath = 'uploads/file-manager';
+    //                 if ($parent_id) {
+    //                     $parentFolder = FileManager::where('id', $parent_id)->where('type', 'folder')->first();
+    //                     if ($parentFolder) {
+    //                         $basePath = rtrim($parentFolder->path, '/');
+    //                     }
+    //                 }
+
+    //                 $relativePath = createFolder($folderName, $basePath);
+
+    //                 $model = new FileManager();
+    //                 $model->name = $folderName;
+    //                 $model->type = $type;
+    //                 $model->path = $relativePath;
+    //                 $model->parent_id = $parent_id;
+    //                 $model->size = 0;
+    //                 $model->save();
+
+    //                 Session::flash('success', 'Folder created successfully');
+    //             } elseif ($type === 'file') {
+    //                 if ($request->hasFile('files')) {
+    //                     foreach ($request->file('files') as $file) {
+    //                         $fileSize = $file->getSize();
+    //                         $originalName = $file->getClientOriginalName();
+    //                         $extension = $file->getClientOriginalExtension();
+    //                         $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+
+    //                         $cleanName = Str::slug($baseName, '_'); // base filename
+    //                         $finalName = $cleanName . '.' . $extension;
+
+    //                         $parentPath = 'uploads/file-manager';
+    //                         if ($parent_id) {
+    //                             $parentFolder = FileManager::where('id', $parent_id)->where('type', 'folder')->first();
+    //                             if ($parentFolder) {
+    //                                 $parentPath = rtrim($parentFolder->path, '/');
+    //                             }
+    //                         }
+
+    //                         $fullPath = public_path($parentPath);
+    //                         if (!file_exists($fullPath)) {
+    //                             mkdir($fullPath, 0777, true);
+    //                             chmod($fullPath, 0777);
+    //                         }
+
+    //                         // ✅ Check for duplicate file and generate a unique name
+    //                         $copyCount = 1;
+    //                         $uniqueName = $finalName;
+    //                         while (File::exists($fullPath . '/' . $uniqueName)) {
+    //                             $uniqueName = $cleanName . '_(' . $copyCount . ').' . $extension;
+    //                             $copyCount++;
+    //                         }
+
+    //                         // Move file with unique name
+    //                         $file->move($fullPath, $uniqueName);
+
+    //                         $model = new FileManager();
+    //                         $model->name = $uniqueName;
+    //                         $model->type = $type;
+    //                         $model->path = $parentPath . '/';
+    //                         $model->parent_id = $parent_id;
+    //                         $model->size = $fileSize;
+    //                         $model->save();
+    //                     }
+
+    //                     Session::flash('success', 'Files uploaded successfully');
+    //                 }
+    //             }
+    //         }
+    //     } catch (\Exception $e) {
+    //         Log::error('Upload error: ' . $e->getMessage());
+    //         return back()->withErrors(['error' => $e->getMessage()]);
+    //     }
+    //     return back();
+    // }
+
     public function create(Request $request)
     {
         $type = $request->type;
-        $item_id = $request->item_id ?? null;
         $parent_id = $request->parent_id ?? null;
+        $responseMessage = '';
+        $responseSuccess = false;
 
         try {
-            if ($item_id) {
-                $model = FileManager::find($item_id);
-                $name = $request->name ?? $model->name;
+            if ($type === 'folder') {
+                $folderName = $request->name;
+                // Call the helper function for folder creation
+                createFileManagerFolder($folderName, $parent_id);
+                $responseMessage = 'Folder created successfully';
+                $responseSuccess = true;
 
-                if ($model->type === 'file') {
-                    $image = $model->name;
-                    $path = $model->path;
-                    $newFileName = renameImage($image, $path, $name);
-
-                    if ($newFileName) {
-                        $model->name = $newFileName;
-                    }
-                } elseif ($model->type === 'folder') {
-                    $newRelativePath = renameFolder($model->path, $name);
-
-                    if ($newRelativePath) {
-                        $model->name = $name;
-                        $model->path = $newRelativePath;
-                    }
+            } elseif ($type === 'file') {
+                if ($request->hasFile('files')) {
+                    // Call the helper function for file uploads
+                    $uploadedCount = uploadFileManagerFiles($request->file('files'), $parent_id);
+                    $responseMessage = ($uploadedCount > 1 ? 'Files' : 'File') . ' uploaded successfully';
+                    $responseSuccess = true;
                 } else {
-                    $model->name = $name;
+                    throw new \Exception('No files selected for upload.');
                 }
-
-                $model->save();
-
-                Session::flash('success', ucwords($model->type) . ' renamed successfully');
             } else {
-                if ($type === 'folder') {
-                    $folderName = $request->name;
-
-                    $basePath = 'uploads/file-manager';
-                    if ($parent_id) {
-                        $parentFolder = FileManager::where('id', $parent_id)->where('type', 'folder')->first();
-                        if ($parentFolder) {
-                            $basePath = rtrim($parentFolder->path, '/');
-                        }
-                    }
-
-                    $relativePath = createFolder($folderName, $basePath);
-
-                    $model = new FileManager();
-                    $model->name = $folderName;
-                    $model->type = $type;
-                    $model->path = $relativePath;
-                    $model->parent_id = $parent_id;
-                    $model->size = 0;
-                    $model->save();
-
-                    Session::flash('success', 'Folder created successfully');
-                } elseif ($type === 'file') {
-                    if ($request->hasFile('files')) {
-                        foreach ($request->file('files') as $file) {
-                            $fileSize = $file->getSize();
-                            $originalName = $file->getClientOriginalName();
-                            $extension = $file->getClientOriginalExtension();
-                            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
-
-                            $cleanName = Str::slug($baseName, '_'); // base filename
-                            $finalName = $cleanName . '.' . $extension;
-
-                            $parentPath = 'uploads/file-manager';
-                            if ($parent_id) {
-                                $parentFolder = FileManager::where('id', $parent_id)->where('type', 'folder')->first();
-                                if ($parentFolder) {
-                                    $parentPath = rtrim($parentFolder->path, '/');
-                                }
-                            }
-
-                            $fullPath = public_path($parentPath);
-                            if (!file_exists($fullPath)) {
-                                mkdir($fullPath, 0777, true);
-                                chmod($fullPath, 0777);
-                            }
-
-                            // ✅ Check for duplicate file and generate a unique name
-                            $copyCount = 1;
-                            $uniqueName = $finalName;
-                            while (File::exists($fullPath . '/' . $uniqueName)) {
-                                $uniqueName = $cleanName . '_(' . $copyCount . ').' . $extension;
-                                $copyCount++;
-                            }
-
-                            // Move file with unique name
-                            $file->move($fullPath, $uniqueName);
-
-                            $model = new FileManager();
-                            $model->name = $uniqueName;
-                            $model->type = $type;
-                            $model->path = $parentPath . '/';
-                            $model->parent_id = $parent_id;
-                            $model->size = $fileSize;
-                            $model->save();
-                        }
-
-                        Session::flash('success', 'Files uploaded successfully');
-                    }
-                }
+                throw new \Exception('Invalid operation type.');
             }
+
+            return response()->json(['success' => $responseSuccess, 'message' => $responseMessage]);
+
         } catch (\Exception $e) {
-            Log::error('Upload error: ' . $e->getMessage());
-            return back()->withErrors(['error' => $e->getMessage()]);
+            Log::error('File Manager Create Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-        return back();
+    }
+
+    /**
+     * Handle renaming of existing files or folders.
+     */
+    public function rename(Request $request)
+    {
+        $item_id = $request->item_id;
+        $newName = $request->name;
+        $responseMessage = '';
+        $responseSuccess = false;
+
+        try {
+            // Call the helper function for renaming
+            $renamedItem = renameFileManagerItem($item_id, $newName);
+            $responseMessage = ucwords($renamedItem->type) . ' renamed successfully';
+            $responseSuccess = true;
+
+            return response()->json(['success' => $responseSuccess, 'message' => $responseMessage]);
+
+        } catch (\Exception $e) {
+            Log::error('File Manager Rename Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Handle deletion of files or folders. (Example: You would add this if you have a delete action)
+     */
+    public function delete(Request $request) // Assuming you pass item_id in request
+    {
+        $item_id = $request->item_id; // Or from route parameter: public function delete($id)
+        $responseMessage = '';
+        $responseSuccess = false;
+
+        try {
+            deleteFileManagerItem($item_id);
+            $responseMessage = 'Item deleted successfully';
+            $responseSuccess = true;
+
+            return response()->json(['success' => $responseSuccess, 'message' => $responseMessage]);
+        } catch (\Exception $e) {
+            Log::error('File Manager Delete Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
     public function preview($id)
     {
@@ -183,26 +264,62 @@ class FileManagerController extends Controller
         }
     }
 
-    public function delete($id)
+    // public function delete($id)
+    // {
+    //     $modal = FileManager::findOrFail($id);
+    //     if ($modal) {
+    //         if ($modal->type === 'file') {
+    //             removeImage($modal->name, $modal->path);
+    //         } elseif ($modal->type === 'folder') {
+    //             $children = FileManager::where('parent_id', $modal->id)->get();
+    //             foreach ($children as $child) {
+    //                 $this->delete($child->id);
+    //             }
+    //             $folderPath = public_path($modal->path);
+    //             if (file_exists($folderPath) && is_dir($folderPath)) {
+    //                 deleteFolder($folderPath);
+    //             }
+    //         }
+    //         $modal->delete();
+    //         Session::flash('success', ucwords($modal->type) . ' deleted successfully');
+    //         return response()->json(['success' => true]);
+    //     }
+    //     return response()->json(['success' => false]);
+    // }
+
+    public function edit($id)
     {
-        $modal = FileManager::findOrFail($id);
-        if ($modal) {
-            if ($modal->type === 'file') {
-                removeImage($modal->name, $modal->path);
-            } elseif ($modal->type === 'folder') {
-                $children = FileManager::where('parent_id', $modal->id)->get();
-                foreach ($children as $child) {
-                    $this->delete($child->id);
-                }
-                $folderPath = public_path($modal->path);
-                if (file_exists($folderPath) && is_dir($folderPath)) {
-                    deleteFolder($folderPath);
-                }
-            }
-            $modal->delete();
-            Session::flash('success', ucwords($modal->type) . ' deleted successfully');
-            return response()->json(['success' => true]);
+        $data['title'] = 'File Preview';
+        $data['subtitle'] = 'File Manager';
+        $data['mode'] = 'edit';
+        $item = FileManager::findOrFail($id);
+        $fullPath = public_path($item->path . $item->name);
+
+        if (!file_exists($fullPath)) {
+            abort(404);
         }
-        return response()->json(['success' => false]);
+
+        $content = file_get_contents($fullPath);
+        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+
+        return view('admin.file_manager.edit', compact('item', 'content', 'extension') + $data);
+    }
+
+    public function view($id)
+    {
+        $data['title'] = 'File Preview';
+        $data['subtitle'] = 'File Manager';
+        $data['mode'] = 'view';
+        $item = FileManager::findOrFail($id);
+        $fullPath = public_path($item->path . $item->name);
+
+        if (!file_exists($fullPath)) {
+            abort(404);
+        }
+
+        $content = file_get_contents($fullPath);
+        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+
+        return view('admin.file_manager.edit', compact('item', 'content', 'extension') + $data);
     }
 }

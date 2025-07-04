@@ -105,7 +105,10 @@ Route::prefix('file-manager')->group(function () {
     Route::post('create', [FileManagerController::class, 'create'])->name('admin.file_manager.create');
     Route::get('delete/{id?}', [FileManagerController::class, 'delete'])->name('admin.file_manager.delete');
     Route::get('file-preview/{id}', [FileManagerController::class, 'preview'])->name('admin.file_manager.file_preview');
+    Route::get('edit/{id}', [FileManagerController::class, 'edit'])->name('admin.file_manager.edit');
+    Route::get('view/{id}', [FileManagerController::class, 'view'])->name('admin.file_manager.view');
     Route::post('file-save/{id}', [FileManagerController::class, 'saveContent'])->name('admin.file_manager.file_save');
+    Route::post('rename', [FileManagerController::class, 'rename'])->name('admin.file_manager.rename');
 
 });
 
