@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\SubCategoryController;
 
 
@@ -74,7 +75,6 @@ Route::prefix('products')->group(function () {
     Route::post('variants-image-delete', [ProductController::class, 'variants_image_delete'])->name('admin.product.variants_image_delete');
 
 
-
     Route::get('variants/{product_id}', [ProductController::class, 'variants'])->name('admin.products.variants');
     Route::get('variants-manage/{product_id}/{id?}', [ProductController::class, 'variants_manage'])->name('admin.products.variants_manage');
     Route::post('variants-save/{id?}', [ProductController::class, 'variants_save'])->name('admin.products.variants_save');
@@ -98,6 +98,18 @@ Route::prefix('files')->group(function () {
 Route::prefix('settings')->group(function () {
     Route::get('site-settings', [SettingController::class, 'index'])->name('admin.settings');
     Route::post('update/{id}', [SettingController::class, 'update'])->name('admin.settings.update');
+});
+
+Route::prefix('file-manager')->group(function () {
+    Route::get('{parent_id?}', [FileManagerController::class, 'index'])->name('admin.file_manager');
+    Route::post('create', [FileManagerController::class, 'create'])->name('admin.file_manager.create');
+    Route::get('delete/{id?}', [FileManagerController::class, 'delete'])->name('admin.file_manager.delete');
+    Route::get('file-preview/{id}', [FileManagerController::class, 'preview'])->name('admin.file_manager.file_preview');
+    Route::get('edit/{id}', [FileManagerController::class, 'edit'])->name('admin.file_manager.edit');
+    Route::get('view/{id}', [FileManagerController::class, 'view'])->name('admin.file_manager.view');
+    Route::post('file-save/{id}', [FileManagerController::class, 'saveContent'])->name('admin.file_manager.file_save');
+    Route::post('rename', [FileManagerController::class, 'rename'])->name('admin.file_manager.rename');
+
 });
 
 // masters
