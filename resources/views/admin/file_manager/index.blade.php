@@ -280,38 +280,37 @@
             } else if (type === 'file') {
                 title = 'Upload Files';
                 showFileInput = true;
-            } else if (type === 'edit-item') { // This type will now trigger the rename logic
+            } else if (type === 'edit-item') {
                 title = 'Rename Item';
                 showNameField = true;
             } else {
                 title = 'Manage Item';
             }
 
-            // HTML for the form content (unchanged from previous version)
             formHtml = `
-        <div class="swal-form-container">
-            <input type="hidden" id="swal-parent_id-old" value="{{ $parent_id }}">
-            <input type="hidden" id="swal-item_id-old" value="${item_id || ''}">
-            <input type="hidden" id="swal-type-old" value="${type}">
+                <div class="swal-form-container">
+                    <input type="hidden" id="swal-parent_id-old" value="{{ $parent_id }}">
+                    <input type="hidden" id="swal-item_id-old" value="${item_id || ''}">
+                    <input type="hidden" id="swal-type-old" value="${type}">
 
-            ${showNameField ? `
-                    <div class="form-group folder-field">
-                        <label class="form-label" for="swal-name-old">Name</label>
-                        <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
-                        <span id="name-error-old" class="error-message" style="display:none;"></span>
-                    </div>` : ''}
+                    ${showNameField ? `
+                            <div class="form-group folder-field">
+                                <label class="form-label" for="swal-name-old">Name</label>
+                                <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
+                                <span id="name-error-old" class="error-message" style="display:none;"></span>
+                            </div>` : ''}
 
-            ${showFileInput ? `
-                    <div class="form-group file-field">
-                        <p class="form-label mb-1">Upload Files</p>
-                        <div class="input-group">
-                            <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
-                        </div>
-                        <ul id="swal-fileList-old" class="mt-2"></ul>
-                        <span id="file-error-old" class="error-message" style="display:none;"></span>
-                    </div>` : ''}
-        </div>
-    `;
+                    ${showFileInput ? `
+                            <div class="form-group file-field">
+                                <p class="form-label mb-1">Upload Files</p>
+                                <div class="input-group">
+                                    <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
+                                </div>
+                                <ul id="swal-fileList-old" class="mt-2"></ul>
+                                <span id="file-error-old" class="error-message" style="display:none;"></span>
+                            </div>` : ''}
+                </div>
+            `;
 
             swal({
                 title: title,
@@ -385,7 +384,7 @@
                     formData.append('_token', '{{ csrf_token() }}');
                     formData.append('parent_id', popup.querySelector('#swal-parent_id-old').value);
                     formData.append('item_id', popup.querySelector('#swal-item_id-old').value);
-                    formData.append('type', currentType); // Pass the type for the backend to differentiate
+                    formData.append('type', currentType);
 
                     if (showNameField) {
                         formData.append('name', nameInput ? nameInput.value : '');
@@ -398,9 +397,9 @@
 
                     let actionUrl;
                     if (currentType === 'edit-item') {
-                        actionUrl = "{{ route('admin.file_manager.rename') }}"; // Use the new rename route
+                        actionUrl = "{{ route('admin.file_manager.rename') }}";
                     } else {
-                        actionUrl = "{{ route('admin.file_manager.create') }}"; // Use the create route
+                        actionUrl = "{{ route('admin.file_manager.create') }}";
                     }
 
                     $.ajax({
@@ -465,7 +464,6 @@
             }, 100);
         }
 
-        // Function to toggle the 'Submit' button for old swal
         function toggleOldSwalSubmitButton(popup, type, showNameField, showFileInput) {
             const confirmButton = popup.querySelector('.swal-button--confirm');
             if (!confirmButton) return;
