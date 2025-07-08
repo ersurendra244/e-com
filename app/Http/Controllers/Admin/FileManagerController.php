@@ -11,11 +11,15 @@ class FileManagerController extends Controller
 {
     public function index($parent_id = null)
     {
+        // $data['title'] = 'File Manager - Toggle View';
+        // $data['subtitle'] = 'File Manager';
         $data['title'] = 'File Manager';
         $data['parent_id'] = $parent_id ?? null;
         $data['items'] = FileManager::with('children.children.children')->where('parent_id', $parent_id)->where('is_delete', '0')->get();
         $data['breadcrumbs'] = $this->getBreadcrumbs($parent_id);
-        return view('admin.file_manager.index', $data);
+        return $data['items'];
+        return view('admin.file_manager.demo', $data);
+        // return view('admin.file_manager.index', $data);
     }
     private function getBreadcrumbs($parent_id)
     {
@@ -159,4 +163,6 @@ class FileManagerController extends Controller
 
         return view('admin.file_manager.edit', compact('item', 'content', 'extension') + $data);
     }
+
+
 }
