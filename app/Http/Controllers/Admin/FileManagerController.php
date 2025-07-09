@@ -17,9 +17,9 @@ class FileManagerController extends Controller
         $data['parent_id'] = $parent_id ?? null;
         $data['items'] = FileManager::with('children.children.children')->where('parent_id', $parent_id)->where('is_delete', '0')->get();
         $data['breadcrumbs'] = $this->getBreadcrumbs($parent_id);
-        return $data['items'];
-        return view('admin.file_manager.demo', $data);
-        // return view('admin.file_manager.index', $data);
+        // return $data['items'];
+        // return view('admin.file_manager.demo', $data);
+        return view('admin.file_manager.index', $data);
     }
     private function getBreadcrumbs($parent_id)
     {
