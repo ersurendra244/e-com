@@ -7,32 +7,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use App\Models\FileManager;
 
-// if (!function_exists('createFile')) {
-//     function createFile($name, $parentId = null)
-//     {
-//         $parentPath = 'uploads/file-manager/';
-//         if ($parentId) {
-//             $parentFolder = FileManager::where('id', $parentId)->where('type', 'folder')->first();
-//             if ($parentFolder) {
-//                 $parentPath = rtrim($parentFolder->path);
-//             }
-//         }
-//         $model = new FileManager();
-//         $model->name = $name;
-//         $model->type = 'text';
-//         $model->path = $parentPath;
-//         $model->parent_id = $parentId;
-//         $model->size = '0';
-//         // print_r($model->path); die;
-//         $model->save();
-//         $fullPath = public_path($model->path);
-//         if (!file_exists($fullPath)) {
-//             touch($fullPath);
-//             chmod($fullPath, 0666);
-//         }
-//         return true;
-//     }
-// }
 if (!function_exists('createFile')) {
     function createFile($fileName, $parentId = null)
     {

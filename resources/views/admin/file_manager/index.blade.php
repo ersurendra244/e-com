@@ -137,48 +137,65 @@
         }
     </style>
     <style>
-        /* Manually defined color variations */
-        .folder-icon-color {
-            color: #FFC107;
-            /* original folder color */
-            text-shadow: 1px 1px 0px #d39e00;
-            /* approx darkened by 7.5% */
+        .shanu {
+            width: 125px;
+            margin: 10px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            /* border: 1px solid #dee2e6; */
+            /* border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
         }
 
-        .card-folders .card-body>.breadcrumb {
-            margin-left: -1.25em;
-            margin-right: -1.25em;
-            margin-top: -1.25em;
-            border-radius: 0;
+        .shanu:hover {
+            background: #e0f4ff;
         }
 
         .folder-container {
-            text-align: center;
-            margin-left: 1rem;
-            margin-right: 1rem;
-            margin-bottom: 1.5rem;
-            width: 100px;
-            padding: 0;
-            align-self: start;
-            background: none;
+            background: transparent;
             border: none;
-            outline-color: transparent !important;
-            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            width: 100%;
         }
 
-        .folder-icon {
-            font-size: 3em;
-            line-height: 1.25em;
+        .folder-icon img {
+            height: 60px;
+            object-fit: contain;
         }
 
         .folder-name {
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            hyphens: auto;
-            font-size: 12px;
-            color: #212529;
+            font-size: 13px;
+            margin-top: 5px;
+            word-break: break-word;
+            /* min-height: 40px; */
         }
 
+        .file-meta {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .file-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: none;
+        }
+        .shanu:hover .file-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: block;
+        }
+
+        .flex-column .shanu {
+            width: auto;
+            margin: 0;
+        }
         .flex-column .folder-container {
             display: flex;
             width: auto;
@@ -191,17 +208,28 @@
         .flex-column .folder-name {
             display: inline-flex;
             margin-top: 5px;
+            font-size: 17px;
+            word-break: normal;
         }
 
         .flex-column .folder-icon {
             font-size: 1.4em;
             margin-right: 1rem;
             display: inline-flex;
+            padding: 0px !important;
         }
 
-        .file-icon-color {
-            color: #999;
-            /* text-shadow: 1px 1px 0px grey; */
+        .flex-column .folder-icon img {
+            height: 30px;
+        }
+        .flex-column .shanu .file-meta {
+            position: absolute;
+            top: 15px;
+            right: 70px;
+        }
+        .flex-column .shanu .file-actions {
+            display: block;
+            top: 15px;
         }
     </style>
     @include('admin.common.message')
@@ -220,9 +248,9 @@
                 <div class="bd-highlight">
                     <div class="col col-auto pr-2">
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-secondary" onclick="listView()"><i
+                            <button class="btn btn-sm btn-outline-secondary" onclick="listView(this)"><i
                                     class="fa fa-th-list fa-lg"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary outline-none active" onclick="gridView()"><i
+                            <button class="btn btn-sm btn-outline-secondary outline-none active" onclick="gridView(this)"><i
                                     class="fa fa-th-large fa-lg"></i></button>
                         </div>
                     </div>
@@ -242,63 +270,47 @@
             <div id="foldersGroup" style="padding: 15px;">
                 <div id="main-folders" class="d-flex align-items-stretch flex-wrap">
                     @foreach ($items as $item)
-                        @if ($item->type === 'folder')
-                            <div class="d-inline-flex">
-                                <button class="folder-container">
-                                    <div class="folder-icon">
-                                        <i class="fa fa-folder folder-icon-color"></i>
-                                    </div>
-                                    <div class="folder-name">
+                        <div class="shanu">
+                            <button class="folder-container">
+                                <div class="folder-icon">
+                                    <img src="{{ asset('admin/images/ext-type/' . fileTypeIcon($item->name)) }}"
+                                        alt="icon">
+                                </div>
+                                <div class="folder-name">
+                                    @if ($item->type === 'folder')
                                         <a href="{{ route('admin.file_manager', $item->id) }}">{{ $item->name }}</a>
+                                    @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                        <a href="{{ route('admin.file_manager.view', $item->id) }}" target="_blank"
+                                            class="text-primary">{{ $item->name }}</a>
+                                    @else
+                                        <a href="{{ asset($item->path . $item->name) }}" target="_blank"
+                                            class="text-primary">{{ $item->name }}</a>
+                                    @endif
+                                </div>
+                            </button>
+
+                            <div class="file-meta">{{ $item->total_size_formatted }}</div>
+
+                            <div class="file-actions">
+                                <div class="dropdown">
+                                    <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
+                                    <div class="dropdown-content">
+                                        @if ($item->type === 'folder')
+                                            <a href="{{ route('admin.file_manager', $item->id) }}">Open</a>
+                                        @elseif (in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                            <a href="{{ route('admin.file_manager.edit', $item->id) }}"
+                                                target="_blank">Edit</a>
+                                        @else
+                                            <a href="{{ asset($item->path . $item->name) }}" target="_blank">Open</a>
+                                        @endif
+                                        <a href="javascript:void(0)"
+                                            onclick="addnew('edit-item', {{ $item->id }}, '{{ $item->name }}')">Rename</a>
+                                        <a href="javascript:void(0)"
+                                            onclick="deleteData(`{{ route('admin.file_manager.delete', $item->id) }}`)">Delete</a>
                                     </div>
-                                </button>
+                                </div>
                             </div>
-                        @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
-                            <div class="d-inline-flex">
-                                <button class="folder-container">
-                                    <div class="folder-icon">
-                                        <i class="fa fa-file folder-icon-color"></i>
-                                    </div>
-                                    <div class="folder-name">
-                                        <a href="{{ route('admin.file_manager.view', $item->id) }}" class="text-primary"
-                                            target="_blank">{{ $item->name }}
-                                        </a>
-                                    </div>
-                                </button>
-                            </div>
-                        @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), [
-                                'jpg',
-                                'jpeg',
-                                'png',
-                                'gif',
-                                'svg',
-                                'webp',
-                                'ico',
-                                'bmp',
-                                'tif',
-                                'tiff',
-                                'avif',
-                            ]))
-                            <div class="d-inline-flex">
-                                <button class="folder-container">
-                                    <div class="folder-icon">
-                                        <i class="fa fa-image folder-icon-color"></i>
-                                    </div>
-                                    <div class="folder-name"><a href="{{ asset($item->path . $item->name) }}"
-                                            class="text-primary" target="_blank">{{ $item->name }}</a></div>
-                                </button>
-                            </div>
-                        @else
-                            <div class="d-inline-flex">
-                                <button class="folder-container">
-                                    <div class="folder-icon">
-                                        <i class="fa fa-folder folder-icon-color"></i>
-                                    </div>
-                                    <div class="folder-name"><a href="{{ asset($item->path . $item->name) }}"
-                                            class="text-primary" target="_blank">{{ $item->name }}</a></div>
-                                </button>
-                            </div>
-                        @endif
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -309,12 +321,16 @@
 
 @push('child_scripts')
     <script>
-        function listView() {
+        function listView(e) {
+            $(e).addClass('active');
+            $(e).siblings().removeClass('active');
             $('#main-folders').addClass('flex-column');
             $('#main-files').removeClass('flex-column');
         }
 
-        function gridView() {
+        function gridView(e) {
+            $(e).addClass('active');
+            $(e).siblings().removeClass('active');
             $('#main-folders').removeClass('flex-column');
             $('#main-files').addClass('flex-column');
         }
@@ -372,21 +388,21 @@
                     <input type="hidden" id="swal-type-old" value="${type}">
 
                     ${showNameField ? `
-                                                                                                <div class="form-group folder-field">
-                                                                                                    <label class="form-label" for="swal-name-old">Name</label>
-                                                                                                    <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
-                                                                                                    <span id="name-error-old" class="error-message" style="display:none;"></span>
-                                                                                                </div>` : ''}
+                                                                                                                                                    <div class="form-group folder-field">
+                                                                                                                                                        <label class="form-label" for="swal-name-old">Name</label>
+                                                                                                                                                        <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
+                                                                                                                                                        <span id="name-error-old" class="error-message" style="display:none;"></span>
+                                                                                                                                                    </div>` : ''}
 
                     ${showFileInput ? `
-                                                                                                <div class="form-group file-field">
-                                                                                                    <p class="form-label mb-1">Upload Files</p>
-                                                                                                    <div class="input-group">
-                                                                                                        <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
-                                                                                                    </div>
-                                                                                                    <ul id="swal-fileList-old" class="mt-2"></ul>
-                                                                                                    <span id="file-error-old" class="error-message" style="display:none;"></span>
-                                                                                                </div>` : ''}
+                                                                                                                                                    <div class="form-group file-field">
+                                                                                                                                                        <p class="form-label mb-1">Upload Files</p>
+                                                                                                                                                        <div class="input-group">
+                                                                                                                                                            <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
+                                                                                                                                                        </div>
+                                                                                                                                                        <ul id="swal-fileList-old" class="mt-2"></ul>
+                                                                                                                                                        <span id="file-error-old" class="error-message" style="display:none;"></span>
+                                                                                                                                                    </div>` : ''}
                 </div>
             `;
 
