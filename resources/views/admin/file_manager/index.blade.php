@@ -145,8 +145,8 @@
             position: relative;
             /* border: 1px solid #dee2e6; */
             /* border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
+                background: #fff;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
         }
 
         .shanu:hover {
@@ -185,6 +185,7 @@
             right: 5px;
             display: none;
         }
+
         .shanu:hover .file-actions {
             position: absolute;
             top: 5px;
@@ -196,6 +197,7 @@
             width: auto;
             margin: 0;
         }
+
         .flex-column .folder-container {
             display: flex;
             width: auto;
@@ -222,11 +224,13 @@
         .flex-column .folder-icon img {
             height: 30px;
         }
+
         .flex-column .shanu .file-meta {
             position: absolute;
             top: 15px;
             right: 70px;
         }
+
         .flex-column .shanu .file-actions {
             display: block;
             top: 15px;
@@ -387,22 +391,21 @@
                     <input type="hidden" id="swal-item_id-old" value="${item_id || ''}">
                     <input type="hidden" id="swal-type-old" value="${type}">
 
-                    ${showNameField ? `
-                                                                                                                                                    <div class="form-group folder-field">
-                                                                                                                                                        <label class="form-label" for="swal-name-old">Name</label>
-                                                                                                                                                        <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
-                                                                                                                                                        <span id="name-error-old" class="error-message" style="display:none;"></span>
-                                                                                                                                                    </div>` : ''}
+                    ${showNameField ? `<div class="form-group folder-field">
+                                    <label class="form-label" for="swal-name-old">Name</label>
+                                    <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
+                                    <span id="name-error-old" class="error-message" style="display:none;"></span>
+                                </div>` : ''}
 
                     ${showFileInput ? `
-                                                                                                                                                    <div class="form-group file-field">
-                                                                                                                                                        <p class="form-label mb-1">Upload Files</p>
-                                                                                                                                                        <div class="input-group">
-                                                                                                                                                            <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
-                                                                                                                                                        </div>
-                                                                                                                                                        <ul id="swal-fileList-old" class="mt-2"></ul>
-                                                                                                                                                        <span id="file-error-old" class="error-message" style="display:none;"></span>
-                                                                                                                                                    </div>` : ''}
+                                    <div class="form-group file-field">
+                                        <p class="form-label mb-1">Upload Files</p>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
+                                        </div>
+                                        <ul id="swal-fileList-old" class="mt-2"></ul>
+                                        <span id="file-error-old" class="error-message" style="display:none;"></span>
+                                    </div>` : ''}
                 </div>
             `;
 
