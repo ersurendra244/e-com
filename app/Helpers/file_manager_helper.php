@@ -1,25 +1,57 @@
 <?php
 
-namespace App\Helpers; // Add a namespace for better organization
+// namespace App\Helpers;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB; // For DB::raw
-use App\Models\FileManager; // Ensure your model is imported
+use App\Models\FileManager;
 
-if (!function_exists('App\Helpers\createFileManagerFolder')) {
-    /**
-     * Creates a new folder on disk and saves its record in the database.
-     *
-     * @param string $folderName The name of the folder to create.
-     * @param int|null $parentId The ID of the parent folder, if any.
-     * @return FileManager The created FileManager model instance.
-     * @throws \Exception If folder name is empty or folder already exists.
-     */
-    function createFileManagerFolder(string $folderName, ?int $parentId = null): FileManager
+if (!function_exists('createFile')) {
+    function createFile($fileName, $parentId = null)
     {
-        if (empty($folderName)) {
+        if (empty($fileName) || !is_string($fileName)) {
+            throw new \Exception('Invalid file name.');
+        }
+
+        $basePath = 'uploads/file-manager';
+        $parentPath = $basePath;
+
+        // Resolve parent folder path if provided
+        if ($parentId) {
+            $parentFolder = FileManager::where('id', $parentId)->where('type', 'folder')->first();
+            if ($parentFolder) {
+                $parentPath = rtrim($parentFolder->path, '/');
+            } else {
+                throw new \Exception('Parent folder not found.');
+            }
+        }
+
+        // Prepare full relative and absolute file path
+        $relativeFilePath = $parentPath . '/' . $fileName;
+        $fullDiskPath = public_path($relativeFilePath);
+
+        if (!file_exists($fullDiskPath)) {
+            file_put_contents($fullDiskPath, '');
+            chmod($fullDiskPath, 0666);
+        }
+
+        $model = new FileManager();
+        $model->name = $fileName;
+        $model->type = 'text';
+        $model->path = rtrim($parentPath, '/') . '/';
+        $model->parent_id = $parentId;
+        $model->size = filesize($fullDiskPath);
+        $model->save();
+
+        return true;
+    }
+}
+
+if (!function_exists('createFolder')) {
+    function createFolder($name, $parentId = null)
+    {
+        if (empty($name)) {
             throw new \Exception('Folder name cannot be empty.');
         }
 
@@ -33,21 +65,21 @@ if (!function_exists('App\Helpers\createFileManagerFolder')) {
             }
         }
 
-        $relativePathWithFolderName = rtrim($basePath, '/') . '/' . $folderName . '/';
+        $relativePathWithFolderName = rtrim($basePath, '/') . '/' . $name . '/';
         $fullDiskPath = public_path($relativePathWithFolderName);
 
         // Check if a folder with the same name already exists on disk
         if (File::exists($fullDiskPath) && File::isDirectory($fullDiskPath)) {
-            throw new \Exception("A folder named '{$folderName}' already exists on disk in this location.");
+            throw new \Exception("A folder named '{$name}' already exists on disk in this location.");
         }
 
         // Check if a folder with the same name already exists in the database for this parent
-        $existingFolderInDb = FileManager::where('name', $folderName)
-                                        ->where('path', $relativePathWithFolderName)
-                                        ->where('type', 'folder')
-                                        ->first();
+        $existingFolderInDb = FileManager::where('name', $name)
+            ->where('path', $relativePathWithFolderName)
+            ->where('type', 'folder')
+            ->first();
         if ($existingFolderInDb) {
-            throw new \Exception("A folder named '{$folderName}' already exists in the database for this location.");
+            throw new \Exception("A folder named '{$name}' already exists in the database for this location.");
         }
 
         // Create directory recursively with 0777 permissions
@@ -56,27 +88,18 @@ if (!function_exists('App\Helpers\createFileManagerFolder')) {
         }
 
         $model = new FileManager();
-        $model->name = $folderName;
+        $model->name = $name;
         $model->type = 'folder';
         $model->path = $relativePathWithFolderName;
         $model->parent_id = $parentId;
-        $model->size = 0; // Folders typically have 0 size
+        $model->size = 0;
         $model->save();
-
         return $model;
     }
 }
 
-if (!function_exists('App\Helpers\uploadFileManagerFiles')) {
-    /**
-     * Uploads multiple files to disk and saves their records in the database.
-     *
-     * @param array $files An array of uploaded file instances (e.g., from $request->file('files')).
-     * @param int|null $parentId The ID of the parent folder, if any.
-     * @return int The number of files successfully uploaded.
-     * @throws \Exception If no files are provided or upload fails.
-     */
-    function uploadFileManagerFiles(array $files, ?int $parentId = null): int
+if (!function_exists('uploadFiles')) {
+    function uploadFiles(array $files, ?int $parentId = null): int
     {
         if (empty($files)) {
             throw new \Exception('No files provided for upload.');
@@ -113,11 +136,13 @@ if (!function_exists('App\Helpers\uploadFileManagerFiles')) {
             $dbPathForFile = rtrim($parentPath, '/') . '/'; // Path to be stored in DB for files
 
             // Loop to ensure both disk and DB uniqueness
-            while (File::exists($fullPathDir . '/' . $uniqueName) ||
-                   FileManager::where('name', $uniqueName)
-                              ->where('path', $dbPathForFile)
-                              ->where('type', 'file')
-                              ->exists()) {
+            while (
+                File::exists($fullPathDir . '/' . $uniqueName) ||
+                FileManager::where('name', $uniqueName)
+                ->where('path', $dbPathForFile)
+                ->where('type', 'file')
+                ->exists()
+            ) {
                 $uniqueName = $cleanName . '_(' . $copyCount . ').' . $extension;
                 $copyCount++;
             }
@@ -141,17 +166,8 @@ if (!function_exists('App\Helpers\uploadFileManagerFiles')) {
     }
 }
 
-if (!function_exists('App\Helpers\renameFileManagerItem')) {
-    /**
-     * Renames a file or folder on disk and updates its record in the database,
-     * including child paths for folders.
-     *
-     * @param int $itemId The ID of the item (file or folder) to rename.
-     * @param string $newName The new name for the item.
-     * @return FileManager The updated FileManager model instance.
-     * @throws \Exception If item not found, name is empty, or renaming fails.
-     */
-    function renameFileManagerItem(int $itemId, string $newName): FileManager
+if (!function_exists('renameItem')) {
+    function renameItem($itemId, $newName)
     {
         if (trim($newName) === '') {
             throw new \Exception('Name cannot be empty.');
@@ -164,44 +180,44 @@ if (!function_exists('App\Helpers\renameFileManagerItem')) {
         }
 
         if ($model->name === $newName) {
-            return $model; // No change needed
+            return $model;
         }
 
-        if ($model->type === 'file') {
+
+        if ($model->type === 'file' || $model->type === 'text') {
             $oldFileName = $model->name;
-            $extension = pathinfo($oldFileName, PATHINFO_EXTENSION);
-            $newFileNameWithExt = pathinfo($newName, PATHINFO_FILENAME) . '.' . $extension;
+            $newFileNameWithExt = trim($newName); // accept full name including extension
 
             $filePath = public_path($model->path . $oldFileName);
             $newFilePath = public_path($model->path . $newFileNameWithExt);
 
-            // Check for existing file on disk and in DB
-            if (File::exists($newFilePath) ||
-                FileManager::where('name', $newFileNameWithExt)
-                           ->where('path', $model->path)
-                           ->where('type', 'file')
-                           ->exists()) {
+            $alreadyExists = FileManager::where('name', $newFileNameWithExt)
+                ->where('path', $model->path)
+                ->where(function ($q) {
+                    $q->where('type', 'file')->orWhere('type', 'text');
+                })
+                ->exists();
+
+            if ($alreadyExists) {
                 throw new \Exception("A file named '{$newFileNameWithExt}' already exists in this directory.");
             }
 
+            // Rename file on disk
             if (!File::move($filePath, $newFilePath)) {
                 throw new \Exception('Failed to rename file on disk.');
             }
 
+            // Update DB
             $model->name = $newFileNameWithExt;
             $model->save();
-
         } elseif ($model->type === 'folder') {
-            $oldFolderName = $model->name;
-            $oldFullPathOnDisk = public_path($model->path . $oldFolderName);
-            $newFullPathOnDisk = public_path($model->path . $newName);
+            $oldPathRelative = rtrim($model->path, '/');
+            $parentPath = dirname($oldPathRelative);
+            $newPathRelative = rtrim($parentPath, '/') . '/' . $newName . '/';
 
-            // Check for existing folder on disk and in DB
-            if (File::exists($newFullPathOnDisk) ||
-                FileManager::where('name', $newName)
-                           ->where('path', $model->path) // Check for same parent path
-                           ->where('type', 'folder')
-                           ->exists()) {
+            $oldFullPathOnDisk = public_path($oldPathRelative);
+            $newFullPathOnDisk = public_path($newPathRelative);
+            if (File::exists($newFullPathOnDisk) || FileManager::where('name', $newName)->where('path', $parentPath . '/')->where('type', 'folder')->exists()) {
                 throw new \Exception("A folder named '{$newName}' already exists in this directory.");
             }
 
@@ -209,22 +225,17 @@ if (!function_exists('App\Helpers\renameFileManagerItem')) {
                 throw new \Exception('Failed to rename folder on disk.');
             }
 
-            // Update database records
-            $oldRelativePathInDb = $model->path . $oldFolderName . '/';
-            $newRelativePathInDb = $model->path . $newName . '/';
+            $oldRelativePathInDb = rtrim($model->path, '/') . '/';
+            $newRelativePathInDb = $newPathRelative;
 
-            // Update the current folder's own record
             $model->name = $newName;
-            // If the `path` column for folders includes their own name, update it too
-            // Based on createFileManagerFolder, it does: `relativePathWithFolderName` includes $folderName
-            $model->path = rtrim($model->path, $oldFolderName . '/') . $newName . '/'; // Correctly adjust own path
+            $model->path = $newRelativePathInDb;
             $model->save();
 
-            // Update paths for all children (files and subfolders)
-            DB::table('file_managers')
-                ->where('path', 'like', $oldRelativePathInDb . '%')
-                ->update(['path' => DB::raw("REPLACE(path, '{$oldRelativePathInDb}', '{$newRelativePathInDb}')")]);
-
+            FileManager::where('path', 'like', $oldRelativePathInDb . '%')->get()->each(function ($child) use ($oldRelativePathInDb, $newRelativePathInDb) {
+                $child->path = str_replace($oldRelativePathInDb, $newRelativePathInDb, $child->path);
+                $child->save();
+            });
         } else {
             throw new \Exception('Invalid item type for renaming.');
         }
@@ -233,45 +244,82 @@ if (!function_exists('App\Helpers\renameFileManagerItem')) {
     }
 }
 
-if (!function_exists('App\Helpers\deleteFileManagerItem')) {
-    /**
-     * Deletes a file or folder from disk and its record(s) from the database.
-     *
-     * @param int $itemId The ID of the item to delete.
-     * @return bool True on success, false on failure.
-     * @throws \Exception If item not found or deletion fails.
-     */
-    function deleteFileManagerItem(int $itemId): bool
+if (!function_exists('deleteItem')) {
+    function deleteItem($itemId)
     {
         $model = FileManager::find($itemId);
 
         if (!$model) {
+            Log::error("Item not found for ID: {$itemId}");
             throw new \Exception('Item not found.');
         }
 
-        $fullDiskPath = '';
         if ($model->type === 'file') {
-            $fullDiskPath = public_path($model->path . $model->name);
-            if (File::exists($fullDiskPath) && !File::delete($fullDiskPath)) {
-                throw new \Exception('Failed to delete file from disk: ' . $model->name);
+            // Delete file from disk
+            $fullDiskPath = public_path(trim($model->path, '/') . '/' . $model->name);
+            Log::info("Deleting file: " . $fullDiskPath);
+
+            if (file_exists($fullDiskPath)) {
+                if (!@unlink($fullDiskPath)) {
+                    Log::error("❌ Failed to delete file from disk: " . $fullDiskPath);
+                    throw new \Exception("Failed to delete file from disk: {$model->name}");
+                }
+            } else {
+                Log::warning("⚠️ File not found on disk: " . $fullDiskPath);
             }
         } elseif ($model->type === 'folder') {
-            $fullDiskPath = public_path($model->path . $model->name);
-            if (File::exists($fullDiskPath) && !File::deleteDirectory($fullDiskPath)) {
-                throw new \Exception('Failed to delete folder from disk: ' . $model->name);
+            // Get full folder path on disk
+            $relativeFolderPath = rtrim($model->path);
+            $fullDiskPath = public_path($relativeFolderPath);
+            Log::info("🧹 Deleting folder from disk: " . $fullDiskPath);
+
+            // Delete folder from disk
+            if (is_dir($fullDiskPath)) {
+                try {
+                    $iterator = new RecursiveDirectoryIterator($fullDiskPath, RecursiveDirectoryIterator::SKIP_DOTS);
+                    $files = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST);
+                    foreach ($files as $file) {
+                        if ($file->isDir()) {
+                            rmdir($file->getRealPath());
+                        } else {
+                            unlink($file->getRealPath());
+                        }
+                    }
+                    rmdir($fullDiskPath);
+                } catch (\Exception $e) {
+                    Log::error("❌ Failed to delete folder recursively: " . $e->getMessage());
+                    throw new \Exception("Failed to delete folder from disk: {$model->name}");
+                }
+            } else {
+                Log::warning("⚠️ Folder not found or not a directory: " . $fullDiskPath);
             }
-            // Delete all children records from DB first
-            $folderRelativePath = $model->path . $model->name . '/';
-            FileManager::where('path', 'like', $folderRelativePath . '%')->delete();
+
+            // Delete all children in DB (files/folders)
+            $folderDBPath = rtrim($model->path, '/') . '/' . $model->name . '/';
+            Log::info("🧹 Deleting child DB records under path: " . $folderDBPath);
+
+            $children = FileManager::where('path', 'like', $relativeFolderPath . '%')->get();
+
+            if ($children->isEmpty()) {
+                Log::warning("No child records matched path: " . $relativeFolderPath);
+            } else {
+                $children->each(function ($child) {
+                    $child->delete(); // fires model events, respects soft deletes
+                });
+            }
+            FileManager::where('path', 'like', $folderDBPath . '%')->delete();
         } else {
+            Log::error("❌ Invalid item type: " . $model->type);
             throw new \Exception('Invalid item type for deletion.');
         }
 
-        // Delete the item's own record from the database
+        // Delete the current item itself
         if (!$model->delete()) {
+            Log::error("❌ Failed to delete DB record for item ID: {$itemId}");
             throw new \Exception('Failed to delete item record from database.');
         }
 
+        Log::info("✅ Item deleted successfully: ID {$itemId}");
         return true;
     }
 }

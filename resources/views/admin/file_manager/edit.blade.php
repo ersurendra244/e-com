@@ -25,8 +25,10 @@
                     <div class="col-md-12 mb-2">
                         <a href="{{ route('admin.file_manager', $item->parent_id) }}"
                             class="btn btn-sm btn-dark float-right"><i class="fa fa-arrow-circle-left"></i></a>
+                        @if($mode == 'edit')
                         <a href="javascript:void(0)" onclick="saveContent();"
                             class="btn btn-sm btn-primary float-right mr-2"><i class="fa fa-save"></i></a>
+                        @endif
                         <lavel>{{ $item->name }}</lavel>
                     </div>
                     <div class="col-12">

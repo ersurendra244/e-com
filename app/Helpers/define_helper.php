@@ -3,15 +3,13 @@ if (!function_exists('fileTypeIcon')) {
     function fileTypeIcon($fileName)
     {
         $fileTypeIcons = [
-            'jpg' => '🖼️', 'jpeg' => '🖼️', 'png' => '🖼️', 'gif' => '🖼️', 'svg' => '🖼️',
-            'webp' => '🖼️', 'ico' => '🖼️', 'bmp' => '🖼️', 'tif' => '🖼️', 'tiff' => '🖼️', 'avif' => '🖼️',
-            'txt' => '📄', 'html' => '🌐', 'php' => '🐘', 'js' => '🟨', 'css' => '🎨',
-            'pdf' => '📕', 'doc' => '📝', 'docx' => '📝', 'xls' => '📊', 'xlsx' => '📊',
-            'ppt' => '📈', 'pptx' => '📈',
-            'mp4' => '🎬', 'avi' => '🎬', 'mov' => '🎬', 'webm' => '🎬', 'mkv' => '🎬',
-            'mp3' => '🎧', 'wav' => '🎧', 'aac' => '🎧', 'ogg' => '🎧', 'flac' => '🎧',
-            'zip' => '🗜️', 'rar' => '🗜️', '7z' => '🗜️', 'tar' => '🗜️', 'gz' => '🗜️',
-            'folder' => '📁',
+            'jpg' => 'jpg.png', 'jpeg' => 'image-file.png', 'png' => 'png.png', 'gif' => 'gif.png', 'svg' => 'svg.png', 'webp' => 'webp.png',
+            'txt' => 'txt.png', 'html' => 'html.png', 'php' => 'php.png', 'js' => 'js.png', 'css' => 'css.png',
+            'pdf' => 'pdf.png', 'doc' => 'doc.png', 'docx' => 'txt.png',
+            'mp4' => 'mp4.png', 'avi' => 'avi.png', 'mov' => 'mov.png', 'webm' => 'webm.png', 'mkv' => 'mkv.png',
+            'mp3' => 'mp3.png', 'wav' => 'wav.png', 'aac' => 'aac.png', 'ogg' => 'ogg.png', 'flac' => 'flac.png',
+            'zip' => 'zip.png', 'rar' => 'rar.png', '7z' => '🗜️', 'tar' => 'tar.png', 'gz' => 'gz.png',
+            'folder' => 'folders.png',
         ];
 
         $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
