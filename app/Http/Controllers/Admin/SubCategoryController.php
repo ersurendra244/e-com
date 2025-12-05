@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
+use App\Models\FormField;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -20,7 +21,7 @@ class SubCategoryController extends Controller
     }
     public function list(Request $request)
     {
-        $columns = ['id', 'cat_id', 'image', 'name', 'description', 'order', 'is_home', 'status'];
+        $columns = ['id', 'image', 'name', 'category', 'description', 'order', 'is_home', 'status'];
         $limit = $request->input('length', 10);
         $start = $request->input('start', 0);
         $orderIndex = $request->input('order.0.column', 0);
@@ -29,7 +30,7 @@ class SubCategoryController extends Controller
         $search = $request->input('search.value');
 
         // Base query
-        $query = SubCategory::where('is_delete', '0');
+        $query = SubCategory::with('parentCategory')->where('is_delete', '0');
         // Count total
         $totalData = $query->count();
 
@@ -46,12 +47,14 @@ class SubCategoryController extends Controller
             $totalFiltered = $totalData;
         }
         $results = $query->offset($start)->limit($limit)->orderBy($order, $dir)->get();
+        // print_r($results); exit;
         $data = [];
         foreach ($results as $value) {
             $nestedData['id'] = $value->id;
-            $nestedData['image'] = '<img class="img-sm rounded" src="' . asset('uploads/categories/' . $value->image) . '" alt=""/>';
+            $nestedData['image'] = '<img class="img-sm rounded" src="' . is_image('uploads/categories/', $value->image) . '" alt=""/>';
             $nestedData['name'] = $value->name;
-            $nestedData['cat_id'] = $value->category->name ?? '';
+            // $nestedData['category'] = $value->category ?? '';
+            $nestedData['category'] = $value->parentCategory->name ?? '';
             $nestedData['order'] = $value->order;
             $is_home = $value->is_home == 1 ? '<label class="badge badge-outline-success badge-pill py-1">Publish</label>' : '<label class="badge badge-outline-danger badge-pill py-1">Unpublish</label>';
             $nestedData['is_home'] = $is_home;
@@ -61,6 +64,7 @@ class SubCategoryController extends Controller
             $actions = "";
             if (Gate::allows('subcategory edit')) {
                 $actions .= '<a href="' . route('admin.subcategory.edit', $value->slug) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . route('admin.subcategory.form_fields', $value->slug) . '" class="btn btn-sm btn-warning">Form</a> ';
             }
             if (Gate::allows('subcategory delete')) {
                 $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.subcategory.delete', $value->slug) . '`)" class="btn btn-sm btn-danger">Delete</a>';
@@ -80,7 +84,7 @@ class SubCategoryController extends Controller
     {
         $data['title'] = 'Add Subcategory';
         $data['subtitle'] = 'Masters';
-        $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
+        $data['categories'] = Category::where('parent_id', '!=', 0)->where('is_delete', '0')->where('status', '1')->get();
         return view('admin.sub_categories.create', $data);
     }
     public function edit(Request $request, $slug)
@@ -88,14 +92,14 @@ class SubCategoryController extends Controller
         $data['title'] = 'Edit Subcategory';
         $data['subtitle'] = 'Masters';
         $data['edit_data'] = SubCategory::where('slug', $slug)->first();
-        $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
+        $data['categories'] = Category::where('parent_id', '!=', 0)->where('is_delete', '0')->where('status', '1')->get();
         return view('admin.sub_categories.edit', $data);
     }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:sub_categories,name',
-            'cat_id' => 'required',
+            'category' => 'required',
             // 'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         if ($validator->fails()) {
@@ -117,7 +121,7 @@ class SubCategoryController extends Controller
         }
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
-        $modal->cat_id = $request->cat_id;
+        $modal->category = $request->category;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -151,7 +155,7 @@ class SubCategoryController extends Controller
         }
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
-        $modal->cat_id = $request->cat_id;
+        $modal->category = $request->category;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -175,4 +179,87 @@ class SubCategoryController extends Controller
         return response()->json(['success' => false]);
     }
 
+    public function form_view(Request $request, $slug)
+    {
+        $data['title'] = 'Form Field List';
+        $data['subtitle'] = 'Subcategory';
+        $data['subcategory'] = SubCategory::where('slug', $slug)->first();
+        $data['form_fields'] = FormField::where('subcategory_id', $data['subcategory']->id)->orderBy('order')->where('is_delete', '0')->get();
+        return view('admin.sub_categories.form_view', $data);
+    }
+
+    public function form_fields(Request $request, $slug)
+    {
+        $data['title'] = 'Form Field List';
+        $data['subtitle'] = 'Subcategory';
+        $data['subcategory'] = SubCategory::where('slug', $slug)->first();
+        $data['form_fields'] = FormField::where('subcategory_id', $data['subcategory']->id)->orderBy('order')->where('is_delete', '0')->get();
+        return view('admin.sub_categories.form_fields', $data);
+    }
+
+    public function form_fields_edit(Request $request)
+    {
+        $id = $request->id;
+        $data = FormField::find($id);
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
+
+    public function form_fields_save(Request $request)
+    {
+        $edit_id = $request->edit_id;
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'subcategory_id' => 'required|integer',
+            'field_label'    => 'required|string|max:255',
+            'field_name'     => 'required|string|max:255|unique:form_fields,field_name,' . ($edit_id ?? 'NULL') . ',id',
+            'field_type'     => 'required|string',
+            'field_options'  => 'nullable|string',
+            'is_required'    => 'nullable|integer',
+            'order'          => 'nullable|integer',
+            'status'         => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
+        }
+
+        // Prepare data
+        $field_name = strtolower(str_replace(' ', '_', $request->field_name));
+        $data = [
+            'subcategory_id' => $request->subcategory_id,
+            'field_label'    => ucwords($request->field_label),
+            'field_name'     => $field_name,
+            'field_type'     => $request->field_type,
+            'is_required'    => $request->is_required,
+            'order'          => $request->order,
+            'status'         => $request->status,
+        ];
+
+        // Handle field options (comma separated or array)
+        if (!empty($request->field_options)) {
+            $options = is_array($request->field_options)
+                ? $request->field_options
+                : array_map('trim', explode(',', $request->field_options));
+
+            $data['field_options'] = json_encode($options);
+        } else {
+            $data['field_options'] = null;
+        }
+
+        // Create or Update
+        FormField::updateOrCreate(['id' => $edit_id], $data);
+
+        // Success message
+        $msg = $edit_id
+            ? 'Form field updated successfully!'
+            : 'Form field created successfully!';
+
+        Session::flash('success', $msg);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => $msg,
+        ]);
+    }
 }

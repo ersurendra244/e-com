@@ -38,6 +38,16 @@ function createThumbnail($name, $imagePath, $folderPath, $width, $height)
     return $thumbnailName;
 }
 
+if (! function_exists('is_image')) {
+    function is_image($path, $image)
+    {
+        $fullPath = public_path($path . '/' . $image);
+        if ($image && file_exists($fullPath)) {
+            return asset($path . '/' . $image);
+        }
+        return asset('images/no-image-1.png');
+    }
+}
 
 if (! function_exists('removeImage')) {
     function removeImage($image, $path)

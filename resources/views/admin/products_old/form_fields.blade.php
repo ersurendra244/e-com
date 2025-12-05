@@ -15,12 +15,13 @@
                 @php $totalVariants = count($edit_data->variants); @endphp
                 @foreach ($edit_data->variants as $index => $variant)
                     <div class="variant-group row">
-                        <input type="hidden" name="variant_id[]" value="{{ $variant->id }}">
+                        <input type="hidden" name="variant_id[{{ $index }}]" value="{{ $variant->id }}">
                         @if (in_array('color', $fields))
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Color</label>
-                                    <select name="color[]" class="form-control">
+                                    <select name="color[{{ $index }}]" id="color_{{ $index }}"
+                                        class="form-control color-select">
                                         <option value="">Select color</option>
                                         @php $colors = colors(); @endphp
                                         @foreach ($colors as $key => $color)
@@ -38,7 +39,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Size (XX)</label>
-                                    <select name="size[]" class="form-control">
+                                    <select name="size[{{ $index }}]" id="size_{{ $index }}"
+                                        class="form-control">
                                         <option value="">Choose a size</option>
                                         @php $sizes = sizes(); @endphp
                                         @foreach ($sizes as $key => $size)
@@ -56,7 +58,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Size (1 to 14)</label>
-                                    <select name="size[]" class="form-control">
+                                    <select name="size[0]" id="size_0" class="form-control">
                                         <option value="">--select--</option>
                                         @php $footwear_sizes = footwear_sizes(); @endphp
                                         @foreach ($footwear_sizes as $key => $size)
@@ -73,7 +75,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Size (Inch)</label>
-                                    <select name="size[]" class="form-control">
+                                    <select name="size[0]" id="size_0" class="form-control">
                                         <option value="">--select--</option>
                                         @php $screen_sizes = screen_sizes(); @endphp
                                         @foreach ($screen_sizes as $key => $size)
@@ -90,7 +92,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Occasion</label>
-                                    <select name="occasion[]" class="form-control">
+                                    <select name="occasion[0]" id="occasion_0" class="form-control">
                                         <option value="">--select--</option>
                                         @php $occasions = occasions(); @endphp
                                         @foreach ($occasions as $key => $occasion)
@@ -107,7 +109,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Quality (HD)</label>
-                                    <select name="quality[]" class="form-control">
+                                    <select name="quality[0]" id="quality_0" class="form-control">
                                         <option value="">--select--</option>
                                         @php $qualities = qualities(); @endphp
                                         @foreach ($qualities as $key => $quality)
@@ -124,7 +126,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Resolution (1280 x 720)</label>
-                                    <select name="resolution[]" class="form-control">
+                                    <select name="resolution[0]" id="resolution_0" class="form-control">
                                         <option value="">--select--</option>
                                         @php $resolutions = resolutions(); @endphp
                                         @foreach ($resolutions as $key => $resolution)
@@ -142,11 +144,14 @@
                         @if (in_array('quantity', $fields))
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" name="quantity[]"
-                                        placeholder="Enter quantity"
+                                    <label class="form-label" for="quantity">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity_{{ $index }}"
+                                        name="quantity[{{ $index }}]" placeholder="Enter quantity"
                                         value="{{ !empty($variant->quantity) ? $variant->quantity : '' }}"
                                         min="0">
+                                    @if ($errors->has('quantity'))
+                                        <span class="text-danger">{{ $errors->first('quantity') }}</span>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -154,9 +159,12 @@
                             <p class="form-label mb-1">Attribute Images</p>
                             <div class="form-group">
                                 <div class="input-group">
-                                    <input type="file" class="form-control image-input" name="images[]" multiple
-                                        accept="image/*" />
+                                    <input type="file" class="form-control image-input"
+                                        name="images[{{ $index }}][]" multiple accept="image/*" />
                                 </div>
+                                @if ($errors->has('image'))
+                                    <span class="text-danger">{{ $errors->first('image') }}</span>
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-12 d-flex flex-wrap justify-content-between align-items-start">
@@ -174,7 +182,11 @@
                                     @endforeach
                                 @endif
                             </div>
-
+                            <div class="text-right align-self-center">
+                                <button type="button" class="btn btn-sm btn-success add-variant">Add
+                                    More</button>
+                                <button type="button" class="btn btn-danger btn-sm remove-variant">Remove</button>
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -184,7 +196,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Color</label>
-                                <select name="color[]" class="form-control">
+                                <select name="color[0]" id="color_0" class="form-control color-select">
                                     <option value="">--select--</option>
                                     @php $colors = colors(); @endphp
                                     @foreach ($colors as $key => $color)
@@ -200,7 +212,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Size (XX)</label>
-                                <select name="size[]" class="form-control">
+                                <select name="size[0]" id="size_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $sizes = sizes(); @endphp
                                     @foreach ($sizes as $key => $size)
@@ -216,7 +228,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Size (1 to 14)</label>
-                                <select name="size[]" class="form-control">
+                                <select name="size[0]" id="size_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $footwear_sizes = footwear_sizes(); @endphp
                                     @foreach ($footwear_sizes as $key => $size)
@@ -232,7 +244,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Size (Inch)</label>
-                                <select name="size[]" class="form-control">
+                                <select name="size[0]" id="size_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $screen_sizes = screen_sizes(); @endphp
                                     @foreach ($screen_sizes as $key => $size)
@@ -248,7 +260,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Occasion</label>
-                                <select name="occasion[]" class="form-control">
+                                <select name="occasion[0]" id="occasion_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $occasions = occasions(); @endphp
                                     @foreach ($occasions as $key => $occasion)
@@ -264,7 +276,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Quality (HD)</label>
-                                <select name="quality[]" class="form-control">
+                                <select name="quality[0]" id="quality_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $qualities = qualities(); @endphp
                                     @foreach ($qualities as $key => $quality)
@@ -280,7 +292,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Resolution (1280 x 720)</label>
-                                <select name="resolution[]" class="form-control">
+                                <select name="resolution[0]" id="resolution_0" class="form-control">
                                     <option value="">--select--</option>
                                     @php $resolutions = resolutions(); @endphp
                                     @foreach ($resolutions as $key => $resolution)
@@ -295,9 +307,12 @@
                     @if (in_array('quantity', $fields))
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label class="form-label">Quantity</label>
-                                <input type="number" class="form-control" name="quantity[]"
+                                <label class="form-label" for="quantity">Quantity</label>
+                                <input type="number" class="form-control" id="quantity_0" name="quantity[0]"
                                     placeholder="Enter quantity" value="" min="0">
+                                @if ($errors->has('quantity'))
+                                    <span class="text-danger">{{ $errors->first('quantity') }}</span>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -306,15 +321,23 @@
                             <p class="form-label mb-1">Attribute Images</p>
                             <div class="form-group">
                                 <div class="input-group">
-                                    <input type="file" class="form-control image-input" name="images[]" multiple
-                                        accept="image/*" />
+                                    <input type="file" class="form-control image-input" name="images[0][]"
+                                        multiple accept="image/*" />
                                 </div>
+                                @if ($errors->has('image'))
+                                    <span class="text-danger">{{ $errors->first('image') }}</span>
+                                @endif
                             </div>
                         </div>
                     @endif
                     <div class="col-md-12 d-flex flex-wrap justify-content-between align-items-start mt-2">
                         <div class="preview-container d-flex flex-wrap gap-2">
 
+                        </div>
+                        <div class="text-right align-self-center">
+                            <button type="button" class="btn btn-sm btn-success add-variant">Add
+                                More</button>
+                            <button type="button" class="btn btn-danger btn-sm remove-variant">Remove</button>
                         </div>
                     </div>
                 </div>
@@ -326,6 +349,9 @@
             <div class="form-group">
                 <label class="form-label" for="description">Description</label>
                 <textarea name="description" class="form-control summernote" id="description" rows="10">{{ !empty($edit_data->description) ? $edit_data->description : '' }}</textarea>
+                @if ($errors->has('description'))
+                    <span class="text-danger">{{ $errors->first('description') }}</span>
+                @endif
             </div>
         </div>
     @endif
@@ -334,6 +360,9 @@
             <div class="form-group">
                 <label class="form-label" for="highlights">Highlights</label>
                 <textarea name="highlights" class="form-control summernote" id="highlights" rows="15">{{ !empty($edit_data->highlights) ? $edit_data->highlights : '' }}</textarea>
+                @if ($errors->has('highlights'))
+                    <span class="text-danger">{{ $errors->first('highlights') }}</span>
+                @endif
             </div>
         </div>
     @endif
@@ -342,6 +371,9 @@
             <div class="form-group">
                 <label class="form-label" for="specifications">Specifications</label>
                 <textarea name="specifications" class="form-control summernote" id="specifications" rows="15">{{ !empty($edit_data->specifications) ? $edit_data->specifications : '' }}</textarea>
+                @if ($errors->has('specifications'))
+                    <span class="text-danger">{{ $errors->first('specifications') }}</span>
+                @endif
             </div>
         </div>
     @endif

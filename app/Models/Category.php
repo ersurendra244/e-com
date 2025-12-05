@@ -24,4 +24,9 @@ class Category extends Model
     protected $casts = [
         'item_type' => 'array',
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
 }

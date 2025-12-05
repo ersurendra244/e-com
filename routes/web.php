@@ -44,6 +44,7 @@ Route::post('/loginCheck', [AuthController::class, 'loginCheck'])->name('loginCh
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('get-user', [DashboardController::class, 'getUser'])->name('admin.dashboard.getUser');
 
+// Route::get('/{slug}', [HomeController::class, 'pages'])->name('web.home.pages');
 
 // User Routes (Only Accessible by Authors)
 Route::middleware(['auth', 'role:User'])->prefix('user')->group(function () {

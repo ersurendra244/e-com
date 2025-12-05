@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Models\Page;
 use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Category;
@@ -28,6 +29,13 @@ class HomeController extends Controller
         $data['recentProducts'] = Product::withAvg('reviews', 'rating')->latest()->limit(8)->get();
         $data['categories'] = Category::where('status', '1')->latest()->limit(8)->get();
         return view('web.contact_us', $data);
+    }
+
+    public function pages($slug = null)
+    {
+        $data['title'] = ucwords(str_replace('-', ' ', request()->slug));
+        $data['page_data'] = Page::where('slug', $slug)->first();
+        return view('web.pages', $data);
     }
 
     public function contact_us_save(Request $request)

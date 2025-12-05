@@ -3,7 +3,7 @@
     @include('admin.common.message')
     <div class="card">
         <div class="card-body">
-            @can('item type create')
+            @can('menu create')
                 <a href="javascript:void(0)" onclick="addnew()" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
@@ -14,39 +14,58 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th>Name</th>
+                                    <th>Subcategory</th>
+                                    <th>field_label</th>
+                                    <th>field_name</th>
+                                    <th>field_type</th>
+                                    <th>field_options</th>
+                                    <th>is_required</th>
+                                    <th>order_no</th>
                                     <th>Status</th>
                                     <th>Created At</th>
-                                    @canany(['item type edit','item type delete'])
+                                    @canany(['menu edit', 'menu delete'])
                                         <th>Action</th>
-                                    @endcan
+                                    @endcanany
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($item_types as $key => $value)
+                                @foreach ($form_fields as $key => $value)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $value->name }}</td>
+                                        <td>{{ $value->subcategory_id }}</td>
+                                        <td>{{ $value->field_label }}</td>
+                                        <td>{{ $value->field_name }}</td>
+                                        <td>{{ $value->field_type }}</td>
+                                        <td>{{ $value->field_options }}</td>
+                                        <td>{{ $value->is_required }}</td>
+                                        <td>{{ $value->order_no }}</td>
+                                        {{-- @php
+                                            $is_home = $value->is_home == 1
+                                                ? '<label class="badge badge-outline-success badge-pill py-1">Publish</label>'
+                                                : '<label class="badge badge-outline-danger badge-pill py-1">Unpublish</label>';
+                                            @endphp
+                                        --}}
                                         @php
-                                            $status = $value->status == 1
-                                                ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>'
-                                                : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
+                                            $status =
+                                                $value->status == 1
+                                                    ? '<label class="badge badge-outline-success badge-pill py-1">Active</label>'
+                                                    : '<label class="badge badge-outline-danger badge-pill py-1">Inactive</label>';
                                         @endphp
 
                                         <td>{!! $status !!}</td>
                                         <td>{{ date('d-m-Y', strtotime($value->created_at)) }}</td>
-                                        @canany(['item type edit','item type delete'])
+                                        @canany(['menu edit', 'menu delete'])
                                             <td>
-                                                @can('item type edit')
-                                                <a href="javascript:void(0)" onclick="addnew({{ $value->id }})"
-                                                    class="btn btn-sm btn-info">Edit</a>
+                                                @can('menu edit')
+                                                    <a href="javascript:void(0)" onclick="addnew({{ $value->id }})"
+                                                        class="btn btn-sm btn-info">Edit</a>
                                                 @endcan
-                                                @can('item type delete')
-                                                <button class="btn btn-sm btn-danger"
-                                                    onclick="deleteData({{ $value->id }})">Delete</button>
+                                                @can('menu delete')
+                                                    <button class="btn btn-sm btn-danger"
+                                                        onclick="deleteData({{ $value->id }})">Delete</button>
                                                 @endcan
                                             </td>
-                                        @endcan
+                                        @endcanany
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -69,7 +88,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="addressForm" action="{{ route('admin.masters.item_type_save') }}" method="post"
+                    <form id="addressForm" action="{{ route('admin.masters.menu_save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -80,6 +99,28 @@
                                     <input type="text" class="form-control" id="name" name="name"
                                         placeholder="Enter name" value="">
 
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="order">Short Order</label>
+                                    <input type="text" class="form-control" id="order" name="order"
+                                        placeholder="Enter order" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="is_home">Is Home</label>
+                                    <select name="is_home" class="form-control" id="is_home">
+                                        <option value="1">Publish</option>
+                                        <option value="0">Unpublish</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -107,6 +148,8 @@
             $('#data_table').DataTable();
         });
 
+
+
         $('#addressForm').submit(function(e) {
             e.preventDefault();
             $(".error-message").remove();
@@ -133,12 +176,13 @@
                 }
             });
         });
+
         function addnew(id) {
             $(".error-message").remove();
             $('#addressForm')[0].reset();
             if (id) {
                 $.ajax({
-                    url: "{{ route('admin.masters.item_type_edit') }}",
+                    url: "{{ route('admin.masters.menu_edit') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -146,9 +190,16 @@
                     },
                     success: function(response) {
                         if (response.status === "success") {
-                            $('#exampleModalLabel').text('Edit Item Type');
+                            // console.log(response.data.street);
+                            $('#exampleModalLabel').text('Edit Menu');
                             $('#edit_id').val(response.data.id);
-                            $('#name').val(response.data.name);
+                            $('#subcategory_id').val(response.data.subcategory_id);
+                            $('#field_label').val(response.data.field_label);
+                            $('#field_name').val(response.data.field_name);
+                            $('#field_type').val(response.data.field_type);
+                            $('#field_options').val(response.data.field_options);
+                            $('#is_required').val(response.data.is_required);
+                            $('#order_no').val(response.data.order_no);
                             $('#status').val(response.data.status);
                         }
                     }

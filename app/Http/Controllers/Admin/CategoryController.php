@@ -48,8 +48,9 @@ class CategoryController extends Controller
         $data = [];
         foreach ($results as $value) {
             $nestedData['id'] = $value->id;
-            $nestedData['image'] = '<img class="img-sm rounded" src="' . asset('uploads/categories/' . $value->image) . '" alt=""/>';
+            $nestedData['image'] = '<img class="img-sm rounded" src="' . is_image('uploads/categories/' , $value->image) . '" alt=""/>';
             $nestedData['name'] = $value->name;
+            $nestedData['parent_id'] = optional($value->parent)->name ?? 'N/A';
             $nestedData['order'] = $value->order;
             $is_home = $value->is_home == 1 ? '<label class="badge badge-outline-success badge-pill py-1">Publish</label>' : '<label class="badge badge-outline-danger badge-pill py-1">Unpublish</label>';
             $nestedData['is_home'] = $is_home;
@@ -80,6 +81,7 @@ class CategoryController extends Controller
     {
         $data['title'] = 'Add Category';
         $data['subtitle'] = 'Masters';
+        $data['categories'] = Category::where('parent_id', '0')->where('is_delete', '0')->where('status', '1')->get();
         return view('admin.categories.create', $data);
     }
 
@@ -87,6 +89,7 @@ class CategoryController extends Controller
     {
         $data['title'] = 'Edit Category';
         $data['subtitle'] = 'Masters';
+        $data['categories'] = Category::where('parent_id', '0')->where('is_delete', '0')->where('status', '1')->get();
         $data['edit_data'] = Category::where('slug', $slug)->first();
         return view('admin.categories.edit', $data);
     }
@@ -116,6 +119,7 @@ class CategoryController extends Controller
 
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
+        $modal->parent_id = $request->parent_id;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;
@@ -148,6 +152,7 @@ class CategoryController extends Controller
         }
         $modal->name = $request->name;
         $modal->slug = slug($request->name);
+        $modal->parent_id = $request->parent_id;
         $modal->description = $request->description;
         $modal->order = $request->order;
         $modal->is_home = $request->is_home;

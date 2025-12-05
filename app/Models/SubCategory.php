@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,19 +14,12 @@ class SubCategory extends Model
 
     protected $guarded = [];
 
-    public function category()
+    public function parentCategory()
     {
-        return $this->belongsTo(Category::class, 'cat_id');
+        return $this->belongsTo(Category::class, 'category', 'id');
     }
-
-    public function itemTypeList()
-    {
-        return Item::whereIn('id', $this->item_type ?? [])
-                    ->get();
-    }
-
 
     protected $casts = [
-        'item_type' => 'array',
+        'form_fields' => 'array',
     ];
 }

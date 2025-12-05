@@ -17,7 +17,7 @@ class CreateItemsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug');
-            $table->integer('sub_cat_id');
+            $table->integer('subcategory');
             $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
             $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();

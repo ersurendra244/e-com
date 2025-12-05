@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    @php $setting = App\Models\Setting::where('id', 1)->first(); @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Melody Admin</title>
@@ -28,20 +29,6 @@
             @include('admin.common.sidebar')
             <div class="main-panel">
                 <div class="content-wrapper">
-                    <div class="page-header">
-                        <h3 class="page-title">{{ $title ?? 'Dashboard' }}</h3>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                                @if (!empty($subtitle))
-                                    <li class="breadcrumb-item active" aria-current="page">{{ $subtitle ?? '' }}</li>
-                                @endif
-                                @if (!empty($title) && $title != 'Dashboard')
-                                    <li class="breadcrumb-item active">{{ $title ?? 'Dashboard' }}</li>
-                                @endif
-                            </ol>
-                        </nav>
-                    </div>
                     @yield('content')
                 </div>
                 <footer class="footer">

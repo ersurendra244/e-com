@@ -50,7 +50,7 @@
                         @endphp
                         @foreach ($images as $key => $image)
                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                <img class="w-100 h-100" src="{{ asset('uploads/products/' . $image) }}" alt="Image">
+                                <img class="w-100 h-100" src="{{ is_image('uploads/products/' , $image) }}" alt="Image">
                             </div>
                         @endforeach
                     </div>
@@ -300,7 +300,7 @@
                         <div class="product-item bg-light">
                             <div class="product-img position-relative overflow-hidden">
                                 @php $image = $related->images[0] ?? ''; @endphp
-                                <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}"
+                                <img class="img-fluid w-100" src="{{ is_image('uploads/products/' , $image) }}"
                                     alt="">
                                 <div class="product-action">
                                     <a class="btn btn-outline-dark btn-square" href=""><i

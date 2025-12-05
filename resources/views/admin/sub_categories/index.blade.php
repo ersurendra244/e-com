@@ -66,7 +66,7 @@
                         "data": "name"
                     },
                     {
-                        "data": "cat_id"
+                        "data": "category"
                     },
                     {
                         "data": "order"

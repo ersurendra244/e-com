@@ -28,7 +28,7 @@
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
                                         <td>
-                                            <img class="img-sm rounded w-100 h-100" src="{{ asset('uploads/brands/' . $value->image) }}" alt=""/>
+                                            <img class="img-sm rounded w-100 h-100" src="{{ is_image('uploads/brands/' , $value->image) }}" alt=""/>
                                         </td>
                                         <td>{{ $value->name }}</td>
                                         @php

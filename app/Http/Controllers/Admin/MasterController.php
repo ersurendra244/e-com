@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Item;
 use App\Models\Menu;
 use App\Models\Brand;
 use Illuminate\Http\Request;
@@ -46,16 +45,6 @@ class MasterController extends Controller
         } else {
             $modal = new Menu();
             $msg = 'Menu added successfully';
-        }
-        if ($request->hasFile('image')) {
-            if ($modal->image && file_exists(public_path('uploads/menus/' . $modal->image))) {
-                unlink(public_path('uploads/menus/' . $modal->image));
-            }
-
-            $image = $request->file('image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/menus'), $imageName);
-            $modal->image = $imageName;
         }
         $modal->name = $request->name;
         $modal->is_home = $request->is_home;
@@ -144,71 +133,6 @@ class MasterController extends Controller
             return response()->json(['success' => true]);
         }
         Session::flash('error', 'Brand not found');
-        return response()->json(['success' => false]);
-    }
-
-    public function item_type()
-    {
-        $data['title'] = 'Item type List';
-        $data['subtitle'] = 'Master';
-        $data['item_types'] = Item::where('is_delete', '0')->get();
-        return view('admin.masters.item_type_list', $data);
-    }
-    public function item_type_edit(Request $request)
-    {
-        $id = $request->id;
-        $data = Item::find($id);
-        return response()->json(['status' => 'success', 'data' => $data]);
-    }
-    public function item_type_save(Request $request)
-    {
-        $edit_id = $request->edit_id;
-        $validator = Validator::make($request->all(), [
-            'name' => [
-                'required',
-                Rule::unique('items')->where(function ($query) {
-                    return $query;
-                })->ignore($edit_id),
-            ],
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
-        }
-        if($edit_id){
-            $modal = Item::find($edit_id);
-            $msg = 'Item type updated successfully';
-        } else {
-            $modal = new Item();
-            $msg = 'Item type added successfully';
-        }
-        if ($request->hasFile('image')) {
-            if ($modal->image && file_exists(public_path('uploads/item_type/' . $modal->image))) {
-                unlink(public_path('uploads/item_type/' . $modal->image));
-            }
-
-            $image = $request->file('image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/item_type'), $imageName);
-            $modal->image = $imageName;
-        }
-        $modal->name = $request->name;
-        $modal->status = $request->status;
-        $modal->save();
-        Session::flash('success', $msg);
-        return response()->json(['status' => 'success', 'message' => $msg]);
-    }
-
-    public function item_type_delete($id)
-    {
-        $modal = Item::find($id);
-        if ($modal) {
-            $modal->status = '0';
-            $modal->is_delete = '1';
-            $modal->save();
-            Session::flash('success', 'Item type deleted successfully');
-            return response()->json(['success' => true]);
-        }
-        Session::flash('error', 'Item type not found');
         return response()->json(['success' => false]);
     }
 }

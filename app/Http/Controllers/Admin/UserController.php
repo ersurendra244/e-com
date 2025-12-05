@@ -56,7 +56,7 @@ class UserController extends Controller
         $data = [];
         foreach ($results as $user) {
             $nestedData['id'] = $user->id;
-            $nestedData['image'] = '<img class="img-sm rounded" src="' . asset('uploads/profile/' . $user->image) . '" alt=""/>';
+            $nestedData['image'] = '<img class="img-sm rounded" src="' . is_image('uploads/profile/' , $user->image) . '" alt=""/>';
             $nestedData['name'] = $user->name;
             $nestedData['email'] = $user->email;
             $nestedData['phone'] = $user->phone;
