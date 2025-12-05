@@ -91,20 +91,6 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <div class="form-group">
-                                            <label class="form-label" for="image">Image</label>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control" id="image" name="image"
-                                                onchange="loadFile(event)" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <img id="output" src="" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
-                                </div>
-                            </div>
-                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label" for="description">Description</label>
                                     <textarea class="form-control" id="description" name="description" rows="5"></textarea>

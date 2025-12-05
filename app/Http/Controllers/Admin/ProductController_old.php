@@ -158,26 +158,26 @@ class ProductController extends Controller
             'quantity.*' => 'nullable|numeric|min:0',
         ]);
         $validator->after(function ($validator) use ($request) {
-            $variantFields = SubCategory::find($request->subcategory)->form_fields ?? [];
-            $hasVariant = false;
+    $variantFields = SubCategory::find($request->subcategory)->form_fields ?? [];
+    $hasVariant = false;
 
-            foreach ($variantFields as $field) {
-                $values = $request->input($field, []);
-                foreach ($values as $val) {
-                    if (!is_null($val) && $val !== '') {
-                        $hasVariant = true;
-                        break 2; // exit both loops
-                    }
-                }
+    foreach ($variantFields as $field) {
+        $values = $request->input($field, []);
+        foreach ($values as $val) {
+            if (!is_null($val) && $val !== '') {
+                $hasVariant = true;
+                break 2; // exit both loops
             }
+        }
+    }
 
-            if (!$hasVariant) {
-                // सभी dynamic fields के नीचे same message दिखेगा
-                foreach ($variantFields as $field) {
-                    $validator->errors()->add($field, 'This field is required.');
-                }
-            }
-        });
+    if (!$hasVariant) {
+        // सभी dynamic fields के नीचे same message दिखेगा
+        foreach ($variantFields as $field) {
+            $validator->errors()->add($field, 'This field is required.');
+        }
+    }
+});
         // $validator->after(function ($validator) use ($request) {
         //     $variantFields = SubCategory::find($request->subcategory)->form_fields ?? [];
         //     $hasVariant = false;

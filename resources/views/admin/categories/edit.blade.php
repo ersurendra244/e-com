@@ -21,6 +21,22 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="parent_id">Parent Category</label>
+                                    <select name="parent_id" class="form-control" id="parent_id">
+                                        <option value="0">None</option>
+                                        @foreach ($categories as $key => $value)
+                                            <option
+                                                {{ isset($edit_data->parent_id) && $edit_data->parent_id == $value->id ? 'selected' : '' }}
+                                                value="{{ $value->id }}">{{ $value->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('parent_id'))
+                                        <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+                                    @endif
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="d-flex flex-row">
                                     <img id="output" src="{{ asset('uploads/categories/' . $edit_data->image) }}" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
@@ -38,16 +54,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description"
-                                        placeholder="Enter description">{{ $edit_data->description ?? old('description') }}</textarea>
-                                    @if ($errors->has('description'))
-                                        <span class="text-danger">{{ $errors->first('description') }}</span>
-                                    @endif
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="order">Order By</label>
@@ -55,6 +61,16 @@
                                         placeholder="Enter order" value="{{ $edit_data->order ?? '' }}" min="1">
                                     @if ($errors->has('order'))
                                         <span class="text-danger">{{ $errors->first('order') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description"
+                                        placeholder="Enter description">{{ $edit_data->description ?? old('description') }}</textarea>
+                                    @if ($errors->has('description'))
+                                        <span class="text-danger">{{ $errors->first('description') }}</span>
                                     @endif
                                 </div>
                             </div>

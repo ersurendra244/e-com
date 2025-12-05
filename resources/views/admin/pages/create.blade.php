@@ -6,9 +6,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.items') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ route('admin.pages') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.items.store') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('admin.pages.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -32,26 +32,15 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-label">Sub Categories</label>
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea class="form-control summernote" id="description" name="description" placeholder="Enter description">{{ old('description') }}</textarea>
+                                    @if ($errors->has('description'))
+                                        <span class="text-danger">{{ $errors->first('description') }}</span>
+                                    @endif
                                 </div>
                             </div>
-                            @foreach ($subcategories as $key => $subcategory)
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input type="checkbox" class="form-check-input" name="sub_cat_id[]" value="{{ $subcategory->id }}">
-                                                {{ $subcategory->name }}
-                                                <i class="input-helper"></i>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
                         </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -62,5 +51,27 @@
 @endsection
 
 @push('child_scripts')
+    <script>
+        $(document).ready(function() {
+            $(".summernote").each(function() {
+                // Destroy old instance if already initialized
+                if ($(this).next().hasClass('note-editor')) {
+                    $(this).summernote('destroy');
+                }
 
+                // Initialize Summernote
+                $(this).summernote({
+                    height: 300,
+                    tabsize: 2,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['font', ['fontsize', 'color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+            });
+        });
+    </script>
 @endpush

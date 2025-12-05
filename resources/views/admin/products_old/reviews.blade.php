@@ -1,12 +1,24 @@
 @extends('admin.layout', ['title' => $title ?? '', 'subtitle' => $subtitle ?? ''])
-
 @section('content')
     @include('admin.common.message')
+    <style>
+        .ratings {
+            display: flex;
+        }
+
+        .fa-star {
+            font-size: 24px;
+            color: lightgray;
+            font-size: small;
+        }
+
+        .fa-star.gold {
+            color: gold;
+        }
+    </style>
     <div class="card">
         <div class="card-body">
-            @can('category create')
-                <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
-            @endcan
+            <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
                 <div class="col-12">
@@ -15,15 +27,10 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10px">#</th>
-                                    <th>image</th>
-                                    <th>Name</th>
-                                    <th>Parent Category</th>
-                                    <th>Order By</th>
-                                    <th>Is Home</th>
-                                    <th>Status</th>
-                                    @canany(['category edit', 'category delete'])
-                                        <th>Action</th>
-                                    @endcanany
+                                    <th>Product</th>
+                                    <th>User</th>
+                                    <th style="width: 35%">Reviews</th>
+                                    <th>Created At</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,45 +56,33 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.categories.list') }}",
+                    "url": "{{ route('admin.products.reviews_list') }}",
                     "dataType": "json",
                     "type": "POST",
-                    "data": {
-                        _token: "{{ csrf_token() }}"
+                    "data": function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.pid = '{{ $pid }}';
                     }
                 },
                 "columns": [{
                         "data": "id"
                     },
                     {
-                        "data": "image"
+                        "data": "product"
                     },
                     {
-                        "data": "name"
+                        "data": "user"
                     },
                     {
-                        "data": "parent_id"
+                        "data": "reviews"
                     },
                     {
-                        "data": "order"
-                    },
-                    {
-                        "data": "is_home"
-                    },
-                    {
-                        "data": "status"
-                    },
-                    @canany(['category edit', 'category delete'])
-                        {
-                            "data": "action",
-                            "orderable": false,
-                            "searchable": false
-                        },
-                    @endcanany
+                        "data": "created_at",
+                        "orderable": false,
+                        "searchable": false
+                    }
                 ]
-
             });
         });
-
     </script>
 @endpush

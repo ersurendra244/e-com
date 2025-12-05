@@ -1,4 +1,5 @@
 <?php
+
 if (!function_exists('fileTypeIcon')) {
     function fileTypeIcon($fileName)
     {
@@ -21,7 +22,6 @@ if (!function_exists('fileTypeIcon')) {
         return $fileTypeIcons[$extension] ?? $fileTypeIcons['folder'];
     }
 }
-
 
 if (!function_exists('priceRange')) {
     function priceRange()
@@ -49,6 +49,7 @@ if (!function_exists('colors')) {
         ];
     }
 }
+
 if (!function_exists('sizes')) {
     function sizes()
     {
@@ -83,6 +84,51 @@ if (!function_exists('footwear_sizes')) {
         ];
     }
 }
+
+if (!function_exists('screen_sizes')) {
+    function screen_sizes()
+    {
+        return [
+            '24 inch & Below'  => '24 inch & Below',
+            '28 - 32 inch'  => '28 - 32 inch',
+            '40 - 43 inch'  => '40 - 43 inch',
+            '50 - 55 inch'  => '50 - 55 inch',
+            '60 - 65 inch'  => '60 - 65 inch',
+            '70 - 75 inch' => '70 - 75 inch',
+        ];
+    }
+}
+
+if (!function_exists('qualities')) {
+    function qualities()
+    {
+        return [
+            'Full HD'  => 'Full HD',
+            'HD Ready'  => 'HD Ready',
+            'Ultra HD (4K)'  => 'Ultra HD (4K)',
+            'Ultra HD (8K)'  => 'Ultra HD (8K)',
+        ];
+    }
+}
+
+if (!function_exists('resolutions')) {
+    function resolutions()
+    {
+        return [
+            '1280 x 720'  => '1280 x 720',
+            '1920 x 1080'  => '1920 x 1080',
+            '3328 x 2496'  => '3328 x 2496',
+            '3840 x 2160'  => '3840 x 2160',
+            '4896 x 3264'  => '4896 x 3264',
+            '5472 x 3648'  => '5472 x 3648',
+            '6000 x 3164'  => '6000 x 3164',
+            '6240 x 4160'  => '6240 x 4160',
+            '7680 x 4320'  => '7680 x 4320',
+            '8688 x 5792'  => '8688 x 5792',
+        ];
+    }
+}
+
 if (!function_exists('occasions')) {
     function occasions()
     {
@@ -98,45 +144,23 @@ if (!function_exists('occasions')) {
         ];
     }
 }
-if (!function_exists('screen_sizes')) {
-    function screen_sizes()
-    {
-        return [
-            '24 inch & Below'  => '24 inch & Below',
-            '28 - 32 inch'  => '28 - 32 inch',
-            '40 - 43 inch'  => '40 - 43 inch',
-            '50 - 55 inch'  => '50 - 55 inch',
-            '60 - 65 inch'  => '60 - 65 inch',
-            '70 - 75 inch' => '70 - 75 inch',
-        ];
-    }
-}
 
-if (!function_exists('resolutions')) {
-    function resolutions()
+if (!function_exists('fields')) {
+    function fields()
     {
         return [
-            'Full HD'  => 'Full HD',
-            'HD Ready'  => 'HD Ready',
-            'Ultra HD (4K)'  => 'Ultra HD (4K)',
-            'Ultra HD (8K)'  => 'Ultra HD (8K)',
-        ];
-    }
-}
-if (!function_exists('video_resolutions')) {
-    function video_resolutions()
-    {
-        return [
-            '1280 x 720'  => '1280 x 720',
-            '1920 x 1080'  => '1920 x 1080',
-            '3328 x 2496'  => '3328 x 2496',
-            '3840 x 2160'  => '3840 x 2160',
-            '4896 x 3264'  => '4896 x 3264',
-            '5472 x 3648'  => '5472 x 3648',
-            '6000 x 3164'  => '6000 x 3164',
-            '6240 x 4160'  => '6240 x 4160',
-            '7680 x 4320'  => '7680 x 4320',
-            '8688 x 5792'  => '8688 x 5792',
+            'color',
+            'size (XX)',
+            'size (Inch)',
+            'size (1 to 14)',
+            'occasion',
+            'resolution (1280 x 720)',
+            'quality (HD)',
+            'quantity',
+            'images',
+            'description',
+            'highlights',
+            'specifications',
         ];
     }
 }

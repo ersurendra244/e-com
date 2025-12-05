@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form action="{{ route('admin.products.update', $edit_data->id) }}" method="post"
+                    <form id="manageForm" action="{{ route('admin.products.save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -44,22 +44,14 @@
                                 <div class="form-group">
                                     <label class="form-label" for="title">Title</label>
                                     <input type="text" class="form-control" id="title" name="title"
-                                        placeholder="Enter title"
-                                        value="{{ !empty($edit_data->title) ? $edit_data->title : old('title') }}">
-                                    @if ($errors->has('title'))
-                                        <span class="text-danger">{{ $errors->first('title') }}</span>
-                                    @endif
+                                        placeholder="Enter title" value="{{ old('title') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="sub_title">Sub Title</label>
                                     <input type="text" class="form-control" id="sub_title" name="sub_title"
-                                        placeholder="Enter sub title"
-                                        value="{{ !empty($edit_data->sub_title) ? $edit_data->sub_title : old('sub_title') }}">
-                                    @if ($errors->has('sub_title'))
-                                        <span class="text-danger">{{ $errors->first('sub_title') }}</span>
-                                    @endif
+                                        placeholder="Enter sub title" value="{{ old('sub_title') }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -69,13 +61,9 @@
                                         id="main_category">
                                         <option value="">--select--</option>
                                         @foreach ($categories as $key => $main_category)
-                                            <option {{ $edit_data->main_category == $main_category->id ? 'selected' : '' }}
-                                                value="{{ $main_category->id }}">{{ $main_category->name }}</option>
+                                            <option value="{{ $main_category->id }}">{{ $main_category->name }}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('main_category'))
-                                        <span class="text-danger">{{ $errors->first('main_category') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -85,9 +73,6 @@
                                         id="category">
                                         <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('category'))
-                                        <span class="text-danger">{{ $errors->first('category') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -97,9 +82,6 @@
                                         id="subcategory">
                                         <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('subcategory'))
-                                        <span class="text-danger">{{ $errors->first('subcategory') }}</span>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -109,22 +91,14 @@
                                 <div class="form-group">
                                     <label class="form-label" for="price">Price</label>
                                     <input type="text" class="form-control" id="price" name="price"
-                                        placeholder="Enter price"
-                                        value="{{ !empty($edit_data->price) ? $edit_data->price : old('price') }}">
-                                    @if ($errors->has('price'))
-                                        <span class="text-danger">{{ $errors->first('price') }}</span>
-                                    @endif
+                                        placeholder="Enter price" value="{{ old('price') }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-label" for="base_price">Base Price</label>
                                     <input type="text" class="form-control" id="base_price" name="base_price"
-                                        placeholder="Enter base price"
-                                        value="{{ !empty($edit_data->base_price) ? $edit_data->base_price : old('base_price') }}">
-                                    @if ($errors->has('base_price'))
-                                        <span class="text-danger">{{ $errors->first('base_price') }}</span>
-                                    @endif
+                                        placeholder="Enter base price" value="{{ old('base_price') }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -135,11 +109,8 @@
                                             <input type="file" class="form-control mr-1" id="image" name="image"
                                                 onchange="loadFile(event)" />
                                         </div>
-                                        @if ($errors->has('image'))
-                                            <span class="text-danger">{{ $errors->first('image') }}</span>
-                                        @endif
                                     </div>
-                                    <img id="output" src="{{ asset('uploads/products/' . $edit_data->image) }}"
+                                    <img id="output" src=""
                                         style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
                                 </div>
                             </div>
@@ -147,9 +118,9 @@
                                 <div class="form-group">
                                     <label class="form-label" for="status">Status</label>
                                     <select name="status" class="form-control" id="status">
-                                        <option {{ $edit_data->status == 1 ? 'selected' : '' }} value="1">Active
+                                        <option value="1">Active
                                         </option>
-                                        <option {{ $edit_data->status == 0 ? 'selected' : '' }} value="0">Inactive
+                                        <option value="0">Inactive
                                         </option>
                                     </select>
                                 </div>
@@ -161,8 +132,7 @@
                                         <div class="form-group">
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                    <input {{ $edit_data->is_featured == 1 ? 'checked' : '' }}
-                                                        type="checkbox" class="form-check-input" name="is_featured"
+                                                    <input type="checkbox" class="form-check-input" name="is_featured"
                                                         value="1">
                                                     Featured<i class="input-helper"></i></label>
                                             </div>
@@ -172,8 +142,7 @@
                                         <div class="form-group">
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                    <input {{ $edit_data->is_trending == 1 ? 'checked' : '' }}
-                                                        type="checkbox" class="form-check-input" name="is_trending"
+                                                    <input type="checkbox" class="form-check-input" name="is_trending"
                                                         value="1">
                                                     Trending<i class="input-helper"></i></label>
                                             </div>
@@ -182,8 +151,12 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row" id="form-fields-container">
+
+
                         </div>
+
 
                         <div class="row mt-3">
                             <div class="col-md-12">
@@ -219,9 +192,6 @@
                                             <label class="form-label" for="reviews">Review</label>
                                             <input type="text" class="form-control" id="reviews" name="reviews"
                                                 placeholder="Enter reviews" value="{{ old('reviews') }}">
-                                            @if ($errors->has('reviews'))
-                                                <span class="text-danger">{{ $errors->first('reviews') }}</span>
-                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -242,40 +212,6 @@
             output.src = URL.createObjectURL(event.target.files[0]);
             output.style.display = 'block';
         };
-    </script>
-    <script>
-        function removeImage(element) {
-            const wrapper = element.closest('.image-wrapper');
-            const imagePath = wrapper.getAttribute('data-path');
-            var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]').val();
-            if (!confirm('Are you sure you want to delete this image?')) return;
-
-            // Remove from UI
-            wrapper.remove();
-
-            // Call backend to delete from server and DB
-            if (imagePath) {
-                $.ajax({
-                    url: "{{ route('admin.product.variants_image_delete') }}", // Define this route
-                    type: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        image: imagePath,
-                        variant_id: variant_id // or variant_id if needed
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            console.log('Image deleted');
-                        } else {
-                            alert('Failed to delete image.');
-                        }
-                    },
-                    error: function() {
-                        alert('Server error while deleting image.');
-                    }
-                });
-            }
-        }
     </script>
     <script>
         $(document).ready(function() {
@@ -344,31 +280,6 @@
             // Remove variant logic
             $(document).on('click', '.remove-variant', function() {
                 if ($('.variant-group').length > 1) {
-                    var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]')
-                        .val();
-
-                    // Call backend to delete from server and DB
-                    if (variant_id) {
-                        if (!confirm('Are you sure you want to delete this variant?')) return;
-                        $.ajax({
-                            url: "{{ route('admin.product.variants_delete') }}", // Define this route
-                            type: 'POST',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                variant_id: variant_id
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    console.log('Variant deleted');
-                                } else {
-                                    alert('Failed to delete variant.');
-                                }
-                            },
-                            error: function() {
-                                alert('Server error while deleting variant.');
-                            }
-                        });
-                    }
                     $(this).closest('.variant-group').remove();
                     updateColorOptions();
                     toggleButtons();
@@ -433,7 +344,6 @@
         });
     </script>
     <script>
-
         function getCategories(selector) {
             var main_category = $(selector).val();
 
@@ -446,8 +356,7 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        main_category: main_category,
-                        product_id: "{{ $edit_data->id }}"
+                        main_category: main_category
                     },
                     success: function(response) {
                         if (response.success) {
@@ -470,8 +379,7 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        category: category,
-                        product_id: "{{ $edit_data->id }}"
+                        category: category
                     },
                     success: function(response) {
                         if (response.success) {
@@ -495,7 +403,6 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    product_id: "{{ $edit_data->id }}",
                     category: category,
                     subcategory: subcategory
                 },
@@ -529,6 +436,49 @@
                     getFormFields('#subcategory')
                 }, 1000);
             }, 1000);
+        });
+    </script>
+
+    <script>
+        $('#manageForm').on('submit', function(e) {
+            e.preventDefault();
+            $(".error-message").remove();
+
+            let form = $(this)[0];
+            let formData = new FormData(form);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    $(".error-message").remove();
+
+                    if (response.success) {
+                        location.href = "{{ route('admin.products') }}";
+                    } else if (response.errors) {
+                        $.each(response.errors, function(key, value) {
+                            let cleanKey = key.replace(/\s*\(.*?\)\s*/g, '').trim();
+                            let input = $('[name^="' + cleanKey + '["]');
+                            if (input.length === 0) {
+                                input = $('[name="' + cleanKey + '"]');
+                            }
+                            if (input.length > 0) {
+                                input.after(
+                                    '<span class="text-danger error-message">' + value[0] +
+                                    '</span>'
+                                );
+                            }
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
         });
     </script>
 @endpush

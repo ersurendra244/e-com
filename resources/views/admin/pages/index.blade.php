@@ -4,8 +4,8 @@
     @include('admin.common.message')
     <div class="card">
         <div class="card-body">
-            @can('category create')
-                <a href="{{ route('admin.items.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+            @can('page create')
+                <a href="{{ route('admin.pages.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -16,9 +16,8 @@
                                 <tr>
                                     <th style="width: 10px">#</th>
                                     <th>Name</th>
-                                    <th>created At</th>
                                     <th>Status</th>
-                                    @canany(['category edit', 'category delete'])
+                                    @canany(['page edit', 'page delete'])
                                         <th>Action</th>
                                     @endcanany
                                 </tr>
@@ -46,7 +45,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.items.list') }}",
+                    "url": "{{ route('admin.pages.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {
@@ -60,12 +59,9 @@
                         "data": "name"
                     },
                     {
-                        "data": "created_at"
-                    },
-                    {
                         "data": "status"
                     },
-                    @canany(['category edit', 'category delete'])
+                    @canany(['page edit', 'page delete'])
                         {
                             "data": "action",
                             "orderable": false,
@@ -76,6 +72,5 @@
 
             });
         });
-
     </script>
 @endpush

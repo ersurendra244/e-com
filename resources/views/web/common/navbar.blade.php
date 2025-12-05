@@ -104,7 +104,7 @@
                     <div class="collapse navbar-collapse" id="mainNav">
                         <ul class="navbar-nav mr-auto">
                             @php
-                                $categories = \App\Models\Category::where('is_home', '1')->where('status', '1')->latest('order')->get();
+                                $categories = \App\Models\Category::where('parent_id', '0')->where('is_home', '1')->where('status', '1')->latest('order')->get();
                             @endphp
                             @foreach ($categories as $key => $value)
                             <li class="nav-item dropdown mega-dropdown position-static">
@@ -115,25 +115,29 @@
                                     style="background-color:#fff;">
                                     <div class="container">
                                         <div class="row">
-                                            @php
-                                                $subCategories = \App\Models\SubCategory::where('cat_id', $value->id)->where('status', '1')->latest('order')->get();
+                                            <div class="col-md-9">
+                                                <div class="row">
+                                                    @php
+                                                $subCategories = \App\Models\Category::where('parent_id', $value->id)->where('status', '1')->latest('order')->get();
+                                                // print_r($subCategories->toArray()); exit;
                                             @endphp
                                             @foreach ($subCategories as $subCategory)
-                                                <div class="col-md-3">
+                                                <div class="col-md-3 mb-3">
                                                 <h6 class="text-danger font-weight-bold">{{ $subCategory->name }}</h6>
                                                 @php
-                                                    $items = \App\Models\Item::whereJsonContains('sub_cat_id', (string) $subCategory->id)
+                                                    $items = \App\Models\SubCategory::where('category', $subCategory->id)
                                                             ->where('status', '1')->where('is_delete', '0')->orderBy('name', 'asc')->select('id', 'name')
                                                             ->get();
                                                 @endphp
                                                 <ul class="list-unstyled">
                                                     @foreach ($items as $item)
-                                                        <li><a href="#" class="text-dark">{{ $item->name }}</a></li>
+                                                        <li><a href="{{ route('web.products.shop', [$subCategory->slug, $item->slug]) }}" class="text-dark">{{ $item->name }}</a></li>
                                                     @endforeach
                                                 </ul>
                                             </div>
                                             @endforeach
-
+                                                </div>
+                                            </div>
 
                                             <div class="col-md-3 text-center">
                                                 <img src="https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=761&q=80"
@@ -145,6 +149,10 @@
                                 </div>
                             </li>
                             @endforeach
+
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ route('web.products.shop') }}">Shop</a>
+                            </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-white" href="{{ route('web.home.contact_us') }}">Contact Us</a>

@@ -63,27 +63,18 @@
             </li>
         @endcan
         <li class="nav-item {{ request()->routeIs('admin.file_manager*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('admin.file_manager') }}">
-                    <i class="fas fa-pen-square menu-icon"></i>
-                    <span class="menu-title">File Manager</span>
-                </a>
-            </li>
+            <a class="nav-link" href="{{ route('admin.file_manager') }}">
+                <i class="fas fa-pen-square menu-icon"></i>
+                <span class="menu-title">File Manager</span>
+            </a>
+        </li>
         @canany(['site settings'])
-            <li class="nav-item d-none d-lg-block">
-                <a class="nav-link" data-toggle="collapse" href="#settings" aria-expanded="false" aria-controls="settings">
-                    <i class="fas fa-cog menu-icon"></i>
-                    <span class="menu-title">Settings</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="settings">
-                    <ul class="nav flex-column sub-menu">
-                        @can('site settings')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.settings') }}">Site Settings</a>
-                            </li>
-                        @endcan
-                    </ul>
-                </div>
-            </li>
+        <li class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.settings') }}">
+                <i class="fas fa-cog menu-icon"></i>
+                <span class="menu-title">Settings</span>
+            </a>
+        </li>
         @endcan
         @canany(['menu list', 'brand list', 'item type list', 'category list', 'category edit', 'subcategory list'])
             <li class="nav-item d-none d-lg-block">
@@ -102,9 +93,6 @@
                         @can('brand list')
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.masters.brand') }}">Brands</a></li>
                         @endcan
-                        @can('item type list')
-                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.items') }}">Items</a></li>
-                        @endcan
                         @can('category list')
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.categories') }}">Categories</a>
                             </li>
@@ -116,6 +104,14 @@
                     </ul>
                 </div>
             </li>
+        @endcanany
+        @canany(['page list', 'page create', 'page edit', 'page delete'])
+        <li class="nav-item {{ request()->routeIs('admin.pages') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.pages') }}">
+                <i class="fas fa-cog menu-icon"></i>
+                <span class="menu-title">Pages</span>
+            </a>
+        </li>
         @endcanany
         @if (Auth::user()->hasRole('User'))
             <li class="nav-item {{ request()->routeIs('user.edit_profile') ? 'active' : '' }}">

@@ -30,18 +30,13 @@
                 <div class="col-md-4 mb-5">
                     <h5 class="text-secondary text-uppercase mb-4">My Account</h5>
                     <div class="d-flex flex-column justify-content-start">
-                        <a class="text-secondary mb-2" href="#"><i
-                                class="fa fa-angle-right mr-2"></i>Home</a>
-                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Our
-                            Shop</a>
-                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Shop
-                            Detail</a>
-                        <a class="text-secondary mb-2" href="#"><i
-                                class="fa fa-angle-right mr-2"></i>Shopping Cart</a>
-                        <a class="text-secondary mb-2" href="#"><i
-                                class="fa fa-angle-right mr-2"></i>Checkout</a>
-                        <a class="text-secondary" href="#"><i class="fa fa-angle-right mr-2"></i>Contact
-                            Us</a>
+                        @php $pages = App\Models\Page::where('is_delete', '0')->where('status', '1')->get(); @endphp
+                        @foreach ($pages as $page)
+                            <a class="text-secondary mb-2" href="{{ route('web.home.pages', $page->slug) }}">
+                                <i class="fa fa-angle-right mr-2"></i>{{ $page->name }}
+                            </a>
+                        @endforeach
+
                     </div>
                 </div>
                 <div class="col-md-4 mb-5">

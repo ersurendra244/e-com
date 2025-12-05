@@ -83,7 +83,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex flex-row">
-                                    <img id="output1" src="{{ asset('uploads/settings/' . $edit_data->header_logo) }}" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
+                                    <img id="output1" src="{{ is_image('uploads/settings/' , $edit_data->header_logo) }}" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
                                     <div class="col-md-10">
                                         <div class="form-group">
                                             <label class="form-label" for="header_logo">Header Logo</label>
@@ -100,7 +100,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex flex-row">
-                                    <img id="output2" src="{{ asset('uploads/settings/' . $edit_data->footer_logo) }}" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
+                                    <img id="output2" src="{{ is_image('uploads/settings/' , $edit_data->footer_logo) }}" style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
                                     <div class="col-md-10">
                                         <div class="form-group">
                                             <label class="form-label" for="footer_logo">Footer Logo</label>

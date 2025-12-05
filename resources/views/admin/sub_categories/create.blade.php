@@ -24,16 +24,15 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label" for="cat_id">Category</label>
-                                    <select name="cat_id" class="form-control" id="cat_id">
+                                    <label class="form-label" for="category">Category</label>
+                                    <select name="category" class="form-control" id="category">
                                         <option value="">--select--</option>
-                                        <option value="0">None</option>
                                         @foreach ($categories as $key => $value)
                                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('cat_id'))
-                                        <span class="text-danger">{{ $errors->first('cat_id') }}</span>
+                                    @if ($errors->has('category'))
+                                        <span class="text-danger">{{ $errors->first('category') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -55,15 +54,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-label" for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" placeholder="Enter description">{{ old('description') }}</textarea>
-                                    @if ($errors->has('description'))
-                                        <span class="text-danger">{{ $errors->first('description') }}</span>
-                                    @endif
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" for="order">Order By</label>
@@ -71,6 +61,15 @@
                                         placeholder="Enter order" value="{{ old('order') }}" min="1">
                                     @if ($errors->has('order'))
                                         <span class="text-danger">{{ $errors->first('order') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" placeholder="Enter description">{{ old('description') }}</textarea>
+                                    @if ($errors->has('description'))
+                                        <span class="text-danger">{{ $errors->first('description') }}</span>
                                     @endif
                                 </div>
                             </div>

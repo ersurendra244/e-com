@@ -24,18 +24,18 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label" for="cat_id">Category</label>
-                                    <select name="cat_id" onchange="getCategoryItems(this.value);" class="form-control" id="cat_id">
+                                    <label class="form-label" for="category">Category</label>
+                                    <select name="category" onchange="getCategoryItems(this.value);" class="form-control" id="category">
                                         <option value="">--select--</option>
                                         <option value="0">None</option>
                                         @foreach ($categories as $key => $value)
                                             <option
-                                                {{ isset($edit_data->cat_id) && $edit_data->cat_id == $value->id ? 'selected' : '' }}
+                                                {{ isset($edit_data->category) && $edit_data->category == $value->id ? 'selected' : '' }}
                                                 value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('cat_id'))
-                                        <span class="text-danger">{{ $errors->first('cat_id') }}</span>
+                                    @if ($errors->has('category'))
+                                        <span class="text-danger">{{ $errors->first('category') }}</span>
                                     @endif
                                 </div>
                             </div>

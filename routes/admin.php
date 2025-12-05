@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MasterController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormFieldController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\SubCategoryController;
@@ -68,8 +70,8 @@ Route::prefix('products')->group(function () {
     Route::post('update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::post('save', [ProductController::class, 'save'])->name('admin.products.save');
     Route::get('delete/{id?}', [ProductController::class, 'delete'])->name('admin.products.delete');
+    Route::post('get-categories', [ProductController::class, 'get_categories'])->name('admin.product.get_categories');
     Route::post('get-sub-categories', [ProductController::class, 'get_sub_categories'])->name('admin.product.get_sub_categories');
-    Route::post('get-items', [ProductController::class, 'get_items'])->name('admin.product.get_items');
     Route::post('get-form-fields', [ProductController::class, 'get_form_fields'])->name('admin.product.get_form_fields');
     Route::post('variants-delete', [ProductController::class, 'variants_delete'])->name('admin.product.variants_delete');
     Route::post('variants-image-delete', [ProductController::class, 'variants_image_delete'])->name('admin.product.variants_image_delete');
@@ -128,23 +130,6 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{id?}', [MasterController::class, 'brand_delete'])->name('admin.masters.brand_delete');
     });
 
-    Route::prefix('item-types')->group(function () {
-        Route::get('/', [MasterController::class, 'item_type'])->name('admin.masters.item_type');
-        Route::post('edit', [MasterController::class, 'item_type_edit'])->name('admin.masters.item_type_edit');
-        Route::post('save', [MasterController::class, 'item_type_save'])->name('admin.masters.item_type_save');
-        Route::get('delete/{id?}', [MasterController::class, 'item_type_delete'])->name('admin.masters.item_type_delete');
-    });
-
-    Route::prefix('items')->group(function () {
-        Route::get('/', [ItemController::class, 'index'])->name('admin.items');
-        Route::post('list', [ItemController::class, 'list'])->name('admin.items.list');
-        Route::post('store', [ItemController::class, 'store'])->name('admin.items.store');
-        Route::get('create', [ItemController::class, 'create'])->name('admin.items.create');
-        Route::get('edit/{slug?}', [ItemController::class, 'edit'])->name('admin.items.edit');
-        Route::post('update/{slug?}', [ItemController::class, 'update'])->name('admin.items.update');
-        Route::get('delete/{slug?}', [ItemController::class, 'delete'])->name('admin.items.delete');
-    });
-
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index'])->name('admin.categories');
         Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
@@ -165,6 +150,23 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
         Route::get('items/{slug?}', [SubCategoryController::class, 'items'])->name('admin.subcategory.items');
 
+        Route::get('form_view/{slug}', [SubCategoryController::class, 'form_view'])->name('admin.subcategory.form_view');
+        Route::get('form-fields/{slug}', [SubCategoryController::class, 'form_fields'])->name('admin.subcategory.form_fields');
+        Route::post('form-fields-save', [SubCategoryController::class, 'form_fields_save'])->name('admin.sub_categories.form_fields_save');
+        Route::post('form-fields-edit', [SubCategoryController::class, 'form_fields_edit'])->name('admin.subcategory.form_fields_edit');
+
+        // Route::get('form-edit/{slug}', [SubCategoryController::class, 'form_edit'])->name('admin.subcategory.form_edit');
+        // Route::post('form-update/{slug}', [SubCategoryController::class, 'form_update'])->name('admin.subcategory.form_update');
+    });
+
+    Route::prefix('pages')->group(function () {
+        Route::get('/', [PageController::class, 'index'])->name('admin.pages');
+        Route::post('list', [PageController::class, 'list'])->name('admin.pages.list');
+        Route::post('store', [PageController::class, 'store'])->name('admin.pages.store');
+        Route::get('create', [PageController::class, 'create'])->name('admin.pages.create');
+        Route::get('edit/{slug}', [PageController::class, 'edit'])->name('admin.pages.edit');
+        Route::post('update/{slug}', [PageController::class, 'update'])->name('admin.pages.update');
+        Route::get('delete/{slug?}', [PageController::class, 'delete'])->name('admin.pages.delete');
     });
 });
 

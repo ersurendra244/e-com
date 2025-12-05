@@ -36,7 +36,8 @@
                 <div class="card-body">
                     <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form action="{{ route('admin.products.save') }}" method="post" enctype="multipart/form-data">
+                    <form id="manageForm" action="{{ route('admin.products.save') }}" method="post"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -44,9 +45,6 @@
                                     <label class="form-label" for="title">Title</label>
                                     <input type="text" class="form-control" id="title" name="title"
                                         placeholder="Enter title" value="{{ old('title') }}">
-                                    @if ($errors->has('title'))
-                                        <span class="text-danger">{{ $errors->first('title') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -54,9 +52,18 @@
                                     <label class="form-label" for="sub_title">Sub Title</label>
                                     <input type="text" class="form-control" id="sub_title" name="sub_title"
                                         placeholder="Enter sub title" value="{{ old('sub_title') }}">
-                                    @if ($errors->has('sub_title'))
-                                        <span class="text-danger">{{ $errors->first('sub_title') }}</span>
-                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label" for="main_category">Main Category</label>
+                                    <select onchange="getCategories(this);" name="main_category" class="form-control"
+                                        id="main_category">
+                                        <option value="">--select--</option>
+                                        @foreach ($categories as $key => $main_category)
+                                            <option value="{{ $main_category->id }}">{{ $main_category->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -64,38 +71,17 @@
                                     <label class="form-label" for="category">Category</label>
                                     <select onchange="getSubCategories(this);" name="category" class="form-control"
                                         id="category">
-                                        <option value="">Choose a category</option>
-                                        @foreach ($categories as $key => $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                        @endforeach
+                                        <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('category'))
-                                        <span class="text-danger">{{ $errors->first('category') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-label" for="subcategory">Sub Category</label>
-                                    <select onchange="getItems(this);" name="subcategory" class="form-control"
+                                    <select onchange="getFormFields(this);" name="subcategory" class="form-control"
                                         id="subcategory">
-                                        <option value="">Select Sub Category</option>
+                                        <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('subcategory'))
-                                        <span class="text-danger">{{ $errors->first('subcategory') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-label" for="item_type">Item Type</label>
-                                    <select onchange="getFormFields(this);" name="item_type" class="form-control"
-                                        id="item_type">
-                                        <option value="">Select Item</option>
-                                    </select>
-                                    @if ($errors->has('item_type'))
-                                        <span class="text-danger">{{ $errors->first('item_type') }}</span>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -106,9 +92,6 @@
                                     <label class="form-label" for="price">Price</label>
                                     <input type="text" class="form-control" id="price" name="price"
                                         placeholder="Enter price" value="{{ old('price') }}">
-                                    @if ($errors->has('price'))
-                                        <span class="text-danger">{{ $errors->first('price') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -116,9 +99,6 @@
                                     <label class="form-label" for="base_price">Base Price</label>
                                     <input type="text" class="form-control" id="base_price" name="base_price"
                                         placeholder="Enter base price" value="{{ old('base_price') }}">
-                                    @if ($errors->has('base_price'))
-                                        <span class="text-danger">{{ $errors->first('base_price') }}</span>
-                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -129,9 +109,6 @@
                                             <input type="file" class="form-control mr-1" id="image" name="image"
                                                 onchange="loadFile(event)" />
                                         </div>
-                                        @if ($errors->has('image'))
-                                            <span class="text-danger">{{ $errors->first('image') }}</span>
-                                        @endif
                                     </div>
                                     <img id="output" src=""
                                         style="width: 70px; height: 70px; border: 1px solid #ddd; border-radius: 5px;" />
@@ -215,9 +192,6 @@
                                             <label class="form-label" for="reviews">Review</label>
                                             <input type="text" class="form-control" id="reviews" name="reviews"
                                                 placeholder="Enter reviews" value="{{ old('reviews') }}">
-                                            @if ($errors->has('reviews'))
-                                                <span class="text-danger">{{ $errors->first('reviews') }}</span>
-                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +215,6 @@
     </script>
     <script>
         $(document).ready(function() {
-            toggleButtons();
             // Image preview handler
             $(document).on('change', '.image-input', function(event) {
                 const input = event.target;
@@ -261,96 +234,7 @@
                     $container.append(img);
                 });
             });
-
-            // Clone variant with reset
-            $(document).on('click', '.add-variant', function() {
-                const $lastVariant = $('.variant-group').last();
-                const $newVariant = $lastVariant.clone();
-
-                // Get new index based on how many groups exist
-                const newIndex = $('.variant-group').length;
-
-                // Update name and id attributes
-                $newVariant.find('input, select').each(function() {
-                    const nameAttr = $(this).attr('name');
-                    const idAttr = $(this).attr('id');
-
-                    if (nameAttr) {
-                        const updatedName = nameAttr.replace(/\[\d+\]/, `[${newIndex}]`);
-                        $(this).attr('name', updatedName);
-                    }
-
-                    if (idAttr) {
-                        const updatedId = idAttr.replace(/_\d+$/, `_${newIndex}`);
-                        $(this).attr('id', updatedId);
-                    }
-
-                    if ($(this).is('input[type="number"]') || $(this).is('select')) {
-                        $(this).val('');
-                    }
-
-                    if ($(this).hasClass('image-input')) {
-                        $(this).val('');
-                    }
-                });
-
-                // Clear image previews
-                $newVariant.find('.preview-container').empty();
-                $newVariant.find('input[name^="variant_id"]').val('');
-                // Append and toggle buttons
-                $('#variant-wrapper').append($newVariant);
-                updateColorOptions();
-                toggleButtons();
-            });
-
-            // Remove variant logic
-            $(document).on('click', '.remove-variant', function() {
-                if ($('.variant-group').length > 1) {
-                    $(this).closest('.variant-group').remove();
-                    updateColorOptions();
-                    toggleButtons();
-                } else {
-                    alert("At least one variant is required.");
-                }
-            });
-
-            // Color dropdown onchange
-            $(document).on('change', '.color-select', function() {
-                updateColorOptions();
-            });
         });
-
-        function updateColorOptions() {
-            const selectedColors = [];
-
-            $('.color-select').each(function() {
-                const val = $(this).val();
-                if (val) selectedColors.push(val);
-            });
-
-            $('.color-select').each(function() {
-                const currentVal = $(this).val();
-                let optionsHtml = '<option value="">Select color</option>';
-
-                $.each(allColors, function(key, label) {
-                    if (!selectedColors.includes(key) || currentVal === key) {
-                        optionsHtml +=
-                            `<option value="${key}" ${currentVal === key ? 'selected' : ''}>${label}</option>`;
-                    }
-                });
-
-                $(this).html(optionsHtml);
-            });
-        }
-
-        function toggleButtons() {
-            const variants = $('.variant-group');
-            variants.each(function(index) {
-                const isLast = index === variants.length - 1;
-                $(this).find('.remove-variant').toggle(variants.length > 1);
-                $(this).find('.add-variant').toggle(isLast);
-            });
-        }
     </script>
     <script>
         $(document).ready(function() {
@@ -370,10 +254,56 @@
         });
     </script>
     <script>
-        function getFormFields(event) {
-            var subcategory_id = $("#subcategory").val();
-            var item_id = $(event).val();
-            if (!subcategory_id) {
+        function getCategories(selector) {
+            var main_category = $(selector).val();
+
+            $('#category').html('<option value="">--select--</option>');
+            $('#form-fields-container').html('');
+
+            if (main_category) {
+                $.ajax({
+                    url: "{{ route('admin.product.get_categories') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        main_category: main_category
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#category').html(response.html);
+                        }
+                    }
+                });
+            }
+        }
+
+        function getSubCategories(selector) {
+            var category = $(selector).val();
+
+            $('#subcategory').html('<option value="">--select--</option>');
+            $('#form-fields-container').html('');
+
+            if (category) {
+                $.ajax({
+                    url: "{{ route('admin.product.get_sub_categories') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        category: category
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#subcategory').html(response.html);
+                        }
+                    }
+                });
+            }
+        }
+
+        function getFormFields(selector) {
+            var category = $("#category").val();
+            var subcategory = $(selector).val();
+            if (!subcategory) {
                 $('#form-fields-container').html('');
                 return;
             }
@@ -383,8 +313,8 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    subcategory_id: subcategory_id,
-                    item_id: item_id
+                    category: category,
+                    subcategory: subcategory
                 },
                 success: function(response) {
                     if (response.success) {
@@ -407,63 +337,57 @@
                 }
             });
         }
+
+        $(document).ready(function() {
+            getCategories('#main_category');
+            setTimeout(function() {
+                getSubCategories('#category');
+                setTimeout(function() {
+                    getFormFields('#subcategory')
+                }, 1000);
+            }, 1000);
+        });
     </script>
     <script>
-        function getSubCategories(selector) {
-            var category_id = $(selector).val();
+        $('#manageForm').on('submit', function(e) {
+            e.preventDefault();
+            $(".error-message").remove();
 
-            $('#subcategory').html('<option value="">Select Sub Category</option>');
-            $('#form-fields-container').html('');
+            let form = $(this)[0];
+            let formData = new FormData(form);
 
-            if (category_id) {
-                $.ajax({
-                    url: "{{ route('admin.product.get_sub_categories') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        category_id: category_id,
-                        product_id: ""
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#subcategory').html(response.html);
-                        }
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    $(".error-message").remove();
+
+                    if (response.success) {
+                        location.href = "{{ route('admin.products') }}";
+                    } else if (response.errors) {
+                        $.each(response.errors, function(key, value) {
+                            let cleanKey = key.replace(/\s*\(.*?\)\s*/g, '').trim();
+                            let input = $('[name^="' + cleanKey + '["]');
+                            if (input.length === 0) {
+                                input = $('[name="' + cleanKey + '"]');
+                            }
+                            if (input.length > 0) {
+                                input.after(
+                                    '<span class="text-danger error-message">' + value[0] +
+                                    '</span>'
+                                );
+                            }
+                        });
                     }
-                });
-            }
-        }
-
-        function getItems(selector) {
-            var subcategory_id = $(selector).val();
-
-            $('#item_type').html('<option value="">Select Item Type</option>');
-            $('#form-fields-container').html('');
-
-            if (subcategory_id) {
-                $.ajax({
-                    url: "{{ route('admin.product.get_items') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        subcategory_id: subcategory_id,
-                        product_id: ""
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#item_type').html(response.html);
-                        }
-                    }
-                });
-            }
-        }
-
-        // On change events for dropdowns (optional)
-        $('#category').on('change', function() {
-            getSubCategories(this);
-        });
-
-        $('#subcategory').on('change', function() {
-            getItems(this);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
         });
     </script>
 @endpush

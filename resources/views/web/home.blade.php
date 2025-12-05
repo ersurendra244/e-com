@@ -123,7 +123,7 @@
                     <a class="text-decoration-none" href="">
                         <div class="cat-item d-flex align-items-center mb-4">
                             <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                                <img class="img-fluid" src="{{ asset('uploads/categories/' . $image) }}" alt="">
+                                <img class="img-fluid" src="{{ is_image('uploads/categories/' , $image) }}" alt="">
                             </div>
                             <div class="flex-fill pl-3">
                                 <h6>{{ ucWords($category->name) }}</h6>
@@ -148,7 +148,7 @@
                     <div class="product-item bg-light mb-4">
                         <div class="product-img position-relative overflow-hidden">
                             @php $image = $featured->image ?? ''; @endphp
-                            <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}" alt="">
+                            <img class="img-fluid w-100" src="{{ is_image('uploads/products/' , $image) }}" alt="">
                             <div class="product-action">
                                 <a onclick="addToCart({{ $featured->id }})" class="btn btn-outline-dark btn-square" href="javascript:void(0);"><i
                                         class="fa fa-shopping-cart"></i></a>
@@ -223,7 +223,7 @@
                     <div class="product-item bg-light mb-4">
                         <div class="product-img position-relative overflow-hidden">
                             @php $image = $recent->image ?? ''; @endphp
-                            <img class="img-fluid w-100" src="{{ asset('uploads/products/' . $image) }}" alt="">
+                            <img class="img-fluid w-100" src="{{ is_image('uploads/products/' , $image) }}" alt="">
                             <div class="product-action">
                                 <a class="btn btn-outline-dark btn-square" href=""><i
                                         class="fa fa-shopping-cart"></i></a>

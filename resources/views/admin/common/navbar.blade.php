@@ -1,6 +1,6 @@
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row default-layout-navbar">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo" href="#"><img src="{{ asset('admin/images/logo.svg') }}"
+        <a class="navbar-brand brand-logo" href="#"><img src="{{ is_image('uploads/settings', $setting->header_logo) }}"
                 alt="logo" /></a>
         <a class="navbar-brand brand-logo-mini" href="#"><img src="{{ asset('admin/images/logo-mini.svg') }}"
                 alt="logo" /></a>

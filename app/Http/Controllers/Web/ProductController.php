@@ -18,14 +18,19 @@ class ProductController extends Controller
     {
         // return $cart = session()->get('cart');
         $data['title'] = 'Shop';
-        $data['categories'] = Category::where('status', '1')->where('slug', $slug)->get();
-        return $data['categories'];
+        if(!empty($slug)){
+            // $data['title'] = $slug;
+            $data['categories'] = Category::where('status', '1')->where('slug', $slug)->get();
+        } else {
+            $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
+        }
+        // return $data['categories'];
         return view('web.products.shop', $data);
     }
 
     public function list(Request $request)
     {
-        $query = Product::with('variants')->withAvg('reviews', 'rating')->where('cat_id', $request->category);
+        $query = Product::with('variants')->withAvg('reviews', 'rating')->where('category', $request->category);
 
         // Variant filtering
         $query->whereHas('variants', function ($variantQuery) use ($request) {
@@ -131,7 +136,7 @@ class ProductController extends Controller
     {
         $data['title'] = 'Shop';
         $data['productData'] = Product::with('variants')->withAvg('reviews', 'rating')->find($id);
-        $data['relatedProducts'] = Product::with('variants')->withAvg('reviews', 'rating')->where('cat_id', $data['productData']->cat_id)->where('id', '!=', $id)->latest()->limit(8)->get();
+        $data['relatedProducts'] = Product::with('variants')->withAvg('reviews', 'rating')->where('category', $data['productData']->category)->where('id', '!=', $id)->latest()->limit(8)->get();
         // return $data['productData'];
         return view('web.products.details', $data);
     }

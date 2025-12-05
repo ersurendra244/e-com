@@ -110,7 +110,7 @@ class FileController extends Controller
         $data = [];
         foreach ($results as $value) {
             $nestedData['id'] = $value->id;
-            $nestedData['uploadfile'] = '<img class="img-sm rounded" src="' . asset('uploads/files/' . $value->uploadfile) . '" alt=""/>';
+            $nestedData['uploadfile'] = '<img class="img-sm rounded" src="' . is_image('uploads/files/' , $value->uploadfile) . '" alt=""/>';
             $nestedData['filename'] = $value->filename;
             $nestedData['remark'] = $value->remark;
             $nestedData['created_by'] = getUserName($value->created_by);
