@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 05, 2025 at 12:00 PM
+-- Generation Time: Dec 15, 2025 at 12:39 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.2.26
 
@@ -221,7 +221,7 @@ DROP TABLE IF EXISTS `file_manager`;
 CREATE TABLE IF NOT EXISTS `file_manager` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` enum('folder','file','text') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('folder','file','text','image') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `parent_id` bigint UNSIGNED DEFAULT NULL,
   `path` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `size` int DEFAULT NULL,
@@ -231,30 +231,14 @@ CREATE TABLE IF NOT EXISTS `file_manager` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `file_manager_parent_id_foreign` (`parent_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `file_manager`
 --
 
 INSERT INTO `file_manager` (`id`, `name`, `type`, `parent_id`, `path`, `size`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Photos', 'folder', NULL, 'uploads/file-manager/Photos/', 0, '0', '1', '2025-11-26 06:48:42', '2025-11-26 06:49:57'),
-(2, 'Imges', 'folder', NULL, 'uploads/file-manager/Imges/', 0, '0', '1', '2025-11-26 06:49:43', '2025-11-26 06:50:39'),
-(3, 'deASASs.png', 'file', 1, 'uploads/file-manager/Photos/', 101156, '0', '1', '2025-11-26 06:52:05', '2025-12-05 06:14:00'),
-(4, 'favicon.ico', 'file', 1, 'uploads/file-manager/Photos/', 894, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(5, 'fb.png', 'file', 1, 'uploads/file-manager/Photos/', 18169, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(6, 'languge.png', 'file', 1, 'uploads/file-manager/Photos/', 1993, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(7, 'linew.png', 'file', 1, 'uploads/file-manager/Photos/', 2853, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(8, 'logo.png', 'file', 1, 'uploads/file-manager/Photos/', 6065, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(9, 'nhm.png', 'file', 1, 'uploads/file-manager/Photos/', 5462, '0', '1', '2025-11-26 06:52:05', '2025-11-26 06:52:05'),
-(10, 'ADSD', 'folder', NULL, 'uploads/file-manager/ADSD/', 0, '0', '1', '2025-11-26 07:06:52', '2025-11-26 07:06:52'),
-(11, 'asasas', 'folder', NULL, 'uploads/file-manager/asasas/', 0, '0', '1', '2025-11-26 07:11:16', '2025-11-26 07:11:16'),
-(12, 'GHGHGH', 'folder', 1, 'uploads/file-manager/Photos/GHGHGH/', 0, '0', '1', '2025-11-26 07:14:59', '2025-11-26 07:14:59'),
-(13, 'add_vhost.php', 'file', 1, 'uploads/file-manager/Photos/', 49189, '0', '1', '2025-11-26 07:20:06', '2025-11-26 07:20:06'),
-(14, 'thumb_v_v_1.jpg', 'file', 12, 'uploads/file-manager/Photos/GHGHGH/', 78634, '0', '1', '2025-12-05 06:14:35', '2025-12-05 06:14:35'),
-(15, 'thumb_v_v_2.jpg', 'file', 12, 'uploads/file-manager/Photos/GHGHGH/', 84329, '0', '1', '2025-12-05 06:14:35', '2025-12-05 06:14:35'),
-(16, 'thumb_v_y_1.jpg', 'file', 12, 'uploads/file-manager/Photos/GHGHGH/', 79637, '0', '1', '2025-12-05 06:14:35', '2025-12-05 06:14:35'),
-(17, 'thumb_v_y_2.jpg', 'file', 12, 'uploads/file-manager/Photos/GHGHGH/', 101969, '0', '1', '2025-12-05 06:14:35', '2025-12-05 06:14:35');
+(2, '.env', 'file', NULL, 'uploads/file-manager/', 1014, '0', '1', '2025-12-15 07:08:11', '2025-12-15 07:08:11');
 
 -- --------------------------------------------------------
 

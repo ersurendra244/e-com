@@ -145,8 +145,8 @@
             position: relative;
             /* border: 1px solid #dee2e6; */
             /* border-radius: 8px;
-                background: #fff;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
+                    background: #fff;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
         }
 
         .shanu:hover {
@@ -276,21 +276,37 @@
                     @foreach ($items as $item)
                         <div class="shanu">
                             <button class="folder-container">
-                                <div class="folder-icon">
-                                    <img src="{{ asset('admin/images/ext-type/' . fileTypeIcon($item->name)) }}"
-                                        alt="icon">
-                                </div>
-                                <div class="folder-name">
-                                    @if ($item->type === 'folder')
-                                        <a href="{{ route('admin.file_manager', $item->id) }}">{{ $item->name }}</a>
-                                    @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
-                                        <a href="{{ route('admin.file_manager.view', $item->id) }}" target="_blank"
-                                            class="text-primary">{{ $item->name }}</a>
-                                    @else
-                                        <a href="{{ asset($item->path . $item->name) }}" target="_blank"
-                                            class="text-primary">{{ $item->name }}</a>
-                                    @endif
-                                </div>
+                                @if ($item->type === 'folder')
+                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark" style="text-decoration: none">
+                                        <div class="folder-icon">
+                                            <img src="{{ asset('admin/images/ext-type/folders.png') }}" alt="icon"
+                                                style="max-height: 100px; width: 80px;">
+                                        </div>
+                                        <div class="folder-name">
+                                            {{ $item->name }}
+                                        </div>
+                                    </a>
+                                @elseif ($item->type === 'image')
+                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-dark" style="text-decoration: none">
+                                        <div class="folder-icon">
+                                            <img src="{{ asset($item->path . $item->name) }}" alt="icon"
+                                                style="max-height: 100px; width: 80px;">
+                                        </div>
+                                        <div class="folder-name">
+                                            {{ $item->name }}
+                                        </div>
+                                    </a>
+                                @elseif( ($item->type === 'file') && in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark" style="text-decoration: none">
+                                        <div class="folder-icon">
+                                            <img src="{{ asset('admin/images/ext-type/' . fileTypeIcon($item->name)) }}" alt="icon"
+                                                style="max-height: 100px; width: 80px;">
+                                        </div>
+                                        <div class="folder-name">
+                                            {{ $item->name }}
+                                        </div>
+                                    </a>
+                                @endif
                             </button>
 
                             <div class="file-meta">{{ $item->total_size_formatted }}</div>
@@ -392,20 +408,20 @@
                     <input type="hidden" id="swal-type-old" value="${type}">
 
                     ${showNameField ? `<div class="form-group folder-field">
-                                    <label class="form-label" for="swal-name-old">Name</label>
-                                    <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
-                                    <span id="name-error-old" class="error-message" style="display:none;"></span>
-                                </div>` : ''}
+                                        <label class="form-label" for="swal-name-old">Name</label>
+                                        <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
+                                        <span id="name-error-old" class="error-message" style="display:none;"></span>
+                                    </div>` : ''}
 
                     ${showFileInput ? `
-                                    <div class="form-group file-field">
-                                        <p class="form-label mb-1">Upload Files</p>
-                                        <div class="input-group">
-                                            <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
-                                        </div>
-                                        <ul id="swal-fileList-old" class="mt-2"></ul>
-                                        <span id="file-error-old" class="error-message" style="display:none;"></span>
-                                    </div>` : ''}
+                                        <div class="form-group file-field">
+                                            <p class="form-label mb-1">Upload Files</p>
+                                            <div class="input-group">
+                                                <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
+                                            </div>
+                                            <ul id="swal-fileList-old" class="mt-2"></ul>
+                                            <span id="file-error-old" class="error-message" style="display:none;"></span>
+                                        </div>` : ''}
                 </div>
             `;
 
