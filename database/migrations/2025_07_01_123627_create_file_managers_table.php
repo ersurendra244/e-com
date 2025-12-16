@@ -16,7 +16,7 @@ class CreateFileManagersTable extends Migration
         Schema::create('file_manager', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['folder', 'file', 'image']);
+            $table->enum('type', ['folder', 'text', 'file', 'image']);
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('path')->nullable();
             $table->integer('size')->nullable();

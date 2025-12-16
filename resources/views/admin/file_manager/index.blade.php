@@ -145,8 +145,8 @@
             position: relative;
             /* border: 1px solid #dee2e6; */
             /* border-radius: 8px;
-                    background: #fff;
-                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
+                            background: #fff;
+                            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */
         }
 
         .shanu:hover {
@@ -237,7 +237,7 @@
         }
     </style>
     @include('admin.common.message')
-    <div class="card">
+    <div class="card" style="min-height: 100%;">
         <div class="card-body">
             <div class="d-flex bd-highlight">
                 <div class="p-2 flex-grow-1 bd-highlight">
@@ -263,8 +263,9 @@
                     <div class="dropdown">
                         <button class="dropbtn float-right"><i class="fas fa-ellipsis-v"></i></button>
                         <div class="dropdown-content">
-                            <a href="javascript:void(0)" onclick="addnew('folder')" class="text-primary">Create Folder</a>
-                            <a href="javascript:void(0)" onclick="addnew('text')" class="text-primary">Create File</a>
+                            <a href="javascript:void(0)" onclick="addnew('folder')" class="text-primary">New Folder</a>
+                            <a href="javascript:void(0)" onclick="addnew('text')" class="text-primary">New File</a>
+                            <a href="javascript:void(0)" onclick="addnew('image')" class="text-primary">Upload Image</a>
                             <a href="javascript:void(0)" onclick="addnew('file')" class="text-primary">Upload Files</a>
                         </div>
                     </div>
@@ -277,7 +278,8 @@
                         <div class="shanu">
                             <button class="folder-container">
                                 @if ($item->type === 'folder')
-                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark" style="text-decoration: none">
+                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark"
+                                        style="text-decoration: none">
                                         <div class="folder-icon">
                                             <img src="{{ asset('admin/images/ext-type/folders.png') }}" alt="icon"
                                                 style="max-height: 100px; width: 80px;">
@@ -287,7 +289,8 @@
                                         </div>
                                     </a>
                                 @elseif ($item->type === 'image')
-                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-dark" style="text-decoration: none">
+                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-dark"
+                                        style="text-decoration: none">
                                         <div class="folder-icon">
                                             <img src="{{ asset($item->path . $item->name) }}" alt="icon"
                                                 style="max-height: 100px; width: 80px;">
@@ -296,10 +299,22 @@
                                             {{ $item->name }}
                                         </div>
                                     </a>
-                                @elseif( ($item->type === 'file') && in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
-                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark" style="text-decoration: none">
+                                @elseif($item->type === 'file' && in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                    <a href="{{ asset($item->path . $item->name) }}" class="text-dark"
+                                        style="text-decoration: none">
                                         <div class="folder-icon">
-                                            <img src="{{ asset('admin/images/ext-type/' . fileTypeIcon($item->name)) }}" alt="icon"
+                                            <img src="{{ asset('admin/images/ext-type/' . fileTypeIcon($item->name)) }}"
+                                                alt="icon" style="max-height: 100px; width: 80px;">
+                                        </div>
+                                        <div class="folder-name">
+                                            {{ $item->name }}
+                                        </div>
+                                    </a>
+                                @elseif($item->type === 'file' || $item->type === 'text')
+                                    <a href="{{ asset($item->path . $item->name) }}" target="_blank" class="text-dark"
+                                        style="text-decoration: none">
+                                        <div class="folder-icon">
+                                            <img src="{{ asset('admin/images/ext-type/txt.png') }}" alt="icon"
                                                 style="max-height: 100px; width: 80px;">
                                         </div>
                                         <div class="folder-name">
@@ -317,7 +332,7 @@
                                     <div class="dropdown-content">
                                         @if ($item->type === 'folder')
                                             <a href="{{ route('admin.file_manager', $item->id) }}">Open</a>
-                                        @elseif (in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
+                                        @elseif ($item->type === 'file' || $item->type === 'text' && !in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['pdf']))
                                             <a href="{{ route('admin.file_manager.edit', $item->id) }}"
                                                 target="_blank">Edit</a>
                                         @else
@@ -381,6 +396,7 @@
         // The core addnew function updated for SweetAlert (old)
         function addnew(type, item_id = null, name = '') {
             let title = '';
+            let acceptExt = '';
             let formHtml = '';
             let showNameField = false;
             let showFileInput = false;
@@ -393,6 +409,17 @@
                 showNameField = true;
             } else if (type === 'file') {
                 title = 'Upload Files';
+                acceptExt = '.pdf,.doc,.docx,.txt,.rtf,.csv,.xls,.xlsx,.ppt,.pptx,' +
+                    '.zip,.rar,.7z,.tar,.gz,.json,.xml,.html,.htm,.css,.js,.jsx,' +
+                    '.ts,.tsx,.php,.py,.java,.c,.cpp,.h,.hpp,.sql,.log,.ini,.bat,' +
+                    '.sh,.yml,.yaml,.md,.bak,.env,.lock,.conf,.config,.gitignore,' +
+                    '.gitattributes,.htaccess,.editorconfig,.mix.js,.example,' +
+                    '.xml.dist,.phpunit.xml,.yml.dist,.mdown,.readme,.conf.example,' +
+                    '.json.lock,.styleci.yml,.artisan,.cls';
+                showFileInput = true;
+            } else if (type === 'image') {
+                title = 'Upload Files';
+                acceptExt = 'image/*';
                 showFileInput = true;
             } else if (type === 'edit-item') {
                 title = 'Rename Item';
@@ -407,21 +434,22 @@
                     <input type="hidden" id="swal-item_id-old" value="${item_id || ''}">
                     <input type="hidden" id="swal-type-old" value="${type}">
 
-                    ${showNameField ? `<div class="form-group folder-field">
-                                        <label class="form-label" for="swal-name-old">Name</label>
-                                        <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
-                                        <span id="name-error-old" class="error-message" style="display:none;"></span>
-                                    </div>` : ''}
+                    ${showNameField ? `
+                            <div class="form-group folder-field">
+                                <label class="form-label" for="swal-name-old">Name</label>
+                                <input type="text" class="form-control" id="swal-name-old" placeholder="Enter name" value="${name}">
+                                <span id="name-error-old" class="error-message" style="display:none;"></span>
+                            </div>` : ''}
 
                     ${showFileInput ? `
-                                        <div class="form-group file-field">
-                                            <p class="form-label mb-1">Upload Files</p>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
-                                            </div>
-                                            <ul id="swal-fileList-old" class="mt-2"></ul>
-                                            <span id="file-error-old" class="error-message" style="display:none;"></span>
-                                        </div>` : ''}
+                            <div class="form-group file-field">
+                                <p class="form-label mb-1">Upload Files</p>
+                                <div class="input-group">
+                                    <input accept="${acceptExt}" type="file" class="form-control file-input" id="swal-file-input-old" name="files[]" multiple />
+                                </div>
+                                <ul id="swal-fileList-old" class="mt-2"></ul>
+                                <span id="file-error-old" class="error-message" style="display:none;"></span>
+                            </div>` : ''}
                 </div>
             `;
 
@@ -465,7 +493,7 @@
 
                     let validationErrors = {};
 
-                    if (currentType === 'file') {
+                    if (currentType === 'file' || currentType === 'image') {
                         if (!fileInput || fileInput.files.length === 0) {
                             validationErrors.file = 'Please select a file to upload.';
                         }
@@ -585,7 +613,7 @@
             const nameInput = popup.querySelector('#swal-name-old');
             const fileInput = popup.querySelector('#swal-file-input-old');
 
-            if (type === 'file') {
+            if (type === 'file' || type === 'image') {
                 isValid = fileInput && fileInput.files.length > 0;
             } else {
                 isValid = nameInput && nameInput.value.trim().length > 0;

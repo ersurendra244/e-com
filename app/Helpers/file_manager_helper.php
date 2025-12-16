@@ -99,7 +99,7 @@ if (!function_exists('createFolder')) {
 }
 
 if (!function_exists('uploadFiles')) {
-    function uploadFiles(array $files, ?int $parentId = null): int
+    function uploadFiles($type, array $files, ?int $parentId = null): int
     {
         if (empty($files)) {
             throw new \Exception('No files provided for upload.');
@@ -140,7 +140,7 @@ if (!function_exists('uploadFiles')) {
                 File::exists($fullPathDir . '/' . $uniqueName) ||
                 FileManager::where('name', $uniqueName)
                 ->where('path', $dbPathForFile)
-                ->where('type', 'file')
+                ->where('type', $type)
                 ->exists()
             ) {
                 $uniqueName = $cleanName . '_(' . $copyCount . ').' . $extension;
@@ -154,7 +154,7 @@ if (!function_exists('uploadFiles')) {
 
             $model = new FileManager();
             $model->name = $uniqueName;
-            $model->type = 'file';
+            $model->type = $type;
             $model->path = $dbPathForFile;
             $model->parent_id = $parentId;
             $model->size = $fileSize;
@@ -254,7 +254,7 @@ if (!function_exists('deleteItem')) {
             throw new \Exception('Item not found.');
         }
 
-        if ($model->type === 'file') {
+        if ($model->type === 'file' || $model->type === 'image') {
             // Delete file from disk
             $fullDiskPath = public_path(trim($model->path, '/') . '/' . $model->name);
             Log::info("Deleting file: " . $fullDiskPath);
@@ -267,7 +267,7 @@ if (!function_exists('deleteItem')) {
             } else {
                 Log::warning("⚠️ File not found on disk: " . $fullDiskPath);
             }
-        } elseif ($model->type === 'folder') {
+        } elseif ($model->type === 'folder' || $model->type === 'text') {
             // Get full folder path on disk
             $relativeFolderPath = rtrim($model->path);
             $fullDiskPath = public_path($relativeFolderPath);

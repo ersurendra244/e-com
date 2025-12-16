@@ -57,13 +57,21 @@ class FileManagerController extends Controller
                 $responseMessage = 'Folder created successfully';
                 $responseSuccess = true;
 
+            } elseif ($type === 'image') {
+                if ($request->hasFile('files')) {
+                    $uploadedCount = uploadFiles($type, $request->file('files'), $parent_id);
+                    $responseMessage = ($uploadedCount > 1 ? 'Images' : 'Image') . ' uploaded successfully';
+                    $responseSuccess = true;
+                } else {
+                    throw new \Exception('No image selected for upload.');
+                }
             } elseif ($type === 'file') {
                 if ($request->hasFile('files')) {
-                    $uploadedCount = uploadFiles($request->file('files'), $parent_id);
+                    $uploadedCount = uploadFiles($type, $request->file('files'), $parent_id);
                     $responseMessage = ($uploadedCount > 1 ? 'Files' : 'File') . ' uploaded successfully';
                     $responseSuccess = true;
                 } else {
-                    throw new \Exception('No files selected for upload.');
+                    throw new \Exception('No file selected for upload.');
                 }
             } else {
                 throw new \Exception('Invalid operation type.');
