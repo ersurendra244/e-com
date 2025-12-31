@@ -101,6 +101,10 @@
                             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.subcategory') }}">Subcategories</a>
                             </li>
                         @endcan
+                        {{-- @can('subcategory list') --}}
+                            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.form_fields') }}">Form Fields</a>
+                            </li>
+                        {{-- @endcan --}}
                     </ul>
                 </div>
             </li>

@@ -17,8 +17,6 @@ class FileController extends Controller
 {
     public function index()
     {
-        // $files = File::with('shares')->get();
-        // return view('files.index', compact('files'));
         $data['title'] = 'Files';
         $data['roles'] = Role::all();
         return view('admin.files.index', $data);

@@ -9,101 +9,144 @@
                         class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
                     <div class="row">
-                        @foreach ($form_fields as $field)
-                            <div class="col-md-6">
-                                @if ($field->field_type == 'text')
+                        @foreach ($selected as $field)
+                            @if ($field->formField->field_type == 'text')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group">
                                         <label class="form-label"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
-                                        <input type="text" class="form-control" id="{{ $field->field_name }}"
-                                            name="{{ $field->field_name }}" placeholder="Enter {{ $field->field_label }}"
-                                            value="{{ old($field->field_name) }}">
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <input type="text" class="form-control {{ $field->field_class ?? '' }}"
+                                            id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}"
+                                            placeholder="Enter {{ $field->formField->field_label }}"
+                                            value="{{ old($field->formField->field_name) }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>
                                     </div>
-                                @elseif ($field->field_type == 'number')
+                                </div>
+                            @elseif ($field->formField->field_type == 'textarea')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group">
                                         <label class="form-label"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
-                                        <input type="number" class="form-control" id="{{ $field->field_name }}"
-                                            name="{{ $field->field_name }}" placeholder="Enter {{ $field->field_label }}"
-                                            value="{{ old($field->field_name) }}">
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <textarea class="form-control {{ $field->field_class ?? '' }}" id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}" placeholder="Enter {{ $field->formField->field_label }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>{{ old($field->formField->field_name) }}</textarea>
                                     </div>
-                                @elseif ($field->field_type == 'select')
+                                </div>
+                            @elseif ($field->formField->field_type == 'number')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group">
                                         <label class="form-label"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
-                                        <select class="form-control" id="{{ $field->field_name }}"
-                                            name="{{ $field->field_name }}">
-                                            <option value="">Select {{ $field->field_label }}</option>
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <input type="number" class="form-control {{ $field->field_class ?? '' }}"
+                                            id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}"
+                                            placeholder="Enter {{ $field->formField->field_label }}"
+                                            value="{{ old($field->formField->field_name) }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>
+                                    </div>
+                                </div>
+                            @elseif ($field->formField->field_type == 'select')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <select class="form-control {{ $field->field_class ?? '' }}"
+                                            id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>
+                                            <option value="">Select {{ $field->formField->field_label }}</option>
                                             @php
-                                                $options = json_decode($field->field_options, true);
+                                                $options = json_decode($field->formField->field_options, true);
                                                 // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
                                                 if (!is_array($options)) {
-                                                    $options = preg_split("/\r\n|\n|\r/", $field->field_options);
+                                                    $options = preg_split(
+                                                        "/\r\n|\n|\r/",
+                                                        $field->formField->field_options,
+                                                    );
                                                 }
                                             @endphp
                                             @foreach ($options as $option)
                                                 <option value="{{ $option }}"
-                                                    {{ old($field->field_name) == $option ? 'selected' : '' }}>
+                                                    {{ old($field->formField->field_name) == $option ? 'selected' : '' }}>
                                                     {{ $option }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                @elseif ($field->field_type == 'checkbox')
+                                </div>
+                            @elseif ($field->formField->field_type == 'checkbox')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group row mx-0">
                                         <label class="form-label col-12 px-0 pb-2"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
                                         @php
-                                            $options = json_decode($field->field_options, true);
+                                            $options = json_decode($field->formField->field_options, true);
                                             // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
                                             if (!is_array($options)) {
-                                                $options = preg_split("/\r\n|\n|\r/", $field->field_options);
+                                                $options = preg_split("/\r\n|\n|\r/", $field->formField->field_options);
                                             }
+                                            $option_class =
+                                                $field->row_class < 5 ? '6' : ($field->row_class > 9 ? '3' : '4');
                                         @endphp
-                                        @foreach ($options as $option)
-                                            <div class="form-check col-4">
+                                        @foreach ($options as $index => $option)
+                                            @php $option_id = strtolower(str_replace(' ', '_', $option)); @endphp
+                                            <div class="form-check col-{{ $option_class }}">
                                                 <label class="form-check-label"
-                                                    for="{{ $field->field_name }}_{{ $option }}">{{ $option }}
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="{{ $field->field_name }}_{{ $option }}"
-                                                        name="{{ $field->field_name }}[]" value="{{ $option }}"
-                                                        {{ is_array(old($field->field_name)) && in_array($option, old($field->field_name)) ? 'checked' : '' }}>
+                                                    for="{{ $field->formField->field_name }}_{{ $option_id }}">{{ $option }}
+                                                    <input class="form-check-input {{ $field->field_class ?? '' }}"
+                                                        type="checkbox"
+                                                        id="{{ $field->formField->field_name }}_{{ $option_id }}"
+                                                        name="{{ $field->formField->field_name }}[]"
+                                                        value="{{ $option }}" {{ $field->is_required == 1 && $index == 0 ? 'required' : '' }}
+                                                        {{ is_array(old($field->formField->field_name)) && in_array($option, old($field->formField->field_name)) ? 'checked' : '' }}>
                                                     <i class="input-helper"></i>
                                                 </label>
                                             </div>
                                         @endforeach
                                     </div>
-                                @elseif ($field->field_type == 'radio')
+                                </div>
+                            @elseif ($field->formField->field_type == 'radio')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group row mx-0">
                                         <label class="form-label col-12 px-0 pb-2"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
                                         @php
-                                            $options = json_decode($field->field_options, true);
+                                            $options = json_decode($field->formField->field_options, true);
                                             // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
                                             if (!is_array($options)) {
-                                                $options = preg_split("/\r\n|\n|\r/", $field->field_options);
+                                                $options = preg_split("/\r\n|\n|\r/", $field->formField->field_options);
                                             }
                                         @endphp
-                                        @foreach ($options as $option)
+                                        @foreach ($options as $index => $option)
+                                            @php $option_id = strtolower(str_replace(' ', '_', $option)); @endphp
                                             <div class="form-check col-4">
                                                 <label class="form-check-label"
-                                                    for="{{ $field->field_name }}_{{ $option }}">{{ $option }}
-                                                    <input class="form-check-input" type="radio"
-                                                        id="{{ $field->field_name }}_{{ $option }}"
-                                                        name="{{ $field->field_name }}" value="{{ $option }}"
-                                                        {{ old($field->field_name) == $option ? 'checked' : '' }}>
+                                                    for="{{ $field->formField->field_name }}_{{ $option_id }}">{{ $option }}
+                                                    <input class="form-check-input {{ $field->field_class ?? '' }}"
+                                                        type="radio"
+                                                        id="{{ $field->formField->field_name }}_{{ $option_id }}"
+                                                        name="{{ $field->formField->field_name }}"
+                                                        value="{{ $option }}"
+                                                        {{ old($field->formField->field_name) == $option ? 'checked' : '' }}
+                                                        {{ $field->is_required == 1 && $index == 0 ? 'required' : '' }}>
                                                 </label>
                                             </div>
                                         @endforeach
                                     </div>
-                                @elseif ($field->field_type == 'date')
+                                </div>
+                            @elseif ($field->formField->field_type == 'date')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
                                     <div class="form-group">
                                         <label class="form-label"
-                                            for="{{ $field->field_name }}">{{ $field->field_label }}</label>
-                                        <input type="date" class="form-control" id="{{ $field->field_name }}"
-                                            name="{{ $field->field_name }}" value="{{ old($field->field_name) }}">
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <input type="date" class="form-control {{ $field->field_class ?? '' }}"
+                                            id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}"
+                                            value="{{ old($field->formField->field_name) }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>
                                     </div>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>

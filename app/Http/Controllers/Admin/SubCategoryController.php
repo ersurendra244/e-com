@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\FormField;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+use App\Models\SubCategoryField;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
@@ -184,7 +185,8 @@ class SubCategoryController extends Controller
         $data['title'] = 'Form Field List';
         $data['subtitle'] = 'Subcategory';
         $data['subcategory'] = SubCategory::where('slug', $slug)->first();
-        $data['form_fields'] = FormField::where('subcategory_id', $data['subcategory']->id)->orderBy('order')->where('is_delete', '0')->get();
+        $data['selected'] = SubCategoryField::with('formField')->where('subcategory_id', $data['subcategory']->id)->orderBy('order')->get();
+        // return $data['selected'];
         return view('admin.sub_categories.form_view', $data);
     }
 
@@ -193,73 +195,40 @@ class SubCategoryController extends Controller
         $data['title'] = 'Form Field List';
         $data['subtitle'] = 'Subcategory';
         $data['subcategory'] = SubCategory::where('slug', $slug)->first();
-        $data['form_fields'] = FormField::where('subcategory_id', $data['subcategory']->id)->orderBy('order')->where('is_delete', '0')->get();
+        $data['form_fields'] = FormField::orderBy('order')->where('is_delete', '0')->get();
+        $data['selected'] = SubCategoryField::where('subcategory_id', $data['subcategory']->id)->get(['field_id', 'order', 'is_required', 'row_class', 'field_class'])->keyBy('field_id')->toArray();
+        // return $data['selected'];
         return view('admin.sub_categories.form_fields', $data);
-    }
-
-    public function form_fields_edit(Request $request)
-    {
-        $id = $request->id;
-        $data = FormField::find($id);
-        return response()->json(['status' => 'success', 'data' => $data]);
     }
 
     public function form_fields_save(Request $request)
     {
-        $edit_id = $request->edit_id;
+        $slug = $request->input('slug');
+        $subcategory_id = $request->input('subcategory_id');
+        $selected_field_ids = array_keys($request->input('field_id', []));
 
-        // Validation
-        $validator = Validator::make($request->all(), [
-            'subcategory_id' => 'required|integer',
-            'field_label'    => 'required|string|max:255',
-            'field_name'     => 'required|string|max:255|unique:form_fields,field_name,' . ($edit_id ?? 'NULL') . ',id',
-            'field_type'     => 'required|string',
-            'field_options'  => 'nullable|string',
-            'is_required'    => 'nullable|integer',
-            'order'          => 'nullable|integer',
-            'status'         => 'nullable|integer',
-        ]);
+        // Delete unselected fields
+        SubCategoryField::where('subcategory_id', $subcategory_id)
+            ->whereNotIn('field_id', $selected_field_ids)
+            ->delete();
 
-        if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
+        // Save or update selected fields
+        foreach ($selected_field_ids as $field_id) {
+            $data = [
+                'subcategory_id' => $subcategory_id,
+                'field_id'       => $field_id,
+                'is_required'    => $request->is_required[$field_id] ?? 0,
+                'row_class'      => $request->row_class[$field_id] ?? '6',
+                'field_class'    => $request->field_class[$field_id] ?? '',
+                'order'          => $request->order[$field_id] ?? 0,
+            ];
+
+            SubCategoryField::updateOrCreate(
+                ['subcategory_id' => $subcategory_id, 'field_id' => $field_id],
+                $data
+            );
         }
 
-        // Prepare data
-        $field_name = strtolower(str_replace(' ', '_', $request->field_name));
-        $data = [
-            'subcategory_id' => $request->subcategory_id,
-            'field_label'    => ucwords($request->field_label),
-            'field_name'     => $field_name,
-            'field_type'     => $request->field_type,
-            'is_required'    => $request->is_required,
-            'order'          => $request->order,
-            'status'         => $request->status,
-        ];
-
-        // Handle field options (comma separated or array)
-        if (!empty($request->field_options)) {
-            $options = is_array($request->field_options)
-                ? $request->field_options
-                : array_map('trim', explode(',', $request->field_options));
-
-            $data['field_options'] = json_encode($options);
-        } else {
-            $data['field_options'] = null;
-        }
-
-        // Create or Update
-        FormField::updateOrCreate(['id' => $edit_id], $data);
-
-        // Success message
-        $msg = $edit_id
-            ? 'Form field updated successfully!'
-            : 'Form field created successfully!';
-
-        Session::flash('success', $msg);
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => $msg,
-        ]);
+        return redirect()->route('admin.subcategory.form_fields', $slug)->with('success', 'Subcategory updated successfully');
     }
 }
