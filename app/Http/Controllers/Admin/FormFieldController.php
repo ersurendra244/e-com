@@ -2,80 +2,91 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\FormField;
-use App\Models\Category;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class FormFieldController extends Controller
 {
     public function index()
     {
-        $fields = FormField::with('subcategory')->orderBy('order_no')->get();
-        return view('admin.form_fields.index', compact('fields'));
         $data['title'] = 'Form Field List';
-        $data['subtitle'] = 'subcategory';
-        $data['form_fields'] = FormField::with('subcategory')->orderBy('order_no')->where('is_delete', '0')->get();
-        return view('admin.sub_categories.form_fields', $data);
-    }
-
-    public function create()
-    {
-        $subcategories = Category::whereNotNull('parent_id')->get();
-        return view('admin.form_fields.create', compact('subcategories'));
+        $data['subtitle'] = 'Masters';
+        $data['form_fields'] = FormField::where('status', '1')->where('is_delete', '0')->orderBy('order')->get();
+        return view('admin.form_fields.index', $data);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'subcategory_id' => 'required|integer',
-            'field_label' => 'required|string|max:255',
-            'field_name' => 'required|string|max:255|unique:form_fields,field_name',
-            'field_type' => 'required|string',
-            'field_options' => 'nullable|array',
-            'is_required' => 'boolean',
-            'order_no' => 'nullable|integer',
+        $edit_id = $request->edit_id;
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'field_label'    => 'required|string|max:255',
+            'field_name'     => 'required|string|max:255|unique:form_fields,field_name,' . ($edit_id ?? 'NULL') . ',id',
+            'field_type'     => 'required|string',
+            'field_options'  => 'nullable|string',
+            'is_required'    => 'nullable|integer',
+            'order'          => 'nullable|integer',
+            'status'         => 'nullable|integer',
         ]);
 
-        if (!empty($data['field_options'])) {
-            $data['field_options'] = json_encode($data['field_options']);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()]);
         }
 
-        FormField::create($data);
+        // Prepare data
+        $field_name = strtolower(str_replace(' ', '_', $request->field_name));
+        $data = [
+            'field_label'    => ucwords($request->field_label),
+            'field_name'     => $field_name,
+            'field_type'     => $request->field_type,
+            'is_required'    => $request->is_required,
+            'order'          => $request->order,
+            'status'         => $request->status,
+        ];
 
-        return redirect()->route('admin.form_fields.index')->with('success', 'Form field added successfully!');
-    }
+        // Handle field options (comma separated or array)
+        if (!empty($request->field_options)) {
+            $options = is_array($request->field_options)
+                ? $request->field_options
+                : array_map('trim', explode(',', $request->field_options));
 
-    public function edit(FormField $form_field)
-    {
-        $subcategories = Category::whereNotNull('parent_id')->get();
-        return view('admin.form_fields.edit', compact('form_field', 'subcategories'));
-    }
+            $data['field_options'] = json_encode($options);
+        } else {
+            $data['field_options'] = null;
+        }
 
-    public function update(Request $request, FormField $form_field)
-    {
-        $data = $request->validate([
-            'subcategory_id' => 'required|integer',
-            'field_label' => 'required|string|max:255',
-            'field_name' => 'required|string|max:255|unique:form_fields,field_name,' . $form_field->id,
-            'field_type' => 'required|string',
-            'field_options' => 'nullable|array',
-            'is_required' => 'boolean',
-            'order_no' => 'nullable|integer',
+        // Create or Update
+        FormField::updateOrCreate(['id' => $edit_id], $data);
+
+        // Success message
+        $msg = $edit_id
+            ? 'Form field updated successfully!'
+            : 'Form field created successfully!';
+
+        Session::flash('success', $msg);
+        return response()->json([
+            'status'  => 'success',
+            'message' => $msg,
         ]);
-
-        if (!empty($data['field_options'])) {
-            $data['field_options'] = json_encode($data['field_options']);
-        }
-
-        $form_field->update($data);
-
-        return redirect()->route('admin.form_fields.index')->with('success', 'Form field updated successfully!');
     }
 
-    public function destroy(FormField $form_field)
+    public function edit(Request $request)
     {
-        $form_field->delete();
-        return redirect()->route('admin.form_fields.index')->with('success', 'Form field deleted!');
+        $id = $request->id;
+        $data = FormField::find($id);
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
+
+    public function delete(Request $request)
+    {
+        $form_field = FormField::find($request->id);
+        $form_field->status = '0';
+        $form_field->is_delete = '1';
+        $form_field->save();
+        Session::flash('success', 'Form field deleted successfully!');
+        return response()->json(['success' => false]);
     }
 }

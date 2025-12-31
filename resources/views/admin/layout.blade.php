@@ -17,7 +17,11 @@
             font-size: small !important;
         }
         body {
-        font-family: "Font Awesome 5 Free", sans-serif ! important;
+            font-family: "Font Awesome 5 Free", sans-serif ! important;
+        }
+        .btn.btn-icon {
+            width: 35px !important;
+            height: 35px !important;
         }
     </style>
 </head>

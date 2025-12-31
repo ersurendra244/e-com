@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 15, 2025 at 12:39 PM
+-- Generation Time: Dec 31, 2025 at 12:18 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.2.26
 
@@ -231,14 +231,23 @@ CREATE TABLE IF NOT EXISTS `file_manager` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `file_manager_parent_id_foreign` (`parent_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `file_manager`
 --
 
 INSERT INTO `file_manager` (`id`, `name`, `type`, `parent_id`, `path`, `size`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
-(2, '.env', 'file', NULL, 'uploads/file-manager/', 1014, '0', '1', '2025-12-15 07:08:11', '2025-12-15 07:08:11');
+(3, 'whatsapp_image_2025_12_16_at_31120_pm.jpeg', 'image', NULL, 'uploads/file-manager/', 58536, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(4, 'whatsapp_image_2025_12_16_at_25324_pm.jpeg', 'image', NULL, 'uploads/file-manager/', 9960, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(5, 'whatsapp_image_2025_12_15_at_175930.jpeg', 'image', NULL, 'uploads/file-manager/', 34901, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(6, 'pan2.png', 'image', NULL, 'uploads/file-manager/', 82784, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(7, 'pan1.png', 'image', NULL, 'uploads/file-manager/', 61444, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(8, 'no_image_icon_23499.png', 'image', NULL, 'uploads/file-manager/', 47605, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(9, 'no_image_icon_23480.jpg', 'image', NULL, 'uploads/file-manager/', 9512, '0', '1', '2025-12-16 07:09:03', '2025-12-16 07:09:03'),
+(10, 'vidar_nordli_mathisen_2cnh00fevzw_unsplash_1.jpg', 'image', NULL, 'uploads/file-manager/', 2045789, '0', '1', '2025-12-16 07:09:41', '2025-12-16 07:09:41'),
+(11, 'chatgpt_image_nov_12_2025_10_29_58_am.png', 'image', NULL, 'uploads/file-manager/', 2045257, '0', '1', '2025-12-16 07:09:41', '2025-12-16 07:09:41'),
+(12, 'october_2025.png', 'image', NULL, 'uploads/file-manager/', 41493, '0', '1', '2025-12-16 07:10:13', '2025-12-16 07:10:13');
 
 -- --------------------------------------------------------
 
@@ -278,7 +287,6 @@ INSERT INTO `file_shares` (`id`, `file_id`, `role_id`, `user_id`, `action_type`,
 DROP TABLE IF EXISTS `form_fields`;
 CREATE TABLE IF NOT EXISTS `form_fields` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-  `subcategory_id` bigint UNSIGNED NOT NULL,
   `field_label` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `field_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `field_type` enum('text','textarea','select','checkbox','radio','number','date') COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -289,24 +297,24 @@ CREATE TABLE IF NOT EXISTS `form_fields` (
   `is_delete` enum('1','0') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `form_fields_subcategory_id_foreign` (`subcategory_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `form_fields`
 --
 
-INSERT INTO `form_fields` (`id`, `subcategory_id`, `field_label`, `field_name`, `field_type`, `field_options`, `is_required`, `order`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Size', 'size', 'select', '\"[\\\"2XS\\\",\\\"XS\\\",\\\"S\\\",\\\"M\\\",\\\"L\\\",\\\"XL\\\",\\\"2XL\\\",\\\"3XL\\\",\\\"4XL\\\",\\\"5XL\\\",\\\"6XL\\\",\\\"7XL\\\",\\\"8XL\\\",\\\"9XL\\\",\\\"10XL\\\",\\\"Free\\\"]\"', '1', 0, '1', '0', '2025-12-04 02:23:25', '2025-12-04 07:50:47'),
-(2, 1, 'Color', 'color', 'select', '\"[\\\"Black\\\",\\\"White\\\",\\\"Multicolor\\\",\\\"Blue\\\",\\\"Grey\\\",\\\"Green\\\",\\\"Maroon\\\",\\\"Red\\\",\\\"Beige\\\",\\\"Yellow\\\",\\\"Brown\\\",\\\"Navy Blue\\\",\\\"Pink\\\",\\\"Dark Blue\\\",\\\"Purple\\\",\\\"Dark Green\\\",\\\"Light Blue\\\",\\\"Light Green\\\",\\\"Orange\\\",\\\"Silver\\\",\\\"Gold\\\"]\"', '1', 0, '1', '0', '2025-12-04 05:44:42', '2025-12-04 07:50:30'),
-(3, 1, 'Fabric', 'fabric', 'select', '\"[\\\"Cotton Blend\\\",\\\"Pure Cotton\\\",\\\"Polyester\\\",\\\"Polycotton\\\",\\\"Organic Cotton\\\",\\\"Elastane\\\",\\\"Nylon\\\",\\\"Wool Blend\\\",\\\"Viscose Rayon\\\",\\\"Linen Blend\\\",\\\"Modal\\\"]\"', '0', 0, '1', '0', '2025-12-04 05:54:28', '2025-12-04 07:51:38'),
-(4, 1, 'Sleeve Type', 'sleeve_type', 'select', '\"[\\\"Half Sleeve\\\",\\\"Short Sleeve\\\",\\\"Full Sleeve\\\",\\\"Sleeveless\\\",\\\"3\\\\/4 Sleeve\\\",\\\"Roll-up Sleeve\\\",\\\"Layered Sleeve\\\",\\\"Raglan\\\"]\"', '0', 0, '1', '0', '2025-12-04 06:13:20', '2025-12-04 06:34:38'),
-(5, 1, 'Occasion', 'occasion', 'select', '\"[\\\"Casual\\\",\\\"Sports\\\",\\\"Formal\\\",\\\"Party\\\",\\\"Lounge Wear\\\",\\\"Beach Wear\\\",\\\"Festive\\\"]\"', '0', 0, '1', '0', '2025-12-04 06:48:35', '2025-12-04 06:48:35'),
-(6, 1, 'Type', 'type', 'checkbox', '\"[\\\"Round Neck\\\",\\\"Polo Neck\\\",\\\"Hooded Neck\\\",\\\"Crew Neck\\\",\\\"V Neck\\\",\\\"Zip Neck\\\",\\\"Henley Neck\\\",\\\"High Neck\\\",\\\"Mandarin Collar\\\",\\\"Scoop Neck\\\",\\\"Turtle Neck\\\",\\\"Cowl Neck\\\",\\\"Stylised Neck\\\",\\\"Boat Neck\\\",\\\"Shawl Neck\\\",\\\"Racerback\\\",\\\"Halter Neck\\\",\\\"Peter Pan Collar\\\",\\\"Square Neck\\\"]\"', '0', 2, '1', '0', '2025-12-04 07:10:18', '2025-12-04 07:52:23'),
-(7, 1, 'Gender', 'gender', 'radio', '\"[\\\"Male\\\",\\\"Female\\\",\\\"Other\\\"]\"', '0', 1, '1', '0', '2025-12-04 07:26:34', '2025-12-04 07:48:05'),
-(8, 2, 'Mfg Date', 'mfg_date', 'textarea', NULL, '1', 0, '1', '0', '2025-12-05 06:01:45', '2025-12-05 06:06:07'),
-(9, 2, 'Colors', 'colors', 'select', '\"[\\\"@\\\"]\"', '0', 0, '1', '0', '2025-12-05 06:03:14', '2025-12-05 06:09:14');
+INSERT INTO `form_fields` (`id`, `field_label`, `field_name`, `field_type`, `field_options`, `is_required`, `order`, `status`, `is_delete`, `created_at`, `updated_at`) VALUES
+(1, 'Size (XL)', 'size', 'select', '\"[\\\"2XS\\\",\\\"XS\\\",\\\"S\\\",\\\"M\\\",\\\"L\\\",\\\"XL\\\",\\\"2XL\\\",\\\"3XL\\\",\\\"4XL\\\",\\\"5XL\\\",\\\"6XL\\\",\\\"7XL\\\",\\\"8XL\\\",\\\"9XL\\\",\\\"10XL\\\",\\\"Free\\\"]\"', '1', 0, '0', '1', '2025-12-04 02:23:25', '2025-12-29 07:50:36'),
+(2, 'Color', 'color', 'select', '\"[\\\"Black\\\",\\\"White\\\",\\\"Multicolor\\\",\\\"Blue\\\",\\\"Grey\\\",\\\"Green\\\",\\\"Maroon\\\",\\\"Red\\\",\\\"Beige\\\",\\\"Yellow\\\",\\\"Brown\\\",\\\"Navy Blue\\\",\\\"Pink\\\",\\\"Dark Blue\\\",\\\"Purple\\\",\\\"Dark Green\\\",\\\"Light Blue\\\",\\\"Light Green\\\",\\\"Orange\\\",\\\"Silver\\\",\\\"Gold\\\"]\"', '1', 0, '1', '1', '2025-12-04 05:44:42', '2025-12-29 07:47:56'),
+(3, 'Fabric', 'fabric', 'select', '\"[\\\"Cotton Blend\\\",\\\"Pure Cotton\\\",\\\"Polyester\\\",\\\"Polycotton\\\",\\\"Organic Cotton\\\",\\\"Elastane\\\",\\\"Nylon\\\",\\\"Wool Blend\\\",\\\"Viscose Rayon\\\",\\\"Linen Blend\\\",\\\"Modal\\\"]\"', '0', 0, '1', '0', '2025-12-04 05:54:28', '2025-12-04 07:51:38'),
+(4, 'Sleeve Type', 'sleeve_type', 'select', '\"[\\\"Half Sleeve\\\",\\\"Short Sleeve\\\",\\\"Full Sleeve\\\",\\\"Sleeveless\\\",\\\"3\\\\/4 Sleeve\\\",\\\"Roll-up Sleeve\\\",\\\"Layered Sleeve\\\",\\\"Raglan\\\"]\"', '0', 0, '1', '0', '2025-12-04 06:13:20', '2025-12-04 06:34:38'),
+(5, 'Occasion', 'occasion', 'select', '\"[\\\"Casual\\\",\\\"Sports\\\",\\\"Formal\\\",\\\"Party\\\",\\\"Lounge Wear\\\",\\\"Beach Wear\\\",\\\"Festive\\\"]\"', '0', 0, '1', '0', '2025-12-04 06:48:35', '2025-12-04 06:48:35'),
+(6, 'Type', 'type', 'checkbox', '\"[\\\"Round Neck\\\",\\\"Polo Neck\\\",\\\"Hooded Neck\\\",\\\"Crew Neck\\\",\\\"V Neck\\\",\\\"Zip Neck\\\",\\\"Henley Neck\\\",\\\"High Neck\\\",\\\"Mandarin Collar\\\",\\\"Scoop Neck\\\",\\\"Turtle Neck\\\",\\\"Cowl Neck\\\",\\\"Stylised Neck\\\",\\\"Boat Neck\\\",\\\"Shawl Neck\\\",\\\"Racerback\\\",\\\"Halter Neck\\\",\\\"Peter Pan Collar\\\",\\\"Square Neck\\\"]\"', '0', 2, '1', '0', '2025-12-04 07:10:18', '2025-12-04 07:52:23'),
+(7, 'Gender', 'gender', 'radio', '\"[\\\"Male\\\",\\\"Female\\\",\\\"Other\\\"]\"', '0', 1, '1', '0', '2025-12-04 07:26:34', '2025-12-04 07:48:05'),
+(8, 'Mfg Date', 'mfg_date', 'date', NULL, '1', 0, '1', '0', '2025-12-05 06:01:45', '2025-12-31 05:49:34'),
+(10, 'Asas', 'asas', 'text', NULL, '0', 0, '1', '0', '2025-12-30 04:24:35', '2025-12-30 04:24:35'),
+(11, 'Description', 'description', 'textarea', NULL, '0', 0, '1', '0', '2025-12-31 05:54:33', '2025-12-31 05:54:33');
 
 -- --------------------------------------------------------
 
@@ -379,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   `migration` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -409,7 +417,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (22, '2025_05_13_115305_create_items_table', 14),
 (23, '2025_05_13_121357_create_brands_table', 15),
 (24, '2025_07_01_123627_create_file_managers_table', 16),
-(25, '2025_12_04_064304_create_form_fields_table', 17);
+(25, '2025_12_04_064304_create_form_fields_table', 17),
+(26, '2025_12_31_092320_create_sub_category_fields_table', 18);
 
 -- --------------------------------------------------------
 
@@ -640,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `role_permissions` (
   PRIMARY KEY (`id`),
   KEY `role_permissions_role_id_foreign` (`role_id`),
   KEY `role_permissions_permission_id_foreign` (`permission_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=601 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=605 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `role_permissions`
@@ -672,38 +681,12 @@ INSERT INTO `role_permissions` (`id`, `role_id`, `permission_id`, `created_at`, 
 (205, 8, 15, NULL, NULL),
 (206, 8, 17, NULL, NULL),
 (207, 8, 16, NULL, NULL),
-(215, 3, 28, NULL, NULL),
-(216, 3, 30, NULL, NULL),
-(217, 3, 29, NULL, NULL),
-(218, 3, 27, NULL, NULL),
-(219, 3, 24, NULL, NULL),
-(220, 3, 26, NULL, NULL),
-(221, 3, 25, NULL, NULL),
-(222, 3, 23, NULL, NULL),
-(223, 3, 33, NULL, NULL),
-(224, 3, 35, NULL, NULL),
-(225, 3, 37, NULL, NULL),
-(226, 3, 36, NULL, NULL),
-(227, 3, 34, NULL, NULL),
-(228, 3, 7, NULL, NULL),
-(229, 3, 9, NULL, NULL),
-(230, 3, 8, NULL, NULL),
-(231, 3, 6, NULL, NULL),
 (232, 3, 1, NULL, NULL),
 (233, 3, 19, NULL, NULL),
 (234, 3, 2, NULL, NULL),
 (235, 3, 18, NULL, NULL),
 (236, 3, 22, NULL, NULL),
-(237, 3, 11, NULL, NULL),
 (238, 3, 13, NULL, NULL),
-(239, 3, 12, NULL, NULL),
-(240, 3, 10, NULL, NULL),
-(241, 3, 31, NULL, NULL),
-(242, 3, 32, NULL, NULL),
-(243, 3, 15, NULL, NULL),
-(244, 3, 17, NULL, NULL),
-(245, 3, 16, NULL, NULL),
-(246, 3, 14, NULL, NULL),
 (247, 2, 28, NULL, NULL),
 (248, 2, 30, NULL, NULL),
 (249, 2, 29, NULL, NULL),
@@ -957,6 +940,43 @@ INSERT INTO `sub_categories` (`id`, `name`, `slug`, `category`, `image`, `thumbn
 (94, 'Perfumes', 'perfumes', 30, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-12-01 11:28:12', '2025-12-01 11:28:12'),
 (95, 'Deodorants', 'deodorants', 30, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-12-01 11:28:12', '2025-12-01 11:28:12'),
 (96, 'Body Mists', 'body-mists', 30, NULL, NULL, NULL, NULL, NULL, '1', '0', '1', '2025-12-01 11:28:12', '2025-12-01 11:28:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sub_category_fields`
+--
+
+DROP TABLE IF EXISTS `sub_category_fields`;
+CREATE TABLE IF NOT EXISTS `sub_category_fields` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `field_id` int NOT NULL,
+  `subcategory_id` bigint UNSIGNED NOT NULL,
+  `row_class` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `field_class` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_required` enum('1','0') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `order` int NOT NULL DEFAULT '0',
+  `is_delete` enum('0','1') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '1=Delete, 0=Not Delete',
+  `status` enum('0','1') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '1=Active, 0=Inactive',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sub_category_fields_subcategory_id_foreign` (`subcategory_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `sub_category_fields`
+--
+
+INSERT INTO `sub_category_fields` (`id`, `field_id`, `subcategory_id`, `row_class`, `field_class`, `is_required`, `order`, `is_delete`, `status`, `created_at`, `updated_at`) VALUES
+(12, 10, 1, '6', 'shanu', '1', 4, '0', '1', '2025-12-31 04:15:31', '2025-12-31 06:36:30'),
+(11, 8, 1, '6', 'shanu', '1', 6, '0', '1', '2025-12-31 04:15:31', '2025-12-31 06:36:30'),
+(10, 5, 1, '6', 'shanu', '1', 1, '0', '1', '2025-12-31 04:15:31', '2025-12-31 06:36:30'),
+(9, 4, 1, '6', 'shanu', '1', 2, '0', '1', '2025-12-31 04:15:31', '2025-12-31 06:36:30'),
+(8, 3, 1, '6', 'shanu', '1', 3, '0', '1', '2025-12-31 04:15:31', '2025-12-31 06:36:30'),
+(6, 7, 1, '6', 'shanu', '1', 5, '0', '1', '2025-12-31 04:11:13', '2025-12-31 06:36:30'),
+(7, 6, 1, '6', 'shanu', '1', 9, '0', '1', '2025-12-31 04:14:01', '2025-12-31 06:36:30'),
+(13, 11, 1, '12', 'shanu', '1', 10, '0', '1', '2025-12-31 05:55:02', '2025-12-31 06:23:47');
 
 -- --------------------------------------------------------
 

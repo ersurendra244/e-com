@@ -130,14 +130,22 @@ Route::prefix('masters')->group(function () {
         Route::get('delete/{id?}', [MasterController::class, 'brand_delete'])->name('admin.masters.brand_delete');
     });
 
+    Route::prefix('form-fields')->group(function () {
+        Route::get('/', [FormFieldController::class, 'index'])->name('admin.form_fields');
+        Route::post('list', [FormFieldController::class, 'list'])->name('admin.form_fields.list');
+        Route::post('store', [FormFieldController::class, 'store'])->name('admin.form_fields.store');
+        Route::post('edit', [FormFieldController::class, 'edit'])->name('admin.form_fields.edit');
+        Route::get('delete/{id?}', [FormFieldController::class, 'delete'])->name('admin.form_fields.delete');
+    });
+
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index'])->name('admin.categories');
-        Route::post('list', [CategoryController::class, 'list'])->name('admin.categories.list');
-        Route::post('store', [CategoryController::class, 'store'])->name('admin.categories.store');
-        Route::get('create', [CategoryController::class, 'create'])->name('admin.categories.create');
-        Route::get('edit/{slug?}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::post('update/{slug?}', [CategoryController::class, 'update'])->name('admin.categories.update');
-        Route::get('delete/{slug?}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+        Route::get('/', [FormFieldController::class, 'index'])->name('admin.categories');
+        Route::post('list', [FormFieldController::class, 'list'])->name('admin.categories.list');
+        Route::post('store', [FormFieldController::class, 'store'])->name('admin.categories.store');
+        Route::get('create', [FormFieldController::class, 'create'])->name('admin.categories.create');
+        Route::get('edit/{slug?}', [FormFieldController::class, 'edit'])->name('admin.categories.edit');
+        Route::post('update/{slug?}', [FormFieldController::class, 'update'])->name('admin.categories.update');
+        Route::get('delete/{slug?}', [FormFieldController::class, 'delete'])->name('admin.categories.delete');
     });
 
     Route::prefix('subcategories')->group(function () {
@@ -149,14 +157,10 @@ Route::prefix('masters')->group(function () {
         Route::post('update/{slug}', [SubCategoryController::class, 'update'])->name('admin.subcategory.update');
         Route::get('delete/{slug?}', [SubCategoryController::class, 'delete'])->name('admin.subcategory.delete');
         Route::get('items/{slug?}', [SubCategoryController::class, 'items'])->name('admin.subcategory.items');
-
-        Route::get('form_view/{slug}', [SubCategoryController::class, 'form_view'])->name('admin.subcategory.form_view');
         Route::get('form-fields/{slug}', [SubCategoryController::class, 'form_fields'])->name('admin.subcategory.form_fields');
-        Route::post('form-fields-save', [SubCategoryController::class, 'form_fields_save'])->name('admin.sub_categories.form_fields_save');
-        Route::post('form-fields-edit', [SubCategoryController::class, 'form_fields_edit'])->name('admin.subcategory.form_fields_edit');
+        Route::post('form-fields-save', [SubCategoryController::class, 'form_fields_save'])->name('admin.subcategory.form_fields_save');
+        Route::get('form_view/{slug}', [SubCategoryController::class, 'form_view'])->name('admin.subcategory.form_view');
 
-        // Route::get('form-edit/{slug}', [SubCategoryController::class, 'form_edit'])->name('admin.subcategory.form_edit');
-        // Route::post('form-update/{slug}', [SubCategoryController::class, 'form_update'])->name('admin.subcategory.form_update');
     });
 
     Route::prefix('pages')->group(function () {
