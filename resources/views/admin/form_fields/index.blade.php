@@ -124,6 +124,7 @@
                                         <option value="radio">Radio</option>
                                         <option value="number">Number</option>
                                         <option value="date">Date</option>
+                                        <option value="file">File</option>
                                     </select>
 
                                 </div>
@@ -195,7 +196,7 @@
             const val = $(this).val().trim();
             if (val === '') return;
             const options = val.split(',').map(opt => opt.trim()).filter(Boolean);
-            const invalidChars = options.some(opt => /[^a-zA-Z0-9\s\-\_]/.test(opt));
+            const invalidChars = options.some(opt => /[^a-zA-Z0-9\s\-\_\(\)]/.test(opt));
             const hasEmpty = options.some(opt => opt.length === 0);
             const duplicateCheck = new Set(options.map(o => o.toLowerCase())).size !== options.length;
             let errorMsg = '';

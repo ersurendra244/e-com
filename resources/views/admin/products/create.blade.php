@@ -156,7 +156,41 @@
 
 
                         </div>
-
+                        <div class="row">
+                            {{-- @if (in_array('description', $fields)) --}}
+                            <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea name="description" class="form-control summernote" id="description" rows="10"></textarea>
+                                    @if ($errors->has('description'))
+                                        <span class="text-danger">{{ $errors->first('description') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            {{-- @endif
+                            @if (in_array('highlights', $fields)) --}}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="highlights">Highlights</label>
+                                    <textarea name="highlights" class="form-control summernote" id="highlights" rows="15"></textarea>
+                                    @if ($errors->has('highlights'))
+                                        <span class="text-danger">{{ $errors->first('highlights') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            {{-- @endif
+                            @if (in_array('specifications', $fields)) --}}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="specifications">Specifications</label>
+                                    <textarea name="specifications" class="form-control summernote" id="specifications" rows="15"></textarea>
+                                    @if ($errors->has('specifications'))
+                                        <span class="text-danger">{{ $errors->first('specifications') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            {{-- @endif --}}
+                        </div>
 
                         <div class="row mt-3">
                             <div class="col-md-12">
@@ -206,6 +240,77 @@
 @endsection
 
 @push('child_scripts')
+    <script>
+        $(document).on('click', '.add-variant', function() {
+
+            const $lastVariant = $('.variant-group').last();
+            const $newVariant = $lastVariant.clone();
+
+            const newIndex = $('.variant-group').length + 1;
+
+            $newVariant.find('input, select, textarea').each(function() {
+
+                const nameAttr = $(this).attr('name');
+                const idAttr = $(this).attr('id');
+
+                // ✅ Update name index
+                if (nameAttr) {
+                    $(this).attr(
+                        'name',
+                        nameAttr.replace(/\[\d+\]/, '[' + newIndex + ']')
+                    );
+                }
+
+                // ✅ Update id index
+                if (idAttr) {
+                    $(this).attr(
+                        'id',
+                        idAttr.replace(/_\d+$/, '_' + newIndex)
+                    );
+                }
+
+                // ✅ Reset values
+                if ($(this).is('input[type="text"], input[type="number"], textarea, select')) {
+                    $(this).val('');
+                }
+
+                if ($(this).is(':checkbox, :radio')) {
+                    $(this).prop('checked', false);
+                }
+
+                if ($(this).is(':file')) {
+                    $(this).val('');
+                }
+            });
+
+            // ✅ Update hidden variant_id value
+            $newVariant.find('input[name^="variant_id"]').val(newIndex);
+
+            // Clear image previews
+            $newVariant.find('.preview-container').empty();
+
+            $('#variant-wrapper').append($newVariant);
+            toggleButtons();
+        });
+        $(document).on('click', '.remove-variant', function() {
+            if ($('.variant-group').length > 1) {
+                $(this).closest('.variant-group').remove();
+                toggleButtons();
+            } else {
+                alert("At least one variant is required.");
+            }
+        });
+
+        function toggleButtons() {
+            const variants = $('.variant-group');
+
+            variants.each(function(index) {
+                const isLast = index === variants.length - 1;
+                $(this).find('.remove-variant').toggle(variants.length > 1);
+                $(this).find('.add-variant').toggle(isLast);
+            });
+        }
+    </script>
     <script>
         const loadFile = function(event) {
             var output = document.getElementById('output');

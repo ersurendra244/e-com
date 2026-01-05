@@ -24,7 +24,8 @@ class FormFieldController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'field_label'    => 'required|string|max:255',
-            'field_name'     => 'required|string|max:255|unique:form_fields,field_name,' . ($edit_id ?? 'NULL') . ',id',
+            'field_name'     => 'required|string|max:255',
+            // 'field_name'     => 'required|string|max:255|unique:form_fields,field_name,' . ($edit_id ?? 'NULL') . ',id',
             'field_type'     => 'required|string',
             'field_options'  => 'nullable|string',
             'is_required'    => 'nullable|integer',

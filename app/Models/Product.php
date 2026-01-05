@@ -10,6 +10,11 @@ class Product extends Model
     use HasFactory;
     protected $table = 'products';
 
+    protected $guarded = [];
+    protected $casts = [
+        'variant_data' => 'array'
+    ];
+
     public function variants()
     {
         return $this->hasMany(Variant::class, 'product_id');

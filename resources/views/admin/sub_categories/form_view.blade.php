@@ -55,7 +55,7 @@
                                             id="{{ $field->formField->field_name }}"
                                             name="{{ $field->formField->field_name }}"
                                             {{ $field->is_required == 1 ? 'required' : '' }}>
-                                            <option value="">Select {{ $field->formField->field_label }}</option>
+                                            <option value="">--select--</option>
                                             @php
                                                 $options = json_decode($field->formField->field_options, true);
                                                 // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
@@ -140,6 +140,18 @@
                                         <label class="form-label"
                                             for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
                                         <input type="date" class="form-control {{ $field->field_class ?? '' }}"
+                                            id="{{ $field->formField->field_name }}"
+                                            name="{{ $field->formField->field_name }}"
+                                            value="{{ old($field->formField->field_name) }}"
+                                            {{ $field->is_required == 1 ? 'required' : '' }}>
+                                    </div>
+                                </div>
+                            @elseif ($field->formField->field_type == 'file')
+                                <div class="col-md-{{ $field->row_class ?? '6' }}">
+                                    <div class="form-group">
+                                        <label class="form-label"
+                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                        <input type="file" class="form-control {{ $field->field_class ?? '' }}"
                                             id="{{ $field->formField->field_name }}"
                                             name="{{ $field->formField->field_name }}"
                                             value="{{ old($field->formField->field_name) }}"

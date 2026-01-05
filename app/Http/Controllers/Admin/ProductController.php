@@ -9,6 +9,7 @@ use App\Models\Variant;
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+use App\Models\SubCategoryField;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -129,143 +130,98 @@ class ProductController extends Controller
 
     public function save(Request $request)
     {
-        // return $request->all();
-        // $validator = Validator::make($request->all(), [
-        //     'title' => 'required|string|max:255',
-        //     'main_category' => 'required|integer',
-        //     'category' => 'required|integer',
-        //     'subcategory' => 'required|integer',
-        //     'item_type' => 'required|integer',
-        //     'price' => 'nullable|numeric',
-        //     'color.*' => 'nullable|string',
-        //     'size.*' => 'nullable|string',
-        //     'quantity.*' => 'nullable|numeric|min:0',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return redirect()->back()->withErrors($validator)->withInput();
-        // }
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title'         => 'required|string|max:255',
             'main_category' => 'required|integer',
-            'category' => 'required|integer',
-            'subcategory' => 'required|integer',
-            'price' => 'nullable|numeric',
-            'color.*' => 'nullable|string',
-            'size.*' => 'nullable|string',
-            'quality.*' => 'nullable|string',
-            'resolution.*' => 'nullable|string',
-            'quantity.*' => 'nullable|numeric|min:0',
+            'category'      => 'required|integer',
+            'subcategory'   => 'required|integer',
+            'price'         => 'nullable|numeric',
+            'color.*'       => 'nullable|string',
+            'size.*'        => 'nullable|string',
+            'fabric.*'      => 'nullable|string',
+            'type.*'        => 'nullable|string',
         ]);
+
+        // ✅ Dynamic Variant Validation
         $validator->after(function ($validator) use ($request) {
-            $variantFields = SubCategory::find($request->subcategory)->form_fields ?? [];
+            $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
+                            ->where('sub_category_fields.subcategory_id', $request->subcategory)
+                            ->pluck('form_fields.field_name');
             $hasVariant = false;
 
-            foreach ($variantFields as $field) {
-                $values = $request->input($field, []);
-                foreach ($values as $val) {
-                    if (!is_null($val) && $val !== '') {
-                        $hasVariant = true;
-                        break 2; // exit both loops
+            foreach ($variantFields as $fieldName) {
+                if ($request->has($fieldName)) {
+                    $hasVariant = true;
+                    $values = array_filter((array) $request->input($fieldName));
+                    if (empty($values)) {
+                        $validator->errors()->add($fieldName, 'At least one value is required.');
                     }
                 }
             }
 
             if (!$hasVariant) {
-                // सभी dynamic fields के नीचे same message दिखेगा
-                foreach ($variantFields as $field) {
-                    $validator->errors()->add($field, 'This field is required.');
-                }
+                $validator->errors()->add('variant', 'At least one variant field is required.');
             }
         });
-        // $validator->after(function ($validator) use ($request) {
-        //     $variantFields = SubCategory::find($request->subcategory)->form_fields ?? [];
-        //     $hasVariant = false;
 
-        //     foreach ($variantFields as $field) {
-        //         $values = $request->input($field, []);
-        //         foreach ($values as $val) {
-        //             if (!is_null($val) && $val !== '') {
-        //                 $hasVariant = true;
-        //                 break 2; // exit both loops
-        //             }
-        //         }
-        //     }
-
-        //     if (!$hasVariant) {
-        //         $validator->errors()->add('variant', 'At least one variant field must be filled out.');
-        //     }
-        // });
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors()
+            ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Product saved successfully!']);
-        // if ($validator->fails()) {
-        //     return redirect()->back()->withErrors($validator)->withInput();
-        // }
-
+        // ✅ Product Save
         $product = new Product();
-        $product->pid               = generatePID();
-        $product->title             = $request->title;
-        $product->slug              = slug($request->title);
-        $product->sub_title         = $request->sub_title;
-        $product->main_category     = $request->main_category;
-        $product->category          = $request->category;
-        $product->subcategory       = $request->subcategory;
-        $product->price             = $request->price;
-        $product->base_price        = $request->base_price;
-        $product->description       = $request->description;
-        $product->highlights        = $request->highlights;
-        $product->specifications    = $request->specifications;
-        $product->is_featured       = $request->is_featured ? '1' : '0';
-        $product->is_trending       = $request->is_trending ? '1' : '0';
-        $product->status            = $request->status;
-        // if ($request->hasFile('image')) {
-        //     removeImage($product->image, 'uploads/products');
-        //     $image = $request->file('image');
-        //     $imageName = time() . '.' . $image->getClientOriginalExtension();
-        //     $image->move(public_path('uploads/products'), $imageName);
-        //     $product->image = $imageName;
-        // }
-        // $product->save();
+        $product->pid            = generatePID();
+        $product->title          = $request->title;
+        $product->slug           = slug($request->title);
+        $product->sub_title      = $request->sub_title;
+        $product->main_category  = $request->main_category;
+        $product->category       = $request->category;
+        $product->subcategory    = $request->subcategory;
+        $product->price          = $request->price;
+        $product->base_price     = $request->base_price;
+        $product->description    = $request->description;
+        $product->highlights     = $request->highlights;
+        $product->specifications = $request->specifications;
+        $product->is_featured    = $request->is_featured ? 1 : 0;
+        $product->is_trending    = $request->is_trending ? 1 : 0;
+        $product->status         = $request->status;
 
+        // ✅ Single Image
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/products'), $imageName);
+            $product->image = $imageName;
+        }
 
-        // if (!empty($request->color)) {
-        //     foreach ($request->color as $index => $color) {
-        //         $variant = new Variant();
-        //         $variant->product_id = $product->id;
-        //         $variant->color      = $color ?? null;
-        //         $variant->size       = $request->size[$index] ?? null;
-        //         $variant->quantity   = $request->quantity[$index] ?? 0;
-        //         $variant->status     = $request->status;
-        //         $imagePaths = [];
+        // ✅ Variant Data (JSON auto cast)
+        $variantIds = (array) $request->variant_id;
+        $variantData = [];
 
-        //         if ($request->hasFile("images.$index")) {
-        //             foreach ($request->file("images")[$index] as $image) {
-        //                 $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-        //                 $image->move(public_path('uploads/products'), $imageName);
-        //                 $imagePaths[] = $imageName;
-        //             }
-        //         }
-        //         $variant->images = $imagePaths ?? [];
-        //         $variant->save();
-        //     }
-        // }
+        $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
+            ->where('sub_category_fields.subcategory_id', $request->subcategory)
+            ->pluck('form_fields.field_name');
 
-        // if (!empty($request->stars)) {
-        //     $ratings = new Review();
-        //     $ratings->product_id    = $product->id;
-        //     $ratings->user_id       = Auth::user()->id;
-        //     $ratings->user_name     = Auth::user()->name;
-        //     $ratings->email         = Auth::user()->email;
-        //     $ratings->reviews       = $request->reviews;
-        //     $ratings->rating        = $request->stars;
-        //     $ratings->save();
-        // }
-        // Session::flash('success', 'Product saved successfully');
-        return redirect()->route('admin.products')->with('success', 'Product saved successfully');
+        foreach ($variantIds as $index => $variantId) {
+            foreach ($variantFields as $fieldName) {
+                if ($request->has($fieldName) && isset($request->$fieldName[$index])) {
+                    $variantData[$variantId][$fieldName] = $request->$fieldName[$index];
+                }
+            }
+        }
+
+        $product->variant_data = $variantData;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product saved successfully'
+        ]);
     }
+
     public function update(Request $request, $id)
     {
 
@@ -548,8 +504,9 @@ class ProductController extends Controller
         $html = '';
         $data['edit_data'] = Product::with('variants')->find($request->product_id);
         $data['subcategory'] = SubCategory::find($request->subcategory);
-        $data['fields'] = $data['subcategory']->form_fields ?? [];
-        if (!empty($data['fields'])) {
+        $data['form_fields'] = SubCategoryField::with('formField')->where('subcategory_id', $request->subcategory)->orderBy('order')->get();
+        // $data['fields'] = $data['subcategory']->form_fields ?? [];
+        if (!empty($data['form_fields'])) {
             $html = view('admin.products.form_fields', $data)->render();
         }
         return response()->json(['success' => true, 'html' => $html]);
