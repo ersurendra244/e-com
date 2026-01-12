@@ -196,7 +196,7 @@ class SubCategoryController extends Controller
         $data['subtitle'] = 'Subcategory';
         $data['subcategory'] = SubCategory::where('slug', $slug)->first();
         $data['form_fields'] = FormField::orderBy('order')->where('is_delete', '0')->get();
-        $data['selected'] = SubCategoryField::where('subcategory_id', $data['subcategory']->id)->get(['field_id', 'order', 'is_required', 'row_class', 'field_class'])->keyBy('field_id')->toArray();
+        $data['selected'] = SubCategoryField::where('subcategory_id', $data['subcategory']->id)->orderBy('order', 'asc')->get(['field_id', 'order', 'is_required', 'row_class', 'field_class'])->keyBy('field_id')->toArray();
         // return $data['selected'];
         return view('admin.sub_categories.form_fields', $data);
     }
@@ -207,28 +207,37 @@ class SubCategoryController extends Controller
         $subcategory_id = $request->input('subcategory_id');
         $selected_field_ids = array_keys($request->input('field_id', []));
 
-        // Delete unselected fields
         SubCategoryField::where('subcategory_id', $subcategory_id)
             ->whereNotIn('field_id', $selected_field_ids)
             ->delete();
 
-        // Save or update selected fields
         foreach ($selected_field_ids as $field_id) {
+            $is_required = $request->is_required[$field_id] ?? 0;
+            $row_class   = $request->row_class[$field_id] ?? '6';
+            $field_class = $request->field_class[$field_id] ?? '';
+            $order       = $request->order[$field_id] ?? null;
+
+            if ($order === '' || $order === 'null') {
+                $order = null;
+            }
+
             $data = [
                 'subcategory_id' => $subcategory_id,
                 'field_id'       => $field_id,
-                'is_required'    => $request->is_required[$field_id] ?? 0,
-                'row_class'      => $request->row_class[$field_id] ?? '6',
-                'field_class'    => $request->field_class[$field_id] ?? '',
-                'order'          => $request->order[$field_id] ?? 0,
+                'is_required'    => $is_required,
+                'row_class'      => $row_class,
+                'field_class'    => $field_class,
+                'order'          => $order,
             ];
 
             SubCategoryField::updateOrCreate(
-                ['subcategory_id' => $subcategory_id, 'field_id' => $field_id],
+                [
+                    'subcategory_id' => $subcategory_id,
+                    'field_id' => $field_id,
+                ],
                 $data
             );
         }
-
-        return redirect()->route('admin.subcategory.form_fields', $slug)->with('success', 'Subcategory updated successfully');
+        return redirect()->route('admin.subcategory.form_fields', $slug)->with('success', 'Subcategory fields updated successfully.');
     }
 }

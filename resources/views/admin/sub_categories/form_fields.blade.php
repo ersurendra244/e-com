@@ -20,7 +20,6 @@
                                     <table id="data_table" class="table table-bordered w-100">
                                         <thead>
                                             <tr>
-                                                <th style="width: 10px">#</th>
                                                 <th>Fields</th>
                                                 <th>Type</th>
                                                 <th>Options</th>
@@ -33,14 +32,14 @@
                                         <tbody>
                                             @foreach ($form_fields as $key => $value)
                                                 <tr>
-                                                    <td>{{ $key + 1 }}</td>
                                                     <td>
                                                         <div class="form-check">
                                                             <label class="form-check-label">
                                                                 <input type="checkbox" class="form-check-input"
-                                                                    name="field_id[{{ $value->id }}]" value="{{ $value->id }}"
+                                                                    name="field_id[{{ $value->id }}]"
+                                                                    value="{{ $value->id }}"
                                                                     {{ array_key_exists($value->id, $selected) ? 'checked' : '' }}>
-                                                                    {{ ucfirst($value->field_label) }}
+                                                                {{ ucfirst($value->field_label) }}
                                                                 <i class="input-helper"></i>
                                                             </label>
                                                         </div>
@@ -81,11 +80,11 @@
                                                                 {{ ($selected[$value->id]['is_required'] ?? 0) == 1 ? 'selected' : '' }}>
                                                                 Yes</option>
                                                         </select>
-                                                        {{-- {{ $value->is_required == 1 ? 'Yes' : 'No' }}</td> --}}
+                                                    </td>
                                                     <td style="width: 5%">
                                                         <input type="number" class="form-control p-2" id="order"
                                                             name="order[{{ $value->id }}]"
-                                                            value="{{ $selected[$value->id]['order'] ?? 0 }}">
+                                                            value="{{ $selected[$value->id]['order'] ?? '' }}">
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -108,8 +107,31 @@
 
 @push('child_scripts')
     <script>
+        $.fn.dataTable.ext.order['dom-text-numeric'] = function(settings, col) {
+            return this.api().column(col, {
+                order: 'index'
+            }).nodes().map(function(td, i) {
+                let val = $('input', td).val();
+                if (val === '' || val === null || val === undefined) {
+                    return Number.POSITIVE_INFINITY;
+                }
+                return parseFloat(val);
+            });
+        };
+
         $(document).ready(function() {
-            $('#data_table').DataTable();
+            $('#data_table').DataTable({
+                "ordering": true,
+                "lengthMenu": [25, 50, 100],
+                "pageLength": 25,
+                "columnDefs": [{
+                    "targets": 6,
+                    "orderDataType": "dom-text-numeric"
+                }],
+                "order": [
+                    [6, 'asc']
+                ]
+            });
         });
     </script>
 @endpush

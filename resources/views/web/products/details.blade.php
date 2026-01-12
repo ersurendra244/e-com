@@ -384,25 +384,7 @@
     </script>
 
 
-    <script>
-        // $(document).ready(function () {
-        //     $(".color-option").change(function () {
-        //         var selectedVariantIndex = $(this).val();
-        //         var images = @json($productData->variants->map->images);
-        //         $("#variant_id").val($productData->variants->map->id[selectedVariantIndex]);
-        //         var carouselInner = $("#carousel-images");
-        //         carouselInner.empty();
 
-        //         images[selectedVariantIndex].forEach((image, index) => {
-        //             carouselInner.append(`
-    //                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
-    //                     <img class="w-100 h-100" src="{{ asset('uploads/products/') }}/` + image + `" alt="Image">
-    //                 </div>
-    //             `);
-        //         });
-        //     });
-        // });
-    </script>
 
     <script>
         const variants = @json($productData->variants);

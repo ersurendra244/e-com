@@ -61,8 +61,7 @@
                                     <th style="width: 10px">#</th>
                                     <th>Image</th>
                                     <th>Products</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
+                                    <th>Categories</th>
                                     <th>Status</th>
                                     <th>Collections</th>
                                     <th>Action</th>
@@ -109,9 +108,6 @@
                     },
                     {
                         "data": "category"
-                    },
-                    {
-                        "data": "price"
                     },
                     {
                         "data": "status"

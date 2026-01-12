@@ -64,41 +64,41 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="main_category">Main Category</label>
-                                    <select onchange="getCategories(this);" name="main_category" class="form-control"
-                                        id="main_category">
+                                    <label class="form-label" for="main_cat_id">Main Category</label>
+                                    <select onchange="getCategories(this);" name="main_cat_id" class="form-control"
+                                        id="main_cat_id">
                                         <option value="">--select--</option>
                                         @foreach ($categories as $key => $main_category)
-                                            <option {{ $edit_data->main_category == $main_category->id ? 'selected' : '' }}
+                                            <option {{ $edit_data->main_cat_id == $main_category->id ? 'selected' : '' }}
                                                 value="{{ $main_category->id }}">{{ $main_category->name }}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('main_category'))
-                                        <span class="text-danger">{{ $errors->first('main_category') }}</span>
+                                    @if ($errors->has('main_cat_id'))
+                                        <span class="text-danger">{{ $errors->first('main_cat_id') }}</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="category">Category</label>
-                                    <select onchange="getSubCategories(this);" name="category" class="form-control"
-                                        id="category">
+                                    <label class="form-label" for="cat_id">Category</label>
+                                    <select onchange="getSubCategories(this);" name="cat_id" class="form-control"
+                                        id="cat_id">
                                         <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('category'))
-                                        <span class="text-danger">{{ $errors->first('category') }}</span>
+                                    @if ($errors->has('cat_id'))
+                                        <span class="text-danger">{{ $errors->first('cat_id') }}</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="subcategory">Sub Category</label>
-                                    <select onchange="getFormFields(this);" name="subcategory" class="form-control"
-                                        id="subcategory">
+                                    <label class="form-label" for="sub_cat_id">Sub Category</label>
+                                    <select onchange="getFormFields(this);" name="sub_cat_id" class="form-control"
+                                        id="sub_cat_id">
                                         <option value="">--select--</option>
                                     </select>
-                                    @if ($errors->has('subcategory'))
-                                        <span class="text-danger">{{ $errors->first('subcategory') }}</span>
+                                    @if ($errors->has('sub_cat_id'))
+                                        <span class="text-danger">{{ $errors->first('sub_cat_id') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -245,36 +245,20 @@
     </script>
     <script>
         function removeImage(element) {
+            if (!confirm('Are you sure you want to delete this image?')) return;
             const wrapper = element.closest('.image-wrapper');
             const imagePath = wrapper.getAttribute('data-path');
-            var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]').val();
-            if (!confirm('Are you sure you want to delete this image?')) return;
-
-            // Remove from UI
-            wrapper.remove();
-
-            // Call backend to delete from server and DB
-            if (imagePath) {
-                $.ajax({
-                    url: "{{ route('admin.product.variants_image_delete') }}", // Define this route
-                    type: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        image: imagePath,
-                        variant_id: variant_id // or variant_id if needed
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            console.log('Image deleted');
-                        } else {
-                            alert('Failed to delete image.');
-                        }
-                    },
-                    error: function() {
-                        alert('Server error while deleting image.');
-                    }
-                });
+            const variantGroup = element.closest('.variant-group');
+            const variantIdInput = variantGroup.querySelector('input[name="variant_id[]"]');
+            if (imagePath && variantIdInput) {
+                const variantId = variantIdInput.value;
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `remove_images[${variantId}][]`;
+                input.value = imagePath;
+                variantGroup.appendChild(input);
             }
+            wrapper.remove();
         }
     </script>
     <script>
@@ -305,115 +289,60 @@
                 const $lastVariant = $('.variant-group').last();
                 const $newVariant = $lastVariant.clone();
 
-                // Get new index based on how many groups exist
-                const newIndex = $('.variant-group').length;
+                const newIndex = $('.variant-group').length + 1;
 
-                // Update name and id attributes
-                $newVariant.find('input, select').each(function() {
-                    const nameAttr = $(this).attr('name');
-                    const idAttr = $(this).attr('id');
+                $newVariant.find('input, select, textarea').each(function() {
+                    const $input = $(this);
+                    const nameAttr = $input.attr('name');
+                    const idAttr = $input.attr('id');
 
-                    if (nameAttr) {
-                        const updatedName = nameAttr.replace(/\[\d+\]/, `[${newIndex}]`);
-                        $(this).attr('name', updatedName);
-                    }
+                    if (nameAttr) $input.attr('name', nameAttr.replace(/\[\d+\]/, `[${newIndex}]`));
+                    if (idAttr) $input.attr('id', idAttr.replace(/_\d+$/, `_${newIndex}`));
 
-                    if (idAttr) {
-                        const updatedId = idAttr.replace(/_\d+$/, `_${newIndex}`);
-                        $(this).attr('id', updatedId);
-                    }
-
-                    if ($(this).is('input[type="number"]') || $(this).is('select')) {
-                        $(this).val('');
-                    }
-
-                    if ($(this).hasClass('image-input')) {
-                        $(this).val('');
-                    }
+                    if ($input.is(':checkbox, :radio')) $input.prop('checked', false);
+                    else $input.val('');
                 });
 
-                // Clear image previews
                 $newVariant.find('.preview-container').empty();
-                $newVariant.find('input[name^="variant_id"]').val('');
-                // Append and toggle buttons
+                $newVariant.find('input[name^="variant_id"]').val(newIndex);
                 $('#variant-wrapper').append($newVariant);
-                updateColorOptions();
                 toggleButtons();
             });
 
-            // Remove variant logic
             $(document).on('click', '.remove-variant', function() {
+                if (!confirm('Are you sure you want to delete this variant?')) return;
+                const $group = $(this).closest('.variant-group');
                 if ($('.variant-group').length > 1) {
-                    var variant_id = $(this).closest('.variant-group').find('input[name^="variant_id"]')
-                        .val();
-
-                    // Call backend to delete from server and DB
-                    if (variant_id) {
-                        if (!confirm('Are you sure you want to delete this variant?')) return;
-                        $.ajax({
-                            url: "{{ route('admin.product.variants_delete') }}", // Define this route
-                            type: 'POST',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                variant_id: variant_id
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    console.log('Variant deleted');
-                                } else {
-                                    alert('Failed to delete variant.');
-                                }
-                            },
-                            error: function() {
-                                alert('Server error while deleting variant.');
-                            }
-                        });
-                    }
-                    $(this).closest('.variant-group').remove();
-                    updateColorOptions();
+                    $group.remove();
                     toggleButtons();
                 } else {
-                    alert("At least one variant is required.");
+                    alert('At least one variant is required.');
                 }
             });
 
-            // Color dropdown onchange
-            $(document).on('change', '.color-select', function() {
-                updateColorOptions();
-            });
         });
 
-        function updateColorOptions() {
-            const selectedColors = [];
-
-            $('.color-select').each(function() {
-                const val = $(this).val();
-                if (val) selectedColors.push(val);
-            });
-
-            $('.color-select').each(function() {
-                const currentVal = $(this).val();
-                let optionsHtml = '<option value="">Select color</option>';
-
-                $.each(allColors, function(key, label) {
-                    if (!selectedColors.includes(key) || currentVal === key) {
-                        optionsHtml +=
-                            `<option value="${key}" ${currentVal === key ? 'selected' : ''}>${label}</option>`;
-                    }
-                });
-
-                $(this).html(optionsHtml);
-            });
-        }
-
         function toggleButtons() {
-            const variants = $('.variant-group');
-            variants.each(function(index) {
-                const isLast = index === variants.length - 1;
-                $(this).find('.remove-variant').toggle(variants.length > 1);
-                $(this).find('.add-variant').toggle(isLast);
+            const $variants = $('.variant-group');
+            $variants.each(function(index) {
+                const isLast = index == $variants.length - 1;
+                const $remove = $(this).find('.remove-variant');
+                const $add = $(this).find('.add-variant');
+                $remove.toggle($variants.length > 1);
+                $add.toggle(isLast);
             });
         }
+
+        // function toggleButtons() {
+        //     const variants = $('.variant-group');
+        //     alert(variants.length);
+        //     variants.each(function(index) {
+        //         const isLast = index === variants.length - 1;
+        //         alert(isLast);
+        //         $(this).find('.remove-variant').toggle(variants.length > 1);
+        //         $(this).find('.add-variant').toggle(isLast);
+        //     });
+        // }
     </script>
     <script>
         $(document).ready(function() {
@@ -433,25 +362,24 @@
         });
     </script>
     <script>
-
         function getCategories(selector) {
-            var main_category = $(selector).val();
+            var main_cat_id = $(selector).val();
 
-            $('#category').html('<option value="">--select--</option>');
+            $('#cat_id').html('<option value="">--select--</option>');
             $('#form-fields-container').html('');
 
-            if (main_category) {
+            if (main_cat_id) {
                 $.ajax({
                     url: "{{ route('admin.product.get_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        main_category: main_category,
+                        main_cat_id: main_cat_id,
                         product_id: "{{ $edit_data->id }}"
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#category').html(response.html);
+                            $('#cat_id').html(response.html);
                         }
                     }
                 });
@@ -459,23 +387,23 @@
         }
 
         function getSubCategories(selector) {
-            var category = $(selector).val();
+            var cat_id = $(selector).val();
 
-            $('#subcategory').html('<option value="">--select--</option>');
+            $('#sub_cat_id').html('<option value="">--select--</option>');
             $('#form-fields-container').html('');
 
-            if (category) {
+            if (cat_id) {
                 $.ajax({
                     url: "{{ route('admin.product.get_sub_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        category: category,
+                        cat_id: cat_id,
                         product_id: "{{ $edit_data->id }}"
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#subcategory').html(response.html);
+                            $('#sub_cat_id').html(response.html);
                         }
                     }
                 });
@@ -483,9 +411,8 @@
         }
 
         function getFormFields(selector) {
-            var category = $("#category").val();
-            var subcategory = $(selector).val();
-            if (!subcategory) {
+            var sub_cat_id = $(selector).val();
+            if (!sub_cat_id) {
                 $('#form-fields-container').html('');
                 return;
             }
@@ -496,8 +423,7 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                     product_id: "{{ $edit_data->id }}",
-                    category: category,
-                    subcategory: subcategory
+                    sub_cat_id: sub_cat_id
                 },
                 success: function(response) {
                     if (response.success) {
@@ -522,11 +448,11 @@
         }
 
         $(document).ready(function() {
-            getCategories('#main_category');
+            getCategories('#main_cat_id');
             setTimeout(function() {
-                getSubCategories('#category');
+                getSubCategories('#cat_id');
                 setTimeout(function() {
-                    getFormFields('#subcategory')
+                    getFormFields('#sub_cat_id')
                 }, 1000);
             }, 1000);
         });

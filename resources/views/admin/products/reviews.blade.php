@@ -13,7 +13,7 @@
         }
 
         .fa-star.gold {
-            color: gold;
+            color: #f5a623;
         }
     </style>
     <div class="card">
@@ -61,7 +61,7 @@
                     "type": "POST",
                     "data": function(d) {
                         d._token = "{{ csrf_token() }}";
-                        d.pid = '{{ $pid }}';
+                        d.product_id = '{{ $product_id }}';
                     }
                 },
                 "columns": [{

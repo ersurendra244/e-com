@@ -56,9 +56,9 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="main_category">Main Category</label>
-                                    <select onchange="getCategories(this);" name="main_category" class="form-control"
-                                        id="main_category">
+                                    <label class="form-label" for="main_cat_id">Main Category</label>
+                                    <select onchange="getCategories(this);" name="main_cat_id" class="form-control"
+                                        id="main_cat_id">
                                         <option value="">--select--</option>
                                         @foreach ($categories as $key => $main_category)
                                             <option value="{{ $main_category->id }}">{{ $main_category->name }}</option>
@@ -68,18 +68,18 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="category">Category</label>
-                                    <select onchange="getSubCategories(this);" name="category" class="form-control"
-                                        id="category">
+                                    <label class="form-label" for="cat_id">Category</label>
+                                    <select onchange="getSubCategories(this);" name="cat_id" class="form-control"
+                                        id="cat_id">
                                         <option value="">--select--</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-label" for="subcategory">Sub Category</label>
-                                    <select onchange="getFormFields(this);" name="subcategory" class="form-control"
-                                        id="subcategory">
+                                    <label class="form-label" for="sub_cat_id">Sub Category</label>
+                                    <select onchange="getFormFields(this);" name="sub_cat_id" class="form-control"
+                                        id="sub_cat_id">
                                         <option value="">--select--</option>
                                     </select>
                                 </div>
@@ -360,22 +360,22 @@
     </script>
     <script>
         function getCategories(selector) {
-            var main_category = $(selector).val();
+            var main_cat_id = $(selector).val();
 
-            $('#category').html('<option value="">--select--</option>');
+            $('#cat_id').html('<option value="">--select--</option>');
             $('#form-fields-container').html('');
 
-            if (main_category) {
+            if (main_cat_id) {
                 $.ajax({
                     url: "{{ route('admin.product.get_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        main_category: main_category
+                        main_cat_id: main_cat_id
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#category').html(response.html);
+                            $('#cat_id').html(response.html);
                         }
                     }
                 });
@@ -383,22 +383,22 @@
         }
 
         function getSubCategories(selector) {
-            var category = $(selector).val();
+            var cat_id = $(selector).val();
 
-            $('#subcategory').html('<option value="">--select--</option>');
+            $('#sub_cat_id').html('<option value="">--select--</option>');
             $('#form-fields-container').html('');
 
-            if (category) {
+            if (cat_id) {
                 $.ajax({
                     url: "{{ route('admin.product.get_sub_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
-                        category: category
+                        cat_id: cat_id
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#subcategory').html(response.html);
+                            $('#sub_cat_id').html(response.html);
                         }
                     }
                 });
@@ -406,9 +406,9 @@
         }
 
         function getFormFields(selector) {
-            var category = $("#category").val();
-            var subcategory = $(selector).val();
-            if (!subcategory) {
+            var cat_id = $("#cat_id").val();
+            var sub_cat_id = $(selector).val();
+            if (!sub_cat_id) {
                 $('#form-fields-container').html('');
                 return;
             }
@@ -418,8 +418,8 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    category: category,
-                    subcategory: subcategory
+                    cat_id: cat_id,
+                    sub_cat_id: sub_cat_id
                 },
                 success: function(response) {
                     if (response.success) {
@@ -444,11 +444,11 @@
         }
 
         $(document).ready(function() {
-            getCategories('#main_category');
+            getCategories('#main_cat_id');
             setTimeout(function() {
-                getSubCategories('#category');
+                getSubCategories('#cat_id');
                 setTimeout(function() {
-                    getFormFields('#subcategory')
+                    getFormFields('#sub_cat_id')
                 }, 1000);
             }, 1000);
         });

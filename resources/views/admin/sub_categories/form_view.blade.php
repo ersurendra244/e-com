@@ -85,8 +85,7 @@
                                             if (!is_array($options)) {
                                                 $options = preg_split("/\r\n|\n|\r/", $field->formField->field_options);
                                             }
-                                            $option_class =
-                                                $field->row_class < 5 ? '6' : ($field->row_class > 9 ? '3' : '4');
+                                            $option_class = $field->row_class < 5 ? '4' : ($field->row_class > 9 ? '3' : '4');
                                         @endphp
                                         @foreach ($options as $index => $option)
                                             @php $option_id = strtolower(str_replace(' ', '_', $option)); @endphp

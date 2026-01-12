@@ -12,26 +12,27 @@ class Product extends Model
 
     protected $guarded = [];
     protected $casts = [
-        'variant_data' => 'array'
+        'variant_data' => 'array',
+        'variant_images' => 'array'
     ];
-
-    public function variants()
-    {
-        return $this->hasMany(Variant::class, 'product_id');
-    }
 
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'product_id');
+        return $this->hasMany(Review::class, 'id');
+    }
+
+    public function mainCategory()
+    {
+        return $this->belongsTo(Category::class, 'main_cat_id');
     }
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category');
+        return $this->belongsTo(Category::class, 'cat_id');
     }
 
     public function subcategory()
     {
-        return $this->belongsTo(SubCategory::class, 'subcategory');
+        return $this->belongsTo(SubCategory::class, 'sub_cat_id');
     }
 }

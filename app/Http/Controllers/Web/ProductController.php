@@ -30,7 +30,7 @@ class ProductController extends Controller
 
     public function list(Request $request)
     {
-        $query = Product::with('variants')->withAvg('reviews', 'rating')->where('category', $request->category);
+        $query = Product::withAvg('reviews', 'rating')->where('category', $request->category);
 
         // Variant filtering
         $query->whereHas('variants', function ($variantQuery) use ($request) {
@@ -135,9 +135,9 @@ class ProductController extends Controller
     public function details(Request $request, $id)
     {
         $data['title'] = 'Shop';
-        $data['productData'] = Product::with('variants')->withAvg('reviews', 'rating')->find($id);
-        $data['relatedProducts'] = Product::with('variants')->withAvg('reviews', 'rating')->where('category', $data['productData']->category)->where('id', '!=', $id)->latest()->limit(8)->get();
-        // return $data['productData'];
+        $data['productData'] = Product::withAvg('reviews', 'rating')->find($id);
+        $data['relatedProducts'] = Product::withAvg('reviews', 'rating')->where('cat_id', $data['productData']->cat_id)->where('id', '!=', $id)->latest()->limit(8)->get();
+        return $data['productData']->variant_data ?? [];
         return view('web.products.details', $data);
     }
 
@@ -192,7 +192,7 @@ class ProductController extends Controller
         ]);
 
         $quantity = $request->input('quantity', 1);
-        $product = Product::with('variants')->find($request->product_id);
+        $product = Product::find($request->product_id);
 
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Product not found']);

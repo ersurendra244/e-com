@@ -20,7 +20,7 @@ class CreateSubCategoryFieldsTable extends Migration
             $table->string('row_class', 191)->default('6');
             $table->string('field_class', 191)->nullable();
             $table->boolean('is_required')->default(false);
-            $table->integer('order')->default(0);
+            $table->integer('order')->default(null);
             $table->enum('is_delete', ['0', '1'])->default('0')->comment('1=Delete, 0=Not Delete');
             $table->enum('status', ['0', '1'])->default('1')->comment('1=Active, 0=Inactive');
             $table->timestamps();

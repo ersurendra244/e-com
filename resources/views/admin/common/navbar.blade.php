@@ -11,7 +11,7 @@
         </button>
         <ul class="navbar-nav">
             <li class="nav-item nav-search d-none d-md-flex">
-                <div class="nav-link">
+                {{-- <div class="nav-link">
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
@@ -20,7 +20,7 @@
                         </div>
                         <input type="text" class="form-control" placeholder="Search" aria-label="Search">
                     </div>
-                </div>
+                </div> --}}
             </li>
         </ul>
         <ul class="navbar-nav navbar-nav-right">
