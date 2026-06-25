@@ -18,7 +18,7 @@
     </style>
     <div class="card">
         <div class="card-body">
-            <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+            <a href="{{ roleRoute('products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
                 <div class="col-12">
@@ -56,7 +56,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.products.reviews_list') }}",
+                    "url": "{{ roleRoute('products.reviews_list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": function(d) {

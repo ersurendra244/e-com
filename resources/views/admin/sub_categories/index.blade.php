@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('subcategory create')
-                <a href="{{ route('admin.subcategory.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ roleRoute('subcategory.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -49,7 +49,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.subcategory.list') }}",
+                    "url": "{{ roleRoute('subcategory.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {

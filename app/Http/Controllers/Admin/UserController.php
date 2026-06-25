@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Mail\WelcomeUserMail;
+use App\Models\Address;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Address;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -19,6 +22,7 @@ class UserController extends Controller
     public function index()
     {
         $data['title'] = 'Users';
+        $data['subtitle'] = '';
         return view('admin.users.index', $data);
     }
 
@@ -26,7 +30,7 @@ class UserController extends Controller
     {
         $columns = ['id', 'image', 'name', 'email', 'phone', 'address'];
 
-        $query = User::where('is_delete', '0');
+        $query = User::query()->with('roles')->where('id', '!=', Auth::user()->id)->where('id', '!=', '1');
 
         $totalData = $query->count();
 
@@ -56,7 +60,7 @@ class UserController extends Controller
         $data = [];
         foreach ($results as $user) {
             $nestedData['id'] = $user->id;
-            $nestedData['image'] = '<img class="img-sm rounded" src="' . is_image('uploads/profile/' , $user->image) . '" alt=""/>';
+            $nestedData['image'] = '<img class="img-sm rounded" src="' . is_image('uploads/profile/', $user->image) . '" alt=""/>';
             $nestedData['name'] = $user->name;
             $nestedData['email'] = $user->email;
             $nestedData['phone'] = $user->phone;
@@ -67,11 +71,11 @@ class UserController extends Controller
             // Initialize the action buttons
             $actions = "";
             if (Gate::allows('user edit')) {
-                $actions .= '<a href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('users.edit', ['id' => $user->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
 
             if (Gate::allows('user delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.users.delete', $user->id) . '`)" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . roleRoute('users.delete', ['id' => $user->id]) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
 
             $nestedData['action'] = $actions;
@@ -97,14 +101,16 @@ class UserController extends Controller
         $data['roles'] = Role::all();
         return view('admin.users.create', $data);
     }
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'Edit User';
         $data['subtitle'] = 'Users';
         $data['user'] = User::find($id);
         $data['roles'] = Role::all();
         return view('admin.users.edit', $data);
     }
+
 
     public function save(Request $request)
     {
@@ -138,15 +144,27 @@ class UserController extends Controller
         $user->state = $request->state;
         $user->city = $request->city;
         $user->pin_code = $request->pin_code;
-        $user->password = Hash::make('password');
+        $user->role_id = $request->role;
+        $user->password = Hash::make('Test@123');
         $user->save();
         // Assign Role to User
         $user->roles()->sync([$request->role]);
-        return redirect()->route('admin.users')->with('success', 'User saved successfully');
+        $verificationUrl = URL::temporarySignedRoute('verifyEmail', now()->addHours(24), ['id' => $user->id]);
+        Mail::to($user->email)->send(
+            new WelcomeUserMail([
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'email'    => $user->email,
+                'role_id'  => $user->role_id,
+                'password' => 'Test@123',
+                'verificationUrl' => $verificationUrl,
+            ])
+        );
+        return redirect(roleRoute('users'))->with('success', 'User saved successfully');
     }
-
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->route('id');
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|unique:users,email,' . $id,
@@ -177,20 +195,20 @@ class UserController extends Controller
         $user->state = $request->state;
         $user->city = $request->city;
         $user->pin_code = $request->pin_code;
+        $user->role_id = $request->role;
         // $user->password = Hash::make('password');
         $user->save();
         // Assign Role to User
         $user->roles()->sync([$request->role]);
-        return redirect()->route('admin.users')->with('success', 'User updated successfully');
+        return redirect(roleRoute('users'))->with('success', 'User updated successfully');
     }
 
-    public function delete($id)
+    public function delete(Request $request)
     {
+        $id = $request->route('id');
         $modal = User::find($id);
         if ($modal) {
-            $modal->status = '0';
-            $modal->is_delete = '1';
-            $modal->save();
+            $modal->delete();
             Session::flash('success', 'User deleted successfully');
             return response()->json(['success' => true]);
         }
@@ -286,7 +304,7 @@ class UserController extends Controller
 
     public function edit_address(Request $request)
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $data = Address::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }

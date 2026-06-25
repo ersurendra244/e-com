@@ -73,7 +73,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="addressForm" action="{{ route('admin.masters.brand_save') }}" method="post"
+                    <form id="addressForm" action="{{ roleRoute('masters.brand_save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -162,7 +162,7 @@
             $('#addressForm')[0].reset();
             if (id) {
                 $.ajax({
-                    url: "{{ route('admin.masters.brand_edit') }}",
+                    url: "{{ roleRoute('masters.brand_edit') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",

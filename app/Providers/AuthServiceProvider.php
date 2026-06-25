@@ -25,9 +25,8 @@ class AuthServiceProvider extends ServiceProvider
             });
         }
 
-        // Ensure Admin has all permissions
-        // Gate::before(function (User $user, $ability) {
-        //     return $user->hasRole('Admin') ? true : null;
-        // });
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('admin') ? true : null;
+        });
     }
 }

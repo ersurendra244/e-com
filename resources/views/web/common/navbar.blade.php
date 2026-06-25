@@ -108,7 +108,7 @@
                             @endphp
                             @foreach ($categories as $key => $value)
                             <li class="nav-item dropdown mega-dropdown position-static">
-                                <a class="nav-link text-white" href="{{ route('web.products.shop', $value->slug) }}">{{ $value->name }}
+                                <a class="nav-link text-white" href="{{ route('web.products.shop', $value->id) }}">{{ $value->name }}
                                 </a>
 
                                 <div class="dropdown-menu w-100 border-0 p-3"

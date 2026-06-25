@@ -86,13 +86,13 @@ class ProductController extends Controller
                         <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
                         <div class="dropdown-content">';
             if (Gate::allows('product edit')) {
-                $actions .= '<a href="' . route('admin.products.edit', $value->id) . '" class="text-primary">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('products.edit', ['id' => $value->id]) . '" class="text-primary">Edit</a> ';
             }
             if (Gate::allows('product review')) {
-                $actions .= '<a href="' . route('admin.products.reviews', $value->id) . '" class="text-warning">Reviews</a> ';
+                $actions .= '<a href="' . roleRoute('products.reviews', ['id' => $value->id]) . '" class="text-warning">Reviews</a> ';
             }
             if (Gate::allows('product delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.products.delete', $value->id) . '`)" class="text-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . roleRoute('products.delete', ['id' => $value->id]) . '`)" class="text-danger">Delete</a>';
             }
             $actions .= '</div></div>';
             $nestedData['action'] = $actions;
@@ -117,7 +117,7 @@ class ProductController extends Controller
         return view('admin.products.create', $data);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
         $data['title'] = 'Edit Product';
         $data['subtitle'] = 'Products';
@@ -264,9 +264,9 @@ class ProductController extends Controller
         //     $ratings->save();
         // }
         // Session::flash('success', 'Product saved successfully');
-        return redirect()->route('admin.products')->with('success', 'Product saved successfully');
+        return redirect(roleRoute('products'))->with('success', 'Product saved successfully');
     }
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -356,9 +356,9 @@ class ProductController extends Controller
             $ratings->save();
             // return $ratings;
         }
-        return redirect()->route('admin.products')->with('success', 'Product updated successfully');
+        return redirect(roleRoute('products'))->with('success', 'Product updated successfully');
     }
-    public function delete($id)
+    public function delete(Request $request)
     {
         $modal = Product::find($id);
         if ($modal) {

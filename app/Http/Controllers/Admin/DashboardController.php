@@ -2,39 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
-use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // if (!Auth::user()->hasRole('admin')) {
-        //     return abort(403, 'Unauthorized action.');
-        // }
         $data['title'] = 'Dashboard';
         $data['toatlUsers'] = User::count();
         $data['totalProducts'] = Product::count();
         return view('admin.dashboard', $data);
     }
 
-    public function author_dashboard()
+    public function getUser(Request $request)
     {
-        return view('admin.author_dashboard');
-    }
-
-    public function user_dashboard()
-    {
-        $data['title'] = 'Dashboard';
-        $data['toatlUsers'] = User::count();
-        $data['totalProducts'] = Product::count();
-        return view('user.dashboard', $data);
-    }
-
-    public function getUser(Request $request) {
         $role_id = $request->role_id;
         $users = User::whereHas('roles', function ($query) use ($role_id) {
             $query->where('role_id', $role_id);
@@ -46,5 +31,4 @@ class DashboardController extends Controller
         }
         return response()->json($html);
     }
-
 }

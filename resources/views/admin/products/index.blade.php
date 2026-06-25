@@ -4,7 +4,7 @@
     <style>
         tbody td {
             /* padding: 5px 5px 5px 5px !important;
-            margin: 0px 0px 0px 0px !important; */
+                    margin: 0px 0px 0px 0px !important; */
             line-height: 1.5 !important;
         }
 
@@ -23,10 +23,11 @@
         .dropdown-content {
             display: none;
             position: absolute;
-            right: 0;
+            right: 20px;
+            top: -1px;
             background-color: #ffffff;
             min-width: 120px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2);
             z-index: 1;
         }
 
@@ -35,10 +36,12 @@
             padding: 8px 12px;
             text-decoration: none;
             display: block;
+            background: #edf2fa;
+            margin: 1px;
         }
 
         .dropdown-content a:hover {
-            background-color: #f1f1f1;
+            background-color: #bfc0c1;
         }
 
         .dropdown.show .dropdown-content {
@@ -49,7 +52,7 @@
     <div class="card">
         <div class="card-body">
             @can('product create')
-                <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ roleRoute('products.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -90,7 +93,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.products.list') }}",
+                    "url": "{{ roleRoute('products.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {

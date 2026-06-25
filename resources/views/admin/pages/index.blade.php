@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('page create')
-                <a href="{{ route('admin.pages.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ roleRoute('pages.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -45,7 +45,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.pages.list') }}",
+                    "url": "{{ roleRoute('pages.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {

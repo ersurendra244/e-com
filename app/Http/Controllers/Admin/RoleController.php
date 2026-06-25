@@ -32,7 +32,6 @@ class RoleController extends Controller
     public function list(Request $request)
     {
         $columns = ['id', 'name', 'created_at', 'id'];
-
         $totalData = Role::count();
         $totalFiltered = $totalData;
         $limit = $request->input('length', 10);
@@ -68,7 +67,7 @@ class RoleController extends Controller
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
             $actions = "";
             if (Gate::allows('role edit')) {
-                $actions .= '<a href="' . route('admin.roles.edit', $value->id) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('roles.edit', ['id' => $value->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
 
             if (Gate::allows('role delete')) {
@@ -89,16 +88,17 @@ class RoleController extends Controller
         return response()->json($json_data);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'Edit Role';
         $data['subtitle'] = 'Roles';
-        $data['data'] = Role::find($id);
         $data['data'] = Role::with('permissions')->findOrFail($id);
         $data['permissions'] = Permission::orderBy('name', 'asc')->get()->groupBy(function ($permission) {
             return explode(' ', $permission->name)[0];
-        });
-        $data['menus'] = Master::where('type', 'menu')->get();
+            });
+            $data['menus'] = Master::where('type', 'menu')->get();
+            // return $data['menus'];
         return view('admin.roles.edit', $data);
     }
 
@@ -119,11 +119,12 @@ class RoleController extends Controller
             $role->givePermissionTo($request->permissions);
         }
 
-        return redirect()->route('admin.roles')->with('success', 'Role saved successfully.');
+        return redirect(roleRoute('roles'))->with('success', 'Role saved successfully.');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->id;
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:roles,name,' . $id,
             'permissions' => 'array',
@@ -141,11 +142,12 @@ class RoleController extends Controller
         } else {
             $role->permissions()->detach();
         }
-        return redirect()->route('admin.roles')->with('success', 'Role updated successfully.');
+        return redirect(roleRoute('roles'))->with('success', 'Role updated successfully.');
     }
 
-    public function delete($id)
+    public function delete(Request $request)
     {
+        $id = $request->route('id');
         $modal = Role::find($id);
         if ($modal) {
             $modal->status = '0';
@@ -159,7 +161,8 @@ class RoleController extends Controller
     }
     public function permissions_update(Request $request)
     {
-        $role = Role::findOrFail($request->id);
+        $id = $request->id;
+        $role = Role::findOrFail($id);
         $permission = Permission::where('name', $request->permission)->first();
 
         if (!$permission) {
@@ -177,7 +180,8 @@ class RoleController extends Controller
 
     public function permissions_bulk_update(Request $request)
     {
-        $role = Role::findOrFail($request->id);
+        $id = $request->id;
+        $role = Role::findOrFail($id);
         $permissionNames = $request->permissions ?? [];
 
         $permissionIds = Permission::whereIn('name', $permissionNames)->pluck('id')->toArray();

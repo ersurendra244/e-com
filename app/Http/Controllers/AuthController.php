@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -20,7 +21,7 @@ class AuthController extends Controller
     public function loginCheck(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
@@ -30,17 +31,52 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if ($user->hasRole('Admin')) {
-            return redirect()->route('admin.dashboard')->with('success', 'Logged in as Admin.');
-        } elseif ($user->hasRole('Author')) {
-            return redirect()->route('author.dashboard')->with('success', 'Logged in as Author.');
-        } elseif ($user->hasRole('User')) {
-            return redirect()->route('user.dashboard')->with('success', 'Logged in as User.');
+        if ($user && !$user->hasVerifiedEmail()) {
+            Auth::logout();
+            return redirect()->route('login')
+                ->with('error', 'Please verify your email address before logging in. Check your email for the verification link.');
         }
 
-        Auth::logout();
-        return abort(403, 'Unauthorized action.');
+        // Dynamic redirect — koi bhi role ho, ek hi code kaam karega
+        $role = slug(auth()->user()->roles()->first()->name);
+
+        if (!$role) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'No role assigned. Contact admin.');
+        }
+
+        return redirect("/{$role}/dashboard")->with('success', 'Logged in Successfully.');
     }
+    public function verifyEmail($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->route('login')
+                ->with('error', 'Invalid verification link.');
+        }
+
+        if ($user->email_verified_at) {
+            return redirect()->route('login')
+                ->with('success', 'Email already verified. Please login.');
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        Auth::login($user);
+
+        // Dynamic redirect — role se URL build hota hai
+        $role = slug(auth()->user()->roles()->first()->name);
+
+        if (!$role) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'No role assigned. Contact admin.');
+        }
+
+        return redirect("/{$role}/dashboard")->with('success', 'Email verified successfully.');
+    }
+
 
 
     public function logout()
@@ -85,15 +121,15 @@ class AuthController extends Controller
 
         Auth::login($user); // Log user in directly
 
-        // Redirect
-        if ($user->hasRole('Admin')) {
-            return redirect()->route('admin.dashboard')->with('success', 'Signed up as Admin.');
-        } elseif ($user->hasRole('Author')) {
-            return redirect()->route('author.dashboard')->with('success', 'Signed up as Author.');
-        } elseif ($user->hasRole('User')) {
-            return redirect()->route('user.dashboard')->with('success', 'Signed up as User.');
+        // Dynamic redirect — koi bhi role ho, ek hi code kaam karega
+        $roleName = slug(auth()->user()->roles()->first()->name);
+
+        if (!$roleName) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'No role assigned. Contact admin.');
         }
 
-        return abort(403, 'Unauthorized action.');
+        return redirect("/{$roleName}/dashboard")
+            ->with('success', 'Welcome! Signed up as ' . ucfirst($roleName) . '.');
     }
 }

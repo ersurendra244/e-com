@@ -5,7 +5,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-12 mb-2">
-                    <a href="{{ route('admin.file_manager', $item->parent_id) }}" class="btn btn-sm btn-dark float-right"><i class="fa fa-arrow-circle-left"></i></a>
+                    <a href="{{ roleRoute('file_manager', $item->parent_id) }}" class="btn btn-sm btn-dark float-right"><i class="fa fa-arrow-circle-left"></i></a>
                     <a href="javascript:void(0)" onclick="saveContent();" class="btn btn-sm btn-primary float-right mr-2"><i class="fa fa-save"></i></a>
                     <lavel>{{ $item->name }}</lavel>
                 </div>
@@ -74,7 +74,7 @@
         // Save button click handler
         function saveContent() {
             const content = editorInstance.getValue();
-            fetch("{{ route('admin.file_manager.file_save', $item->id) }}", {
+            fetch("{{ roleRoute('file_manager.file_save', $item->id) }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

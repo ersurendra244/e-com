@@ -21,7 +21,7 @@ class MasterController extends Controller
     }
     public function menu_edit(Request $request)
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $data = Menu::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
@@ -55,8 +55,9 @@ class MasterController extends Controller
         return response()->json(['status' => 'success', 'message' => $msg]);
     }
 
-    public function menu_delete($id)
+    public function menu_delete(Request $request)
     {
+        $id = $request->route('id');
         $modal = Menu::find($id);
         if ($modal) {
             $modal->status = '0';
@@ -79,7 +80,7 @@ class MasterController extends Controller
     }
     public function brand_edit(Request $request)
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $data = Brand::find($id);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
@@ -122,8 +123,9 @@ class MasterController extends Controller
         return response()->json(['status' => 'success', 'message' => $msg]);
     }
 
-    public function brand_delete($id)
+    public function brand_delete(Request $request)
     {
+        $id = $request->route('id');
         $modal = Brand::find($id);
         if ($modal) {
             $modal->status = '0';

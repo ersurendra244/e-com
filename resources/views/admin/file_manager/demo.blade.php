@@ -210,10 +210,10 @@
             <div class="d-flex bd-highlight">
                 <div class="p-2 flex-grow-1 bd-highlight">
                     <div class="breadcrumb-trail">
-                        <a href="{{ route('admin.file_manager', null) }}">File Manager</a>
+                        <a href="{{ roleRoute('file_manager', null) }}">File Manager</a>
                         @foreach ($breadcrumbs as $crumb)
                             <span>/</span>
-                            <a href="{{ route('admin.file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
+                            <a href="{{ roleRoute('file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
                         @endforeach
                     </div>
                 </div>
@@ -250,7 +250,7 @@
                                             alt="">
                                     </div>
                                     <div class="folder-name">
-                                        <a href="{{ route('admin.file_manager', $item->id) }}">{{ $item->name }}</a>
+                                        <a href="{{ roleRoute('file_manager', $item->id) }}">{{ $item->name }}</a>
                                     </div>
                                 </button>
                             </div>
@@ -262,7 +262,7 @@
                                             alt="">
                                     </div>
                                     <div class="folder-name">
-                                        <a href="{{ route('admin.file_manager.view', $item->id) }}" class="text-primary"
+                                        <a href="{{ roleRoute('file_manager.view', $item->id) }}" class="text-primary"
                                             target="_blank">{{ $item->name }}
                                         </a>
                                     </div>
@@ -312,10 +312,10 @@
                                         <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
                                         <div class="dropdown-content">
                                             @if ($item->type === 'folder')
-                                                <a href="{{ route('admin.file_manager', $item->id) }}"
+                                                <a href="{{ roleRoute('file_manager', $item->id) }}"
                                                     class="text-primary">Open</a>
                                             @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['txt', 'html', 'php', 'js', 'css']))
-                                                <a href="{{ route('admin.file_manager.edit', $item->id) }}"
+                                                <a href="{{ roleRoute('file_manager.edit', $item->id) }}"
                                                     class="text-primary" target="_blank">Edit</a>
                                             @elseif(in_array(pathinfo($item->name, PATHINFO_EXTENSION), [
                                                     'jpg',
@@ -341,7 +341,7 @@
                                                 onclick="addnew('edit-item' , {{ $item->id }}, '{{ $item->name }}')"
                                                 class="text-primary">Rename</a>
                                             <a href="javascript:void(0)"
-                                                onclick="deleteData(`{{ route('admin.file_manager.delete', $item->id) }}`)"
+                                                onclick="deleteData(`{{ roleRoute('file_manager.delete', $item->id) }}`)"
                                                 class="text-danger">Delete</a>
                                         </div>
                                     </div>
@@ -522,9 +522,9 @@
 
                     let actionUrl;
                     if (currentType === 'edit-item') {
-                        actionUrl = "{{ route('admin.file_manager.rename') }}";
+                        actionUrl = "{{ roleRoute('file_manager.rename') }}";
                     } else {
-                        actionUrl = "{{ route('admin.file_manager.create') }}";
+                        actionUrl = "{{ roleRoute('file_manager.create') }}";
                     }
 
                     $.ajax({

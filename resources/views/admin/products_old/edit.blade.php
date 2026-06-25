@@ -34,9 +34,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form action="{{ route('admin.products.update', $edit_data->id) }}" method="post"
+                    <form action="{{ roleRoute('products.update', $edit_data->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -256,7 +256,7 @@
             // Call backend to delete from server and DB
             if (imagePath) {
                 $.ajax({
-                    url: "{{ route('admin.product.variants_image_delete') }}", // Define this route
+                    url: "{{ roleRoute('product.variants_image_delete') }}", // Define this route
                     type: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -351,7 +351,7 @@
                     if (variant_id) {
                         if (!confirm('Are you sure you want to delete this variant?')) return;
                         $.ajax({
-                            url: "{{ route('admin.product.variants_delete') }}", // Define this route
+                            url: "{{ roleRoute('product.variants_delete') }}", // Define this route
                             type: 'POST',
                             data: {
                                 _token: "{{ csrf_token() }}",
@@ -442,7 +442,7 @@
 
             if (main_category) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_categories') }}",
+                    url: "{{ roleRoute('product.get_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -466,7 +466,7 @@
 
             if (category) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_sub_categories') }}",
+                    url: "{{ roleRoute('product.get_sub_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -491,7 +491,7 @@
             }
 
             $.ajax({
-                url: "{{ route('admin.product.get_form_fields') }}",
+                url: "{{ roleRoute('product.get_form_fields') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",

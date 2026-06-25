@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('category create')
-                <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ roleRoute('categories.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -49,7 +49,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.categories.list') }}",
+                    "url": "{{ roleRoute('categories.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {

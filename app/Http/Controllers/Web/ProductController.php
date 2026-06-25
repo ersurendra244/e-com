@@ -18,9 +18,9 @@ class ProductController extends Controller
     {
         // return $cart = session()->get('cart');
         $data['title'] = 'Shop';
-        if(!empty($slug)){
+        if (!empty($slug)) {
             // $data['title'] = $slug;
-            $data['categories'] = Category::where('status', '1')->where('slug', $slug)->get();
+            $data['categories'] = Category::where('status', '1')->where('id', $id)->get();
         } else {
             $data['categories'] = Category::where('is_delete', '0')->where('status', '1')->get();
         }
@@ -30,114 +30,111 @@ class ProductController extends Controller
 
     public function list(Request $request)
     {
-        $query = Product::withAvg('reviews', 'rating')->where('category', $request->category);
+        $query = Product::withAvg('reviews', 'rating');
 
-        // Variant filtering
-        $query->whereHas('variants', function ($variantQuery) use ($request) {
-            // Price filter
+        if (!empty($request->category)) {
+            $query->where('category', $request->category);
+        }
+
+        if (!empty($request->filters)) {
+
+            if (!empty($request->filters['color'])) {
+                $colors = $request->filters['color'];
+
+                $query->where(function ($q) use ($colors) {
+                    foreach ($colors as $color) {
+                        $q->orWhereJsonContains('variant_data', ['color' => $color]);
+                    }
+                });
+            }
+
+            // 🔵 Size filter (array case)
+            if (!empty($request->filters['size'])) {
+                $sizes = $request->filters['size'];
+
+                $query->where(function ($q) use ($sizes) {
+                    foreach ($sizes as $size) {
+                        $q->orWhereJsonContains('variant_data->1->size', $size);
+                    }
+                });
+            }
+
+            // 🔵 Price filter
             if (!empty($request->filters['price'])) {
+
                 $prices = priceRange();
+
                 foreach ($prices as $key => $range) {
                     $ranges = explode(' - ', $range);
-                    $prices[$key] = [$ranges[0], $ranges[1]];
+                    $prices[$key] = [(int)$ranges[0], (int)$ranges[1]];
                 }
+
                 $selectedPrices = array_intersect_key($prices, array_flip($request->filters['price']));
 
                 if (!empty($selectedPrices)) {
-                    $variantQuery->where(function ($q) use ($selectedPrices) {
+                    $query->where(function ($q) use ($selectedPrices) {
                         foreach ($selectedPrices as $range) {
-                            $q->orWhereBetween('price', $range);
+                            $q->orWhereBetween('price', $range); // fallback
                         }
                     });
                 }
             }
-
-            // Color filter
-            if (!empty($request->filters['color'])) {
-                $variantQuery->whereIn('color', $request->filters['color']);
-            }
-
-            // Size filter
-            if (!empty($request->filters['size'])) {
-                $variantQuery->whereIn('size', $request->filters['size']);
-            }
-        });
-
-        // Category filter (apply to product itself)
-        if (!empty($request->filters['category'])) {
-            $query->whereIn('category', $request->filters['category']);
         }
 
-        // Pagination
-        $page = $request->input('page', 1);
-        $products = $query->paginate(12, ['*'], 'page', $page);
+        $products = $query->paginate(12);
 
-        // HTML generation (same as your current one)
         $html = '';
+
         if ($products->isEmpty()) {
             $html .= '<div class="col-12">
-                <h3 class="text-center">No products found.</h3>
-            </div>';
+            <h3 class="text-center">No products found.</h3>
+        </div>';
         } else {
+
             foreach ($products as $product) {
-                $image = $product->images[0] ?? 'default.png';
+
+                // ✅ get first image safely
+                $images = $product->variant_images ?? [];
+                $firstImage = 'default.png';
+
+                if (is_array($images)) {
+                    $flat = [];
+                    foreach ($images as $imgArr) {
+                        if (is_array($imgArr)) {
+                            $flat = array_merge($flat, $imgArr);
+                        }
+                    }
+                    $firstImage = $flat[0] ?? 'default.png';
+                }
+
                 $html .= '<div class="col-lg-4 col-md-6 col-sm-6 pb-1">
-                    <div class="product-item bg-light mb-4">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="' . asset('uploads/products/' . $image) . '" alt="Product">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href="#"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href="#"><i class="far fa-heart"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="' . route('web.products.details', $product->id) . '">' . ucwords($product->name) . '</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>₹' . $product->variants[0]->price . '</h5>
-                                <h6 class="text-muted ml-2"><del>₹' . ($product->variants[0]->price + 500) . '</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">';
-                                $rating = ceil($product->reviews_avg_rating);
-
-                                for ($i = 1; $i <= 5; $i++){
-                                    if ($i <= $rating){
-                                        $html .= '<small class="fa fa-star text-warning mr-1"></small>';
-                                    }else{
-                                        $html .= '<small class="fa fa-star text-secondary mr-1"></small>';
-                                    }
-                                }
-
-                            $html .= '</div>
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="' . asset('uploads/products/' . $firstImage) . '" alt="Product">
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="' . route('web.products.details', $product->id) . '">' . ucwords($product->title) . '</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>₹' . ($product->price ?? 0) . '</h5>
                         </div>
                     </div>
-                </div>';
+                </div>
+            </div>';
             }
-
-            // Pagination links
-            $html .= '<div class="col-12"><nav><ul class="pagination justify-content-center">';
-            if ($products->previousPageUrl()) {
-                $html .= '<li class="page-item"><a class="page-link filter-pagination" href="#" data-page="' . ($products->currentPage() - 1) . '">Previous</a></li>';
-            }
-            for ($i = 1; $i <= $products->lastPage(); $i++) {
-                $active = $products->currentPage() == $i ? 'active' : '';
-                $html .= '<li class="page-item ' . $active . '"><a class="page-link filter-pagination" href="#" data-page="' . $i . '">' . $i . '</a></li>';
-            }
-            if ($products->nextPageUrl()) {
-                $html .= '<li class="page-item"><a class="page-link filter-pagination" href="#" data-page="' . ($products->currentPage() + 1) . '">Next</a></li>';
-            }
-            $html .= '</ul></nav></div>';
         }
 
         return response()->json(['html' => $html]);
     }
 
 
-    public function details(Request $request, $id)
+    public function details(Request $request)
     {
         $data['title'] = 'Shop';
         $data['productData'] = Product::withAvg('reviews', 'rating')->find($id);
         $data['relatedProducts'] = Product::withAvg('reviews', 'rating')->where('cat_id', $data['productData']->cat_id)->where('id', '!=', $id)->latest()->limit(8)->get();
-        return $data['productData']->variant_data ?? [];
+        $data['variant_data'] = $data['productData']->variant_data ?? [];
+        $data['variant_images'] = $data['productData']->variant_images ?? [];
+        // return $data['productData']->variant_data ?? [];
         return view('web.products.details', $data);
     }
 
@@ -147,10 +144,10 @@ class ProductController extends Controller
         $productId = $request->product_id;
 
         $variants = Variant::where('product_id', $productId)
-                    ->where('color', $color)
-                    ->get();
+            ->where('color', $color)
+            ->get();
         $sizes = $variants->pluck('size')->unique()->values();
-                    return $sizes;
+        return $sizes;
 
         return response()->json([
             'sizes' => $sizes,
@@ -175,9 +172,9 @@ class ProductController extends Controller
 
         $modal = new Review();
         $modal->pid  = $request->product_id;
-        $modal->user_id  = Auth::user()?Auth::user()->id:'';
-        $modal->user_name = Auth::user()?Auth::user()->name:$request->user_name;
-        $modal->email = Auth::user()?Auth::user()->email:$request->email;
+        $modal->user_id  = Auth::user() ? Auth::user()->id : '';
+        $modal->user_name = Auth::user() ? Auth::user()->name : $request->user_name;
+        $modal->email = Auth::user() ? Auth::user()->email : $request->email;
         $modal->rating = $request->stars;
         $modal->reviews = $request->reviews;
         $modal->save();
@@ -208,8 +205,8 @@ class ProductController extends Controller
 
         // Check if the same product is already in the cart for this user
         $cartItem = Cart::where('user_id', $userId)
-                        ->where('product_id', $product->id)
-                        ->first();
+            ->where('product_id', $product->id)
+            ->first();
 
         if ($cartItem) {
             $cartItem->quantity += $quantity;
@@ -229,6 +226,4 @@ class ProductController extends Controller
             'message' => 'Product added to cart successfully',
         ]);
     }
-
-
 }

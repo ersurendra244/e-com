@@ -1,12 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Web\HomeController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Web\ProductController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Mail\WelcomeUserMail;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/clear-cache', function () {
     Artisan::call('config:clear');    // Clear config cache
@@ -17,9 +19,19 @@ Route::get('/clear-cache', function () {
     return "✅ All caches cleared successfully!";
 });
 
-// Route::get('/calculator', function () {
-//     return view('calculator');
+// Route::get('/test-mail', function () {
+
+//     Mail::to('surendra.kumar.10961@gmail.com')->send(
+//         new WelcomeUserMail([
+//             'name' => 'Surendra Kumar',
+//             'email' => 'surendra.kumar.10961@gmail.com'
+//         ])
+//     );
+
+//     return 'Mail Sent';
 // });
+
+
 Route::get('/', [HomeController::class, 'index'])->name('web.home');
 
 Route::get('/contact-us', [HomeController::class, 'contact_us'])->name('web.home.contact_us');
@@ -35,6 +47,7 @@ Route::post('/add-to-cart', [ProductController::class, 'addToCart'])->name('web.
 
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
+Route::get('/verify-email/{id}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verifyEmail');
 Route::get('/signup/{type?}', [AuthController::class, 'signup'])->name('signup');
 Route::post('/signup_save', [AuthController::class, 'signup_save'])->name('signup_save');
 Route::post('/loginCheck', [AuthController::class, 'loginCheck'])->name('loginCheck');
@@ -45,24 +58,29 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('get-user', [DashboardController::class, 'getUser'])->name('admin.dashboard.getUser');
 
 Route::get('/pages/{slug}', [HomeController::class, 'pages'])->name('web.home.pages');
-// Route::get('/{slug}', [HomeController::class, 'pages'])->name('web.home.pages');
 
-// User Routes (Only Accessible by Authors)
-Route::middleware(['auth', 'role:User'])->prefix('user')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'user_dashboard'])->name('user.dashboard');
-    Route::get('edit-profile', [UserController::class, 'edit_profile'])->name('user.edit_profile');
-    Route::post('update-profile', [UserController::class, 'update_profile'])->name('user.update_profile');
-    Route::post('delete', [UserController::class, 'delete'])->name('user.users.delete');
-    Route::get('saved-address', [UserController::class, 'saved_address'])->name('user.saved_address');
-    Route::post('store-address', [UserController::class, 'store_address'])->name('user.store_address');
-    Route::post('edit-address', [UserController::class, 'edit_address'])->name('user.edit_address');
-    Route::post('update-password', [UserController::class, 'update_password'])->name('user.update_password');
-    Route::get('reviews', [UserController::class, 'reviews'])->name('user.reviews');
-    Route::post('reviews-list', [UserController::class, 'reviews_list'])->name('user.reviews_list');
-
-});
-
-require __DIR__ . '/admin.php';
-
-
-
+/*
+|--------------------------------------------------------------------------
+| Dynamic Role-Based Panel Routes
+|--------------------------------------------------------------------------
+| Routes SIRF EK BAAR define hain → routes/panel.php me.
+|
+| URL Structure:  /{role}/dashboard, /{role}/users, etc.
+| Example:
+|   /admin/dashboard   → name: admin.dashboard
+|   /vendor/dashboard  → name: vendor.dashboard
+|   /user/dashboard    → name: user.dashboard
+|
+| Middleware:
+|   auth       → Login check
+|   check.role → URL {role} ko user ke actual role se match karta hai
+|
+| Naya Role Add karna ho? Sirf roles table me add karo — yahan kuch nahi badlega!
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'check.role'])
+    ->prefix('{role}')
+    // ->name('{role}.')
+    ->group(function () {
+        require __DIR__ . '/panel.php';
+    });

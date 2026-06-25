@@ -34,9 +34,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form action="{{ route('admin.products.update', $edit_data->id) }}" method="post"
+                    <form action="{{ roleRoute('products.update', $edit_data->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -184,7 +184,35 @@
                         </div>
                         <div class="row" id="form-fields-container">
                         </div>
-
+                        <div class="row">
+                            <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="description">Description</label>
+                                    <textarea name="description" class="form-control summernote" id="description" rows="10"> {!! !empty($edit_data->description) ? $edit_data->description : '' !!}</textarea>
+                                    @if ($errors->has('description'))
+                                        <span class="text-danger">{{ $errors->first('description') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="highlights">Highlights</label>
+                                    <textarea name="highlights" class="form-control summernote" id="highlights" rows="15">{!! !empty($edit_data->highlights) ? $edit_data->highlights : '' !!}</textarea>
+                                    @if ($errors->has('highlights'))
+                                        <span class="text-danger">{{ $errors->first('highlights') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="specifications">Specifications</label>
+                                    <textarea name="specifications" class="form-control summernote" id="specifications" rows="15">{!! !empty($edit_data->specifications) ? $edit_data->specifications : '' !!}</textarea>
+                                    @if ($errors->has('specifications'))
+                                        <span class="text-danger">{{ $errors->first('specifications') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         <div class="row mt-3">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -332,17 +360,6 @@
                 $add.toggle(isLast);
             });
         }
-
-        // function toggleButtons() {
-        //     const variants = $('.variant-group');
-        //     alert(variants.length);
-        //     variants.each(function(index) {
-        //         const isLast = index === variants.length - 1;
-        //         alert(isLast);
-        //         $(this).find('.remove-variant').toggle(variants.length > 1);
-        //         $(this).find('.add-variant').toggle(isLast);
-        //     });
-        // }
     </script>
     <script>
         $(document).ready(function() {
@@ -370,7 +387,7 @@
 
             if (main_cat_id) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_categories') }}",
+                    url: "{{ roleRoute('product.get_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -394,7 +411,7 @@
 
             if (cat_id) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_sub_categories') }}",
+                    url: "{{ roleRoute('product.get_sub_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -418,7 +435,7 @@
             }
 
             $.ajax({
-                url: "{{ route('admin.product.get_form_fields') }}",
+                url: "{{ roleRoute('product.get_form_fields') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",

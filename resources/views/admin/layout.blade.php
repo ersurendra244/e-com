@@ -16,17 +16,18 @@
         .error-message {
             font-size: small !important;
         }
-        body {
-            font-family: "Font Awesome 5 Free", sans-serif ! important;
-        }
+
         .btn.btn-icon {
             width: 35px !important;
             height: 35px !important;
         }
+        .dataTables_wrapper select {
+            padding: .4rem!important;
+        }
     </style>
 </head>
 
-<body>
+<body class="sidebar-fixed">
     <div class="container-scroller">
         @include('admin.common.navbar')
         <div class="container-fluid page-body-wrapper">

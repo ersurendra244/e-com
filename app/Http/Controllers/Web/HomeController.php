@@ -34,7 +34,7 @@ class HomeController extends Controller
     public function pages($slug = null)
     {
         $data['title'] = ucwords(str_replace('-', ' ', request()->slug));
-        $data['page_data'] = Page::where('slug', $slug)->first();
+        $data['page_data'] = Page::where('id', $id)->first();
         return view('web.pages', $data);
     }
 

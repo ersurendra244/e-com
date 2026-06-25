@@ -45,14 +45,17 @@
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light" id="carousel-images">
                         @php
-                            $images = $productData->variants[0]->images;
-                            // print_r($images); die;
+                            $images = reset($variant_images); // first variant
                         @endphp
-                        @foreach ($images as $key => $image)
-                            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                <img class="w-100 h-100" src="{{ is_image('uploads/products/' , $image) }}" alt="Image">
-                            </div>
-                        @endforeach
+
+                        @if (is_array($images))
+                            @foreach ($images as $key => $image)
+                                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                    <img class="w-100 h-100" src="{{ is_image('uploads/products', $image) }}"
+                                        alt="Image">
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                     <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
                         <i class="fa fa-2x fa-angle-left text-dark"></i>
@@ -93,13 +96,24 @@
                     <div class="d-flex mb-3">
                         <strong class="text-dark mr-3">Colors:</strong>
                         <form>
-                            @foreach ($productData->variants as $key => $variant)
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" class="custom-control-input color-option"
-                                        id="color-{{ $key }}" name="color" value="{{ $variant->color }}">
-                                    <label class="custom-control-label"
-                                        for="color-{{ $key }}">{{ $variant->color }}</label>
-                                </div>
+                            @foreach ($variant_data as $key => $variant)
+                                @php
+                                    $colors = $variant['color'] ?? [];
+                                    $colors = is_array($colors) ? $colors : [$colors];
+                                @endphp
+
+                                @foreach ($colors as $index => $color)
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input type="radio" class="custom-control-input color-option"
+                                            id="color-{{ $key }}-{{ $index }}" name="color"
+                                            value="{{ $color }}">
+
+                                        <label class="custom-control-label"
+                                            for="color-{{ $key }}-{{ $index }}">
+                                            {{ $color }}
+                                        </label>
+                                    </div>
+                                @endforeach
                             @endforeach
                         </form>
                     </div>
@@ -107,13 +121,76 @@
                         <div class="d-flex mb-3">
                             <strong class="text-dark mr-3">Sizes:</strong>
                             <form>
-                                @foreach ($productData->variants as $key => $variant)
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" class="custom-control-input size-option"
-                                            id="size-{{ $key }}" name="size">
-                                        <label class="custom-control-label"
-                                            for="size-{{ $key }}">{{ $variant->size }}</label>
-                                    </div>
+                                @foreach ($variant_data as $key => $variant)
+                                    @php
+                                        $sizes = $variant['size'] ?? [];
+                                        $sizes = is_array($sizes) ? $sizes : [$sizes];
+                                    @endphp
+
+                                    @foreach ($sizes as $index => $size)
+                                        <div class="custom-control custom-radio custom-control-inline">
+
+                                            <input type="radio" class="custom-control-input size-option"
+                                                id="size-{{ $key }}-{{ $index }}" name="size"
+                                                value="{{ $size }}">
+
+                                            <label class="custom-control-label"
+                                                for="size-{{ $key }}-{{ $index }}">
+                                                {{ $size }}
+                                            </label>
+
+                                        </div>
+                                    @endforeach
+                                @endforeach
+                            </form>
+                        </div>
+                    </div>
+                    <div id="size-form">
+                        <div class="d-flex mb-3">
+
+
+                            <form>
+                                @php
+                                    $variantFields = App\Models\FormField::where(
+                                        'subcategory_id',
+                                        $productData->sub_cat_id,
+                                    )
+                                        ->where('is_delete', '0')
+                                        ->pluck('field_name')
+                                        ->toArray();
+                                @endphp
+
+                                @foreach ($variant_data as $key => $variant)
+                                    @foreach ($variantFields as $field)
+                                        @if (isset($variant[$field]))
+                                            @php
+                                                $values = is_array($variant[$field])
+                                                    ? $variant[$field]
+                                                    : [$variant[$field]];
+                                            @endphp
+
+                                            <strong class="text-dark mr-3">{{ $field }}:</strong>
+                                            @foreach ($values as $index => $value)
+                                            @if(strlen($value) > 1)
+        {{ 'yes' }}
+    @else
+        {{ 'no' }}
+    @endif
+                                                {{-- <div class="custom-control custom-radio custom-control-inline">
+
+                                                    <input type="radio" class="custom-control-input size-option"
+                                                        id="{{ $field }}-{{ $key }}-{{ $index }}"
+                                                        name="{{ $field }}" value="{{ $value }}">
+
+                                                    <label class="custom-control-label"
+                                                        for="{{ $field }}-{{ $key }}-{{ $index }}">
+                                                        {{ $value }}
+                                                    </label>
+
+                                                </div> --}}
+                                            @endforeach
+                                        @endif
+                                    @endforeach
                                 @endforeach
                             </form>
                         </div>
@@ -131,7 +208,8 @@
                                     <i class="fa fa-minus"></i>
                                 </button>
                             </div>
-                            <input type="text" name="quantity" id="quantity" class="form-control bg-secondary border-0 text-center" min="1" value="1">
+                            <input type="text" name="quantity" id="quantity"
+                                class="form-control bg-secondary border-0 text-center" min="1" value="1">
                             {{-- <input type="text" name="variant_id" id="variant_id"
                                 class="form-control bg-secondary border-0 text-center" value="1"> --}}
                             <div class="input-group-btn">
@@ -300,7 +378,7 @@
                         <div class="product-item bg-light">
                             <div class="product-img position-relative overflow-hidden">
                                 @php $image = $related->images[0] ?? ''; @endphp
-                                <img class="img-fluid w-100" src="{{ is_image('uploads/products/' , $image) }}"
+                                <img class="img-fluid w-100" src="{{ is_image('uploads/products/', $image) }}"
                                     alt="">
                                 <div class="product-action">
                                     <a class="btn btn-outline-dark btn-square" href=""><i
@@ -357,9 +435,10 @@
                         console.log(response);
                         let sizes = response.sizes;
                         let sizeForm = $('#size-form');
-                        sizeForm.empty(); // Clear previous size options
+                        //  // Clear previous size options
 
                         if (sizes.length > 0) {
+                            sizeForm.empty();
                             sizes.forEach(function(size, index) {
                                 let id = `size-${index}`;
                                 let sizeOption = `
@@ -387,7 +466,7 @@
 
 
     <script>
-        const variants = @json($productData->variants);
+        const variants = @json($variant_data);
         const imageBasePath = "{{ asset('uploads/products') }}/";
 
         function updateVariantId() {

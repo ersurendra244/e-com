@@ -34,9 +34,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('products') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
-                    <form id="manageForm" action="{{ route('admin.products.save') }}" method="post"
+                    <form id="manageForm" action="{{ roleRoute('products.save') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -352,7 +352,7 @@
 
             if (main_category) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_categories') }}",
+                    url: "{{ roleRoute('product.get_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -375,7 +375,7 @@
 
             if (category) {
                 $.ajax({
-                    url: "{{ route('admin.product.get_sub_categories') }}",
+                    url: "{{ roleRoute('product.get_sub_categories') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -399,7 +399,7 @@
             }
 
             $.ajax({
-                url: "{{ route('admin.product.get_form_fields') }}",
+                url: "{{ roleRoute('product.get_form_fields') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -458,7 +458,7 @@
                     $(".error-message").remove();
 
                     if (response.success) {
-                        location.href = "{{ route('admin.products') }}";
+                        location.href = "{{ roleRoute('products') }}";
                     } else if (response.errors) {
                         $.each(response.errors, function(key, value) {
                             let cleanKey = key.replace(/\s*\(.*?\)\s*/g, '').trim();

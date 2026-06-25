@@ -6,9 +6,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.permissions') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('permissions') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.permissions.update', $permission->id) }}" method="post"
+                    <form action="{{ roleRoute('permissions.update', $permission->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">

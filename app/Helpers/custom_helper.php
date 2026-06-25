@@ -1,12 +1,32 @@
 <?php
 
-use App\Models\User;
 use App\Models\Master;
 use App\Models\Product;
-
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\DB;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+
+
+if (!function_exists('getColumnByName')) {
+    function getColumnByName($table, $where, $returnColumn, $default = null)
+    {
+        return DB::table($table)
+            ->where('id', $where)
+            ->value($returnColumn) ?? $default;
+    }
+}
+
+if (!function_exists('getColumnByValue')) {
+    function getColumnByValue($table, $searchColumn, $searchValue, $returnColumn, $default = null)
+    {
+        return DB::table($table)
+            ->where($searchColumn, $searchValue)
+            ->value($returnColumn) ?? $default;
+    }
+}
+
 
 function createThumbnail($name, $imagePath, $folderPath, $width, $height)
 {
@@ -108,6 +128,42 @@ if (!function_exists('getMasterName')) {
 if (!function_exists('slug')) {
     function slug($value)
     {
-        return str_replace(' ', '-', strtolower($value));
+        return str_replace(' ', '-', strtolower(trim($value)));
+    }
+}
+
+if (!function_exists('currentRole')) {
+    function currentRole(): string
+    {
+        $routeRole = request()->route('role');
+
+        if ($routeRole) {
+            return strtolower($routeRole);
+        }
+
+        if (auth()->check()) {
+            $role = auth()->user()->roles()->first();
+
+            return $role
+                ? slug($role->name) // Super Admin => super-admin
+                : 'user';
+        }
+
+        return 'user';
+    }
+}
+
+if (!function_exists('roleRoute')) {
+    function roleRoute(string $name, $params = [])
+    {
+        if (!is_array($params)) {
+            $params = ['id' => $params];
+        }
+
+        $params = array_merge([
+            'role' => currentRole()
+        ], $params);
+
+        return route($name, $params);
     }
 }

@@ -23,7 +23,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-12 mb-2">
-                        <a href="{{ route('admin.file_manager', $item->parent_id) }}"
+                        <a href="{{ roleRoute('file_manager', $item->parent_id) }}"
                             class="btn btn-sm btn-dark float-right"><i class="fa fa-arrow-circle-left"></i></a>
                         @if($mode == 'edit')
                         <a href="javascript:void(0)" onclick="saveContent();"
@@ -175,7 +175,7 @@
         // Save button click handler (यह फ़ंक्शन आपका मौजूदा सेव फ़ंक्शन है)
         function saveContent() {
             const content = editorInstance.getValue();
-            fetch("{{ route('admin.file_manager.file_save', $item->id) }}", {
+            fetch("{{ roleRoute('file_manager.file_save', $item->id) }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

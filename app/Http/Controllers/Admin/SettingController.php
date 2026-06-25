@@ -16,7 +16,7 @@ class SettingController extends Controller
         $data['edit_data'] = Setting::where('id', 1)->first();
         return view('admin.settings.edit', $data);
     }
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|unique:settings,title,' . $id,

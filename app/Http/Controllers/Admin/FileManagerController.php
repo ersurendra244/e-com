@@ -11,14 +11,10 @@ class FileManagerController extends Controller
 {
     public function index($parent_id = null)
     {
-        // $data['title'] = 'File Manager - Toggle View';
-        // $data['subtitle'] = 'File Manager';
         $data['title'] = 'File Manager';
         $data['parent_id'] = $parent_id ?? null;
         $data['items'] = FileManager::with('children.children.children')->where('parent_id', $parent_id)->where('is_delete', '0')->get();
         $data['breadcrumbs'] = $this->getBreadcrumbs($parent_id);
-        // return $data['items'];
-        // return view('admin.file_manager.demo', $data);
         return view('admin.file_manager.index', $data);
     }
     private function getBreadcrumbs($parent_id)
@@ -121,8 +117,9 @@ class FileManagerController extends Controller
         }
     }
 
-    public function saveContent(Request $request, $id)
+    public function saveContent(Request $request)
     {
+        $id = $request->route('id');
         $item = FileManager::findOrFail($id);
         $fullPath = public_path($item->path . $item->name);
         if (!file_exists($fullPath)) {
@@ -136,8 +133,9 @@ class FileManagerController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'File Preview';
         $data['subtitle'] = 'File Manager';
         $data['mode'] = 'edit';
@@ -154,8 +152,9 @@ class FileManagerController extends Controller
         return view('admin.file_manager.edit', compact('item', 'content', 'extension') + $data);
     }
 
-    public function view($id)
+    public function view(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'File Preview';
         $data['subtitle'] = 'File Manager';
         $data['mode'] = 'view';

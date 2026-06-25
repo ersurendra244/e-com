@@ -58,10 +58,10 @@ class CategoryController extends Controller
             $nestedData['status'] = $status;
             $actions = "";
             if (Gate::allows('category edit')) {
-                $actions .= '<a href="' . route('admin.categories.edit', $value->slug) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('categories.edit', ['id' => $value->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
             if (Gate::allows('category delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.categories.delete', $value->slug) . '`)" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . roleRoute('categories.delete', ['id' => $value->id]) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
 
             $nestedData['action'] = $actions;
@@ -85,12 +85,14 @@ class CategoryController extends Controller
         return view('admin.categories.create', $data);
     }
 
-    public function edit(Request $request, $slug)
+    public function edit(Request $request)
     {
+
+        $id = $request->route('id');
         $data['title'] = 'Edit Category';
         $data['subtitle'] = 'Masters';
         $data['categories'] = Category::where('parent_id', '0')->where('is_delete', '0')->where('status', '1')->get();
-        $data['edit_data'] = Category::where('slug', $slug)->first();
+        $data['edit_data'] = Category::where('id', $id)->first();
         return view('admin.categories.edit', $data);
     }
     public function store(Request $request)
@@ -125,19 +127,20 @@ class CategoryController extends Controller
         $modal->is_home = $request->is_home;
         $modal->status = $request->status;
         $modal->save();
-        return redirect()->route('admin.categories')->with('success', 'Category saved successfully');
+        return redirect(roleRoute('categories'))->with('success', 'Category saved successfully');
     }
-    public function update(Request $request, $slug)
+    public function update(Request $request)
     {
+        $id = $request->route('id');
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories,name,' . $slug . ',slug',
+            'name' => 'required|unique:categories,name,' . $id . ',id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $modal = Category::where('slug', $slug)->firstOrFail();
+        $modal = Category::where('id', $id)->firstOrFail();
         if ($request->hasFile('image')) {
             removeImage($modal->image, 'uploads/categories');
             removeImage($modal->thumbnail, 'uploads/categories/thumbnails');
@@ -158,11 +161,12 @@ class CategoryController extends Controller
         $modal->is_home = $request->is_home;
         $modal->status = $request->status;
         $modal->save();
-        return redirect()->route('admin.categories')->with('success', 'Category updated successfully');
+        return redirect(roleRoute('categories'))->with('success', 'Category updated successfully');
     }
-    public function delete($slug)
+    public function delete(Request $request)
     {
-        $modal = Category::where('slug', $slug)->firstOrFail();
+        $id = $request->route('id');
+        $modal = Category::where('id', $id)->firstOrFail();
         if ($modal) {
             $modal->status = '0';
             $modal->is_delete = '1';

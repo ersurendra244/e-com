@@ -5,159 +5,117 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.subcategory.form_fields', $subcategory->slug) }}"
+                    <a href="{{ roleRoute('subcategory.form_fields', $subcategory->slug) }}"
                         class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h3 class="card-title">{{ $title }}</h3>
                     <div class="row">
-                        @foreach ($selected as $field)
-                            @if ($field->formField->field_type == 'text')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                        @foreach ($form_fields as $field)
+                            @php
+                                $options = $field->field_options ?? [];
+                                $col = $field->row_class ?? '12';
+                            @endphp
+
+                            <div class="col-md-{{ $col }}">
+                                <div class="form-group">
+
+                                    <label class="form-label" for="{{ $field->field_name }}">
+                                        {{ $field->field_label }}
+                                    </label>
+
+                                    {{-- TEXT --}}
+                                    @if ($field->field_type == 'text')
                                         <input type="text" class="form-control {{ $field->field_class ?? '' }}"
-                                            id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}"
-                                            placeholder="Enter {{ $field->formField->field_label }}"
-                                            value="{{ old($field->formField->field_name) }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'textarea')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
-                                        <textarea class="form-control {{ $field->field_class ?? '' }}" id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}" placeholder="Enter {{ $field->formField->field_label }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>{{ old($field->formField->field_name) }}</textarea>
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'number')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                            name="{{ $field->field_name }}" id="{{ $field->field_name }}"
+                                            value="{{ old($field->field_name) }}"
+                                            placeholder="Enter {{ $field->field_label }}"
+                                            {{ $field->is_required ? 'required' : '' }}>
+
+                                        {{-- TEXTAREA --}}
+                                    @elseif ($field->field_type == 'textarea')
+                                        <textarea class="form-control {{ $field->field_class ?? '' }}" name="{{ $field->field_name }}"
+                                            id="{{ $field->field_name }}" placeholder="Enter {{ $field->field_label }}"
+                                            {{ $field->is_required ? 'required' : '' }}>{{ old($field->field_name) }}</textarea>
+
+                                        {{-- NUMBER --}}
+                                    @elseif ($field->field_type == 'number')
                                         <input type="number" class="form-control {{ $field->field_class ?? '' }}"
-                                            id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}"
-                                            placeholder="Enter {{ $field->formField->field_label }}"
-                                            value="{{ old($field->formField->field_name) }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'select')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                            name="{{ $field->field_name }}" id="{{ $field->field_name }}"
+                                            value="{{ old($field->field_name) }}"
+                                            {{ $field->is_required ? 'required' : '' }}>
+
+                                        {{-- SELECT --}}
+                                    @elseif ($field->field_type == 'select')
                                         <select class="form-control {{ $field->field_class ?? '' }}"
-                                            id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>
-                                            <option value="">--select--</option>
-                                            @php
-                                                $options = json_decode($field->formField->field_options, true);
-                                                // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
-                                                if (!is_array($options)) {
-                                                    $options = preg_split(
-                                                        "/\r\n|\n|\r/",
-                                                        $field->formField->field_options,
-                                                    );
-                                                }
-                                            @endphp
+                                            name="{{ $field->field_name }}" id="{{ $field->field_name }}"
+                                            {{ $field->is_required ? 'required' : '' }}>
+
+                                            <option value="">-- Select --</option>
+
                                             @foreach ($options as $option)
                                                 <option value="{{ $option }}"
-                                                    {{ old($field->formField->field_name) == $option ? 'selected' : '' }}>
-                                                    {{ $option }}</option>
+                                                    {{ old($field->field_name) == $option ? 'selected' : '' }}>
+                                                    {{ $option }}
+                                                </option>
                                             @endforeach
                                         </select>
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'checkbox')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group row mx-0">
-                                        <label class="form-label col-12 px-0 pb-2"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
-                                        @php
-                                            $options = json_decode($field->formField->field_options, true);
-                                            // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
-                                            if (!is_array($options)) {
-                                                $options = preg_split("/\r\n|\n|\r/", $field->formField->field_options);
-                                            }
-                                            $option_class = $field->row_class < 5 ? '4' : ($field->row_class > 9 ? '3' : '4');
-                                        @endphp
-                                        @foreach ($options as $index => $option)
-                                            @php $option_id = strtolower(str_replace(' ', '_', $option)); @endphp
-                                            <div class="form-check col-{{ $option_class }}">
-                                                <label class="form-check-label"
-                                                    for="{{ $field->formField->field_name }}_{{ $option_id }}">{{ $option }}
-                                                    <input class="form-check-input {{ $field->field_class ?? '' }}"
-                                                        type="checkbox"
-                                                        id="{{ $field->formField->field_name }}_{{ $option_id }}"
-                                                        name="{{ $field->formField->field_name }}[]"
-                                                        value="{{ $option }}" {{ $field->is_required == 1 && $index == 0 ? 'required' : '' }}
-                                                        {{ is_array(old($field->formField->field_name)) && in_array($option, old($field->formField->field_name)) ? 'checked' : '' }}>
-                                                    <i class="input-helper"></i>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'radio')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group row mx-0">
-                                        <label class="form-label col-12 px-0 pb-2"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
-                                        @php
-                                            $options = json_decode($field->formField->field_options, true);
-                                            // If JSON decoding fails (maybe stored as newline-separated string), fallback to splitting by newlines
-                                            if (!is_array($options)) {
-                                                $options = preg_split("/\r\n|\n|\r/", $field->formField->field_options);
-                                            }
-                                        @endphp
-                                        @foreach ($options as $index => $option)
-                                            @php $option_id = strtolower(str_replace(' ', '_', $option)); @endphp
-                                            <div class="form-check col-4">
-                                                <label class="form-check-label"
-                                                    for="{{ $field->formField->field_name }}_{{ $option_id }}">{{ $option }}
-                                                    <input class="form-check-input {{ $field->field_class ?? '' }}"
-                                                        type="radio"
-                                                        id="{{ $field->formField->field_name }}_{{ $option_id }}"
-                                                        name="{{ $field->formField->field_name }}"
+
+                                        {{-- CHECKBOX --}}
+                                    @elseif ($field->field_type == 'checkbox')
+                                        <div class="row mx-0 py-2">
+                                            @foreach ($options as $index => $option)
+                                                @php $id = $field->field_name.'_'.Str::slug($option); @endphp
+
+                                                <div class="form-check col-4">
+                                                    <label class="form-check-label" for="{{ $id }}">
+                                                        {{ $option }}
+                                                        <input type="checkbox"
+                                                        class="form-check-input {{ $field->field_class ?? '' }}"
+                                                        id="{{ $id }}" name="{{ $field->field_name }}[]"
                                                         value="{{ $option }}"
-                                                        {{ old($field->formField->field_name) == $option ? 'checked' : '' }}
-                                                        {{ $field->is_required == 1 && $index == 0 ? 'required' : '' }}>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'date')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                                        {{ is_array(old($field->field_name)) && in_array($option, old($field->field_name)) ? 'checked' : '' }}
+                                                        {{ $field->is_required && $index == 0 ? 'required' : '' }}>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- RADIO --}}
+                                    @elseif ($field->field_type == 'radio')
+                                        <div class="row">
+                                            @foreach ($options as $index => $option)
+                                                @php $id = $field->field_name.'_'.Str::slug($option); @endphp
+
+                                                <div class="form-check col-4">
+                                                    <input type="radio"
+                                                        class="form-check-input {{ $field->field_class ?? '' }}"
+                                                        id="{{ $id }}" name="{{ $field->field_name }}"
+                                                        value="{{ $option }}"
+                                                        {{ old($field->field_name) == $option ? 'checked' : '' }}
+                                                        {{ $field->is_required && $index == 0 ? 'required' : '' }}>
+
+                                                    <label class="form-check-label" for="{{ $id }}">
+                                                        {{ $option }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- DATE --}}
+                                    @elseif ($field->field_type == 'date')
                                         <input type="date" class="form-control {{ $field->field_class ?? '' }}"
-                                            id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}"
-                                            value="{{ old($field->formField->field_name) }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>
-                                    </div>
-                                </div>
-                            @elseif ($field->formField->field_type == 'file')
-                                <div class="col-md-{{ $field->row_class ?? '6' }}">
-                                    <div class="form-group">
-                                        <label class="form-label"
-                                            for="{{ $field->formField->field_name }}">{{ $field->formField->field_label }}</label>
+                                            name="{{ $field->field_name }}" id="{{ $field->field_name }}"
+                                            value="{{ old($field->field_name) }}"
+                                            {{ $field->is_required ? 'required' : '' }}>
+
+                                        {{-- FILE --}}
+                                    @elseif ($field->field_type == 'file')
                                         <input type="file" class="form-control {{ $field->field_class ?? '' }}"
-                                            id="{{ $field->formField->field_name }}"
-                                            name="{{ $field->formField->field_name }}"
-                                            value="{{ old($field->formField->field_name) }}"
-                                            {{ $field->is_required == 1 ? 'required' : '' }}>
-                                    </div>
+                                            name="{{ $field->field_name }}" id="{{ $field->field_name }}"
+                                            {{ $field->is_required ? 'required' : '' }}>
+                                    @endif
+
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
                     </div>
                 </div>

@@ -57,7 +57,7 @@ class PermissionController extends Controller
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
             $actions = "";
             if (Gate::allows('permission edit')) {
-                $actions .= '<a href="' . route('admin.permissions.edit', $value->id) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('permissions.edit', ['id' => $value->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
 
             if (Gate::allows('permission delete')) {
@@ -94,11 +94,12 @@ class PermissionController extends Controller
         $modal->name = $request->name;
         $modal->menu_id = $request->menu;
         $modal->save();
-        return redirect()->route('admin.permissions')->with('success', $msg);
+        return redirect(roleRoute('permissions'))->with('success', $msg);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'Edit Permission';
         $data['subtitle'] = 'Permissions';
         $data['permission'] = Permission::find($id);
@@ -106,8 +107,9 @@ class PermissionController extends Controller
         return view('admin.permissions.edit', $data);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->route('id');
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:permissions,name,' . $id,
             'menu' => 'required',
@@ -121,12 +123,12 @@ class PermissionController extends Controller
         $modal->name = $request->name;
         $modal->menu_id = $request->menu;
         $modal->save();
-        return redirect()->route('admin.permissions')->with('success', $msg);
+        return redirect(roleRoute('permissions'))->with('success', $msg);
     }
 
     public function delete(Request $request)
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $modal = Permission::find($id);
         if ($modal) {
             $modal->status = '0';

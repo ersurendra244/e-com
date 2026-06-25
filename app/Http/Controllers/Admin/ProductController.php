@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Item;
-use App\Models\Review;
-use App\Models\Product;
-use App\Models\Variant;
-use App\Models\Category;
-use App\Models\SubCategory;
-use Illuminate\Http\Request;
-use App\Models\SubCategoryField;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\FormField;
+use App\Models\Product;
+use App\Models\Review;
+use App\Models\SubCategory;
+use App\Models\Variant;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
@@ -80,13 +79,13 @@ class ProductController extends Controller
                         <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
                         <div class="dropdown-content">';
             if (Gate::allows('product edit')) {
-                $actions .= '<a href="' . route('admin.products.edit', $value->id) . '" class="text-primary">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('products.edit', ['id' => $value->id]) . '" class="text-primary">Edit</a> ';
             }
             if (Gate::allows('product review')) {
-                $actions .= '<a href="' . route('admin.products.reviews', $value->id) . '" class="text-warning">Reviews</a> ';
+                $actions .= '<a href="' . roleRoute('products.reviews', ['id' => $value->id]) . '" class="text-warning">Reviews</a> ';
             }
             if (Gate::allows('product delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.products.delete', $value->id) . '`)" class="text-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . roleRoute('products.delete', ['id' => $value->id]) . '`)" class="text-danger">Delete</a>';
             }
             $actions .= '</div></div>';
             $nestedData['action'] = $actions;
@@ -111,7 +110,7 @@ class ProductController extends Controller
         return view('admin.products.create', $data);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
         $data['title'] = 'Edit Product';
         $data['subtitle'] = 'Products';
@@ -123,55 +122,13 @@ class ProductController extends Controller
 
     public function save(Request $request)
     {
-        // return $request->all();
         $validator = Validator::make($request->all(), [
-            'title'         => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'main_cat_id' => 'required|integer',
             'cat_id'      => 'required|integer',
-            'sub_cat_id'   => 'required|integer',
-            'price'         => 'nullable|numeric',
-        ], [
-            'main_cat_id.required' => 'The main category field is required.',
-            'cat_id.required'      => 'The category field is required.',
-            'sub_cat_id.required'   => 'The subcategory field is required.',
+            'sub_cat_id'  => 'required|integer',
+            'price'       => 'nullable|numeric',
         ]);
-
-        $validator->after(function ($validator) use ($request) {
-            $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
-                ->where('sub_category_fields.subcategory_id', $request->sub_cat_id)
-                ->pluck('form_fields.field_name');
-            $hasVariant = false;
-
-            foreach ($variantFields as $fieldName) {
-                // skip validation for images in this loop
-                if ($fieldName == 'images') continue;
-
-                if ($request->has($fieldName)) {
-                    $hasVariant = true;
-                    $values = array_filter((array) $request->input($fieldName));
-                    if (empty($values)) {
-                        $validator->errors()->add($fieldName, 'At least one value is required.');
-                    }
-                }
-            }
-
-            // check if at least one variant ID exists
-            if (!$hasVariant && empty($request->variant_id)) {
-                $validator->errors()->add('variant', 'At least one variant field is required.');
-            }
-
-            // Optional: Validate images per variant if file exists
-            if ($request->has('variant_id')) {
-                foreach ((array)$request->variant_id as $variantId) {
-                    if ($request->hasFile("images.$variantId")) {
-                        $images = $request->file("images.$variantId");
-                        if (empty($images)) {
-                            $validator->errors()->add("images.$variantId", 'At least one image is required for this variant.');
-                        }
-                    }
-                }
-            }
-        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -180,94 +137,107 @@ class ProductController extends Controller
             ]);
         }
 
-        // ✅ Product Save
+        // ✅ Create Product
         $product = new Product();
-        $product->pid            = generatePID();
-        $product->title          = $request->title;
-        $product->slug           = slug($request->title);
-        $product->sub_title      = $request->sub_title;
-        $product->main_cat_id  = $request->main_cat_id;
-        $product->cat_id       = $request->cat_id;
-        $product->sub_cat_id    = $request->sub_cat_id;
-        $product->price          = $request->price;
-        $product->base_price     = $request->base_price;
-        $product->description    = $request->description;
-        $product->highlights     = $request->highlights;
-        $product->specifications = $request->specifications;
-        $product->is_featured    = $request->is_featured ? 1 : 0;
-        $product->is_trending    = $request->is_trending ? 1 : 0;
-        $product->status         = $request->status;
+        $product->fill([
+            'pid'            => generatePID(),
+            'title'          => $request->title,
+            'slug'           => slug($request->title),
+            'sub_title'      => $request->sub_title,
+            'main_cat_id'    => $request->main_cat_id,
+            'cat_id'         => $request->cat_id,
+            'sub_cat_id'     => $request->sub_cat_id,
+            'price'          => $request->price,
+            'base_price'     => $request->base_price,
+            'description'    => $request->description,
+            'highlights'     => $request->highlights,
+            'specifications' => $request->specifications,
+            'is_featured'    => $request->is_featured ? 1 : 0,
+            'is_trending'    => $request->is_trending ? 1 : 0,
+            'status'         => $request->status,
+        ]);
 
-        // ✅ Single Image
+        // ✅ Main Image
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/products'), $imageName);
-            $product->image = $imageName;
+            $img = $request->file('image');
+            $name = time() . '.' . $img->getClientOriginalExtension();
+            $img->move(public_path('uploads/products'), $name);
+            $product->image = $name;
         }
-        // $product = new Product();
+
+        // ✅ Variant Data
         $variantIds = (array) $request->variant_id;
-        $variantData = [];
+
+        $variantFields = FormField::where('subcategory_id', $request->sub_cat_id)
+            ->where('is_delete', '0')
+            ->pluck('field_name');
+
+        $variantData   = [];
         $variantImages = [];
 
-        // ✅ Get variant-related field names
-        $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
-            ->where('sub_category_fields.subcategory_id', $request->sub_cat_id)
-            ->pluck('form_fields.field_name');
+        foreach ($variantIds as $variantId) {
 
-        foreach ($variantIds as $index => $variantId) {
             $variantData[$variantId] = [];
 
-            // ✅ Assign dynamic fields
             foreach ($variantFields as $fieldName) {
-                if ($request->has($fieldName) && isset($request->$fieldName[$index])) {
-                    $variantData[$variantId][$fieldName] = $request->$fieldName[$index] ?? '';
-                }
-            }
 
-            // ✅ Handle nested “type” (checkbox/multi-select)
-            if ($request->has('type') && isset($request->type[$variantId])) {
-                $variantData[$variantId]['type'] = $request->type[$variantId];
-            }
+                if ($fieldName === 'images') continue;
 
-            // ✅ Handle multiple variant images separately
-            if ($request->hasFile("images.$variantId")) {
-                $storedImages = [];
-                foreach ($request->file("images.$variantId") as $image) {
-                    if ($image && $image->isValid()) {
-                        $imageName = time() . '-' . uniqid() . '.' . $image->getClientOriginalExtension();
-                        $image->move(public_path('uploads/products'), $imageName);
-                        $storedImages[] = $imageName;
+                if ($request->has($fieldName)) {
+
+                    $value = $request->{$fieldName}[$variantId] ?? null;
+
+                    // ✅ checkbox / multi-select
+                    if (is_array($value)) {
+                        $variantData[$variantId][$fieldName] = array_values(array_filter($value));
+                    } else {
+                        $variantData[$variantId][$fieldName] = $value;
                     }
                 }
-                // store images in separate array for clarity
-                $variantImages[$variantId] = $storedImages;
+            }
+
+            // ✅ Images per variant
+            if ($request->hasFile("images.$variantId")) {
+
+                foreach ($request->file("images.$variantId") as $img) {
+
+                    if ($img instanceof \Illuminate\Http\UploadedFile && $img->isValid()) {
+
+                        $name = time() . '-' . uniqid() . '.' . $img->getClientOriginalExtension();
+                        $img->move(public_path('uploads/products'), $name);
+
+                        $variantImages[$variantId][] = $name;
+                    }
+                }
             }
         }
 
-        // ✅ Save both variant sets to DB
-        $product->variant_data = $variantData;
+        // ✅ Save
+        $product->variant_data   = $variantData;
         $product->variant_images = $variantImages;
         $product->save();
-        if (!empty($request->stars)) {
-            $ratings = new Review();
-            $ratings->product_id    = $product->id;
-            $ratings->user_id       = Auth::user()->id;
-            $ratings->user_name     = Auth::user()->name;
-            $ratings->email         = Auth::user()->email;
-            $ratings->reviews       = $request->reviews;
-            $ratings->rating        = $request->stars;
-            $ratings->save();
+
+        // ✅ Rating
+        if ($request->filled('stars')) {
+            Review::create([
+                'product_id' => $product->id,
+                'user_id'    => auth()->id(),
+                'user_name'  => auth()->user()->name,
+                'email'      => auth()->user()->email,
+                'reviews'    => $request->reviews,
+                'rating'     => $request->stars,
+            ]);
         }
+
         return response()->json([
             'success' => true,
             'message' => 'Product saved successfully'
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        // ✅ Validation (same as save)
+        // return $request->all();
         $validator = Validator::make($request->all(), [
             'title'         => 'required|string|max:255',
             'main_cat_id'   => 'required|integer',
@@ -281,9 +251,9 @@ class ProductController extends Controller
         ]);
 
         $validator->after(function ($validator) use ($request) {
-            $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
-                ->where('sub_category_fields.subcategory_id', $request->sub_cat_id)
-                ->pluck('form_fields.field_name');
+            $variantFields = FormField::where('subcategory_id', $request->sub_cat_id)
+                ->where('is_delete', '0')
+                ->pluck('field_name');
             $hasVariant = false;
 
             foreach ($variantFields as $fieldName) {
@@ -339,31 +309,32 @@ class ProductController extends Controller
 
         // ✅ Variant update
         $variantIds = (array) $request->variant_id;
-        $variantFields = SubCategoryField::join('form_fields', 'form_fields.id', '=', 'sub_category_fields.field_id')
-            ->where('sub_category_fields.subcategory_id', $request->sub_cat_id)
-            ->pluck('form_fields.field_name');
+        $variantFields = FormField::where('subcategory_id', $request->sub_cat_id)
+            ->where('is_delete', '0')
+            ->pluck('field_name');
 
-        $existingData    = $product->variant_data ?? [];
-        $existingImages  = $product->variant_images ?? [];
+        $existingData    = is_array($product->variant_data) ? $product->variant_data : [];
+        $existingImages  = is_array($product->variant_images) ? $product->variant_images : [];
         $updatedData     = $existingData;
         $updatedImages   = $existingImages;
 
-        foreach ($variantIds as $index => $variantId) {
-            // start from existing
+        foreach ($variantIds as $variantId) {
+
             $variant       = $existingData[$variantId] ?? [];
             $variantImages = $existingImages[$variantId] ?? [];
 
-            // update dynamic fields
             foreach ($variantFields as $fieldName) {
-                if ($fieldName !== 'images' && $request->has($fieldName) && isset($request->$fieldName[$index])) {
-                    $variant[$fieldName] = $request->$fieldName[$index] ?? '';
+                if ($fieldName === 'images') continue;
+
+                if ($request->has($fieldName) && isset($request->{$fieldName}[$variantId])) {
+                    $variant[$fieldName] = $request->{$fieldName}[$variantId];
                 }
             }
 
             // type field
-            if ($request->has('type') && isset($request->type[$variantId])) {
-                $variant['type'] = $request->type[$variantId];
-            }
+            // if ($request->has('type') && isset($request->type[$variantId])) {
+            //     $variant['type'] = $request->type[$variantId];
+            // }
 
             // ✅ Handle image deletions first
             if ($request->has("remove_images.$variantId")) {
@@ -420,10 +391,10 @@ class ProductController extends Controller
             $ratings->save();
             // return $ratings;
         }
-        return redirect()->route('admin.products')->with('success', 'Product updated successfully');
+        return redirect(roleRoute('products'))->with('success', 'Product updated successfully');
     }
 
-    public function delete($id)
+    public function delete(Request $request)
     {
         $modal = Product::find($id);
         if ($modal) {
@@ -590,8 +561,7 @@ class ProductController extends Controller
 
         $product = Product::find($request->product_id);
         $subcategory = SubCategory::find($request->sub_cat_id);
-        $formFields = SubCategoryField::with('formField')
-            ->where('subcategory_id', $request->sub_cat_id)
+        $formFields = FormField::where('subcategory_id', $request->sub_cat_id)
             ->orderBy('order')
             ->get();
 

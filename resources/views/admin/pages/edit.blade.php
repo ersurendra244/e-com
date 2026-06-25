@@ -6,9 +6,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.pages') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('pages') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.pages.update', $edit_data->slug) }}" method="post"
+                    <form action="{{ roleRoute('pages.update', $edit_data->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">

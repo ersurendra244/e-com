@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('permission create')
-                <a href="{{ route('admin.permissions.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
+                <a href="{{ roleRoute('permissions.create') }}" class="btn btn-sm btn-primary float-right">Add New</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -46,7 +46,7 @@
                 ],
                 "order": [[0, "desc"]],
                 "ajax": {
-                    "url": "{{ route('admin.permissions.list') }}",
+                    "url": "{{ roleRoute('permissions.list') }}",
                     "type": "POST",
                     "data": function(d) {
                         d._token = "{{ csrf_token() }}";

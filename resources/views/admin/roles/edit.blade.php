@@ -6,9 +6,9 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ route('admin.roles') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
+                    <a href="{{ roleRoute('roles') }}" class="btn btn-sm btn-dark float-right">Go Back</a>
                     <h4 class="card-title">{{ $title }}</h4>
-                    <form action="{{ route('admin.roles.update', $data->id) }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ roleRoute('roles.update', $data->id) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -133,8 +133,8 @@
     <script>
         $(document).ready(function() {
             $('#data_table').DataTable({
-                "processing": true,
-                "serverSide": true,
+                // "processing": true,
+                // "serverSide": true,
                 "pageLength": 10,
                 "lengthMenu": [
                     [10, 25, 50],
@@ -222,7 +222,7 @@
                 const checked = checkbox.checked ? 1 : 0;
                 const id = '{{ $data->id }}';
 
-                fetch("{{ route('admin.roles.permissions_update') }}", {
+                fetch("{{ roleRoute('roles.permissions_update') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -253,7 +253,7 @@
 
                 const id = '{{ $data->id }}';
 
-                fetch("{{ route('admin.roles.permissions_bulk_update') }}", {
+                fetch("{{ roleRoute('roles.permissions_bulk_update') }}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

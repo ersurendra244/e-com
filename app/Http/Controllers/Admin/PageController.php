@@ -56,10 +56,10 @@ class PageController extends Controller
 
             $actions = "";
             if (Gate::allows('page edit')) {
-                $actions .= '<a href="' . route('admin.pages.edit', $value->slug) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('pages.edit', ['id' => $value->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
             if (Gate::allows('page delete')) {
-                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . route('admin.pages.delete', $value->slug) . '`)" class="btn btn-sm btn-danger">Delete</a>';
+                $actions .= '<a href="javascript:void(0)" onclick="deleteData(`' . roleRoute('pages.delete', ['id' => $value->id]) . '`)" class="btn btn-sm btn-danger">Delete</a>';
             }
             $nestedData['action'] = $actions;
             $data[] = $nestedData;
@@ -78,11 +78,11 @@ class PageController extends Controller
         $data['subtitle'] = '';
         return view('admin.pages.create', $data);
     }
-    public function edit(Request $request, $slug)
+    public function edit(Request $request)
     {
         $data['title'] = 'Edit Page';
         $data['subtitle'] = '';
-        $data['edit_data'] = Page::where('slug', $slug)->first();
+        $data['edit_data'] = Page::where('id', $id)->first();
         return view('admin.pages.edit', $data);
     }
     public function store(Request $request)
@@ -101,11 +101,11 @@ class PageController extends Controller
         $modal->status = $request->status;
         // return $modal;
         $modal->save();
-        return redirect()->route('admin.pages')->with('success', 'Page saved successfully');
+        return redirect(roleRoute('pages'))->with('success', 'Page saved successfully');
     }
-    public function update(Request $request, $slug)
+    public function update(Request $request)
     {
-        $modal = Page::where('slug', $slug)->firstOrFail();
+        $modal = Page::where('id', $id)->firstOrFail();
         // dd($request->all(), $modal->id);
         $validator = Validator::make($request->all(), [
             'name' => [
@@ -124,11 +124,11 @@ class PageController extends Controller
         $modal->description = $request->description;
         $modal->status = $request->status;
         $modal->update();
-        return redirect()->route('admin.pages')->with('success', 'Page updated successfully');
+        return redirect(roleRoute('pages'))->with('success', 'Page updated successfully');
     }
     public function delete($slug)
     {
-        $modal = Page::where('slug', $slug)->first();
+        $modal = Page::where('id', $id)->first();
         if ($modal) {
             $modal->status = '0';
             $modal->is_delete = '1';

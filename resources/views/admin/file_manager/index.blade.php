@@ -242,10 +242,10 @@
             <div class="d-flex bd-highlight">
                 <div class="p-2 flex-grow-1 bd-highlight">
                     <div class="breadcrumb-trail">
-                        <a href="{{ route('admin.file_manager', null) }}">File Manager</a>
+                        <a href="{{ roleRoute('file_manager', null) }}">File Manager</a>
                         @foreach ($breadcrumbs as $crumb)
                             <span>/</span>
-                            <a href="{{ route('admin.file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
+                            <a href="{{ roleRoute('file_manager', $crumb->id) }}">{{ $crumb->name }}</a>
                         @endforeach
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                         <div class="shanu">
                             <button class="folder-container">
                                 @if ($item->type === 'folder')
-                                    <a href="{{ route('admin.file_manager', $item->id) }}" class="text-dark"
+                                    <a href="{{ roleRoute('file_manager', $item->id) }}" class="text-dark"
                                         style="text-decoration: none">
                                         <div class="folder-icon">
                                             <img src="{{ asset('admin/images/ext-type/folders.png') }}" alt="icon"
@@ -331,9 +331,9 @@
                                     <button class="dropbtn"><i class="fas fa-ellipsis-v"></i></button>
                                     <div class="dropdown-content">
                                         @if ($item->type === 'folder')
-                                            <a href="{{ route('admin.file_manager', $item->id) }}">Open</a>
+                                            <a href="{{ roleRoute('file_manager', $item->id) }}">Open</a>
                                         @elseif ($item->type === 'file' || $item->type === 'text' && !in_array(pathinfo($item->name, PATHINFO_EXTENSION), ['pdf']))
-                                            <a href="{{ route('admin.file_manager.edit', $item->id) }}"
+                                            <a href="{{ roleRoute('file_manager.edit', $item->id) }}"
                                                 target="_blank">Edit</a>
                                         @else
                                             <a href="{{ asset($item->path . $item->name) }}" target="_blank">Open</a>
@@ -341,7 +341,7 @@
                                         <a href="javascript:void(0)"
                                             onclick="addnew('edit-item', {{ $item->id }}, '{{ $item->name }}')">Rename</a>
                                         <a href="javascript:void(0)"
-                                            onclick="deleteData(`{{ route('admin.file_manager.delete', $item->id) }}`)">Delete</a>
+                                            onclick="deleteData(`{{ roleRoute('file_manager.delete', $item->id) }}`)">Delete</a>
                                     </div>
                                 </div>
                             </div>
@@ -538,9 +538,9 @@
 
                     let actionUrl;
                     if (currentType === 'edit-item') {
-                        actionUrl = "{{ route('admin.file_manager.rename') }}";
+                        actionUrl = "{{ roleRoute('file_manager.rename') }}";
                     } else {
-                        actionUrl = "{{ route('admin.file_manager.create') }}";
+                        actionUrl = "{{ roleRoute('file_manager.create') }}";
                     }
 
                     $.ajax({

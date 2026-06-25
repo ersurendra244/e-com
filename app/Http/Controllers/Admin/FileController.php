@@ -60,7 +60,7 @@ class FileController extends Controller
                 'action_by' => Auth::user()->id,
             ]);
         }
-        return redirect()->route('admin.files')->with('success', 'File created successfully');
+        return redirect(roleRoute('files'))->with('success', 'File created successfully');
     }
 
     public function list(Request $request)
@@ -115,10 +115,10 @@ class FileController extends Controller
             $nestedData['created_at'] = date('d-m-Y', strtotime($value->created_at));
             $actions = "";
             if (Gate::allows('file edit')) {
-                $actions .= '<a href="' . route('admin.files.edit', $value->id) . '" class="btn btn-sm btn-info">Edit</a> ';
+                $actions .= '<a href="' . roleRoute('files.edit', ['id' => $value->id]) . '" class="btn btn-sm btn-info">Edit</a> ';
             }
             if (Gate::allows('file review')) {
-                $actions .= '<a href="' . route('admin.files.reviews', $value->id) . '" class="btn btn-sm btn-warning">Reviews</a> ';
+                $actions .= '<a href="' . roleRoute('files.reviews', ['id' => $value->id]) . '" class="btn btn-sm btn-warning">Reviews</a> ';
             }
             if($value->shares->isNotEmpty() && $value->shares->first()->action_type == 'forwarded') {
                 $actions .= '<a href="javascript:void(0)" onclick="fileShare(' . $value->id . ', \'return\')" class="btn btn-sm btn-success">Return</a> ';
@@ -142,8 +142,9 @@ class FileController extends Controller
         return response()->json($json_data);
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request)
     {
+        $id = $request->route('id');
         $data['title'] = 'Edit File';
         $data['subtitle'] = 'Files';
         $data['roles'] = Role::all();
@@ -151,8 +152,9 @@ class FileController extends Controller
         return view('admin.files.edit', $data);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->route('id');
         $validator = Validator::make($request->all(), [
             'filename' => 'required|unique:files,filename,'.$id,
             'remark' => 'nullable|string',
@@ -173,12 +175,12 @@ class FileController extends Controller
         $modal->created_by = Auth::user()->id;
         $modal->save();
 
-        return redirect()->route('admin.files')->with('success', 'File updated successfully');
+        return redirect(roleRoute('files'))->with('success', 'File updated successfully');
     }
 
     public function delete(Request $request)
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $modal = File::find($id);
         if ($modal) {
             // $modal->status = '0';

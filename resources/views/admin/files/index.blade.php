@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             @can('user create')
-                <a href="{{ route('admin.files.create') }}" class="btn btn-sm btn-primary float-right">Create File</a>
+                <a href="{{ roleRoute('files.create') }}" class="btn btn-sm btn-primary float-right">Create File</a>
             @endcan
             <h3 class="card-title">{{ $title }}</h3>
             <div class="row">
@@ -39,7 +39,7 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <h5 class="modal-title mb-2" id="fsmodalLabel">Modal title</h5>
-                    <form id="farword-form" action="{{ route('admin.files.share') }}" method="post"
+                    <form id="farword-form" action="{{ roleRoute('files.share') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
@@ -104,7 +104,7 @@
                     [10, 25, 50]
                 ],
                 "ajax": {
-                    "url": "{{ route('admin.files.list') }}",
+                    "url": "{{ roleRoute('files.list') }}",
                     "dataType": "json",
                     "type": "POST",
                     "data": {
